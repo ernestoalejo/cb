@@ -2,8 +2,14 @@ package utils
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
+)
+
+var (
+	alwaysY = flag.Bool("y", false, "answer yes to all overwrites")
+	alwaysN = flag.Bool("n", false, "answer no to all overwrites")
 )
 
 func Ask(q string) bool {
@@ -11,16 +17,21 @@ func Ask(q string) bool {
 
 	buf := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Printf("%s", q)
-		line, _, err := buf.ReadLine()
-		if err != nil {
-			panic(err)
+		var ans string
+		if !*alwaysY && !*alwaysN {
+			fmt.Printf("%s", q)
+
+			line, _, err := buf.ReadLine()
+			if err != nil {
+				panic(err)
+			}
+			ans = string(line)
 		}
 
-		ans := string(line)
-		if ans == "Y" || ans == "y" {
+		if ans == "Y" || ans == "y" || *alwaysY {
 			return true
-		} else if ans == "n" || ans == "N" || ans == "" {
+		} else if ans == "n" || ans == "N" || ans == "" || *alwaysN {
+			// Redudant check for ans == "" && *alwaysN, leave for cleaner code
 			return false
 		}
 

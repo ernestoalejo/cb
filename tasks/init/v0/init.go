@@ -91,9 +91,9 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 		}
 	} else if !os.IsNotExist(err) {
 		return errors.New(err)
-	} else {
-		log.Printf("copy file %s\n", rel)
 	}
+
+	log.Printf("copy file %s\n", rel)
 
 	dest, err := os.Create(destPath)
 	if err != nil {
