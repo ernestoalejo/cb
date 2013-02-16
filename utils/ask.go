@@ -7,7 +7,7 @@ import (
 )
 
 func Ask(q string) bool {
-	q = q + " [Y/n]: "
+	q = q + " [y/N]: "
 
 	buf := bufio.NewReader(os.Stdin)
 	for {
@@ -18,9 +18,9 @@ func Ask(q string) bool {
 		}
 
 		ans := string(line)
-		if ans == "Y" || ans == "y" || ans == "" {
+		if ans == "Y" || ans == "y" {
 			return true
-		} else if ans == "n" || ans == "N" {
+		} else if ans == "n" || ans == "N" || ans == "" {
 			return false
 		}
 
