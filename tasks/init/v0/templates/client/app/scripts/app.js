@@ -1,8 +1,8 @@
 'use strict';
 
 
-var m = angular.module('{{.AppName}}', ['errorHandler', 'ngSanitize',
-  'directives.match', 'httpInterceptor']);
+var m = angular.module('testcb', ['errorHandler', 'ngSanitize',
+  'directives.match', 'httpInterceptor', 'services.global']);
 
 
 m.config(['$routeProvider', '$locationProvider',

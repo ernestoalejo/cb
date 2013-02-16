@@ -104,7 +104,8 @@
 
   <!--[if lt IE 9]>
     <!-- concatmin: scripts/ie.js -->
-    // TODO: Incluir es5-shim & json3 una vez determinemos a bower.
+      <!-- min --><script src="components/es5-shim/es5-shim.js"></script>
+      <!-- min --><script src="components/json3/lib/json3.js"></script>
     <!-- endconcatmin -->
   <![endif]-->
 
@@ -118,19 +119,20 @@
   // TODO: Cambiar a la dirección correcta una vez determinemos a bower.
   <!-- concatmin: scripts/{{.AppName}}.js -->
     <!-- min --><script src="components/bower-angular/angular.js"></script>
+    <!-- ignore --><script src="components/bower-angular/angular-sanitize.js"></script>
 
     <!-- build:js scripts/scripts.js -->
       <script src="scripts/app.js"></script>
-      <script src="scripts/controllers/home.js"></script>
       <script src="scripts/controllers/global.js"></script>
+      <script src="scripts/controllers/home.js"></script>
+      <script src="scripts/directives/match.js"></script>
       <script src="scripts/http-interceptor.js"></script>
       <script src="scripts/services/global.js"></script>
-      <script src="scripts/directives/match.js"></script>
     <!-- endbuild -->
   <!-- endconcatmin -->
 
   {% if .Test %}
-    <script type="text/javascript" src="../test/lib/angular/angular-mocks.js"></script>
+    <script type="text/javascript" src="components/bower-angular/angular-mocks.js"></script>
     <script type="text/javascript" src="scripts/app.test.js"></script>
   {% else %}
     <script type="text/javascript">
