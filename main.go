@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
 )
 
@@ -26,12 +27,17 @@ func main() {
 		return
 	}
 
+	config, err := config.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	q := &registry.Queue{}
 	for _, task := range args {
 		q.AddTask(task)
 	}
 
-	if err := q.Run(); err != nil {
+	if err := q.Run(config); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -39,4 +45,5 @@ func main() {
 func usage() {
 	fmt.Println("Usage: cb [target] [options...]")
 	flag.PrintDefaults()
+	registry.PrintTasks()
 }

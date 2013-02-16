@@ -1,10 +1,13 @@
 package registry
 
 import (
+	"fmt"
+
+	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 )
 
-type Task func(q *Queue) error
+type Task func(c *config.Config, q *Queue) error
 
 var tasks = map[string]map[int]Task{}
 
@@ -16,6 +19,13 @@ func NewTask(name string, version int, f Task) {
 	}
 	m[version] = f
 	tasks[name] = m
+}
+
+func PrintTasks() {
+	fmt.Println("\nTASKS:")
+	for name, _ := range tasks {
+		fmt.Printf("    %s\n", name)
+	}
 }
 
 // Obtain the task by name and version. If version is -1 it will return the 

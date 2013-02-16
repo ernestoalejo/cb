@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 )
 
@@ -15,7 +16,7 @@ func (q *Queue) AddTask(t string) {
 	q.tasks = append(q.tasks, t)
 }
 
-func (q *Queue) Run() error {
+func (q *Queue) Run(config *config.Config) error {
 	for len(q.tasks) > 0 {
 		var t string
 		t, q.tasks = q.tasks[0], q.tasks[1:]
@@ -46,7 +47,7 @@ func (q *Queue) Run() error {
 			return err
 		}
 
-		if err := f(q); err != nil {
+		if err := f(config, q); err != nil {
 			return err
 		}
 	}
