@@ -25,6 +25,7 @@ var needTemplates = map[string]bool{
 	"client/app/scripts/app.js":      true,
 	"client/app/scripts/app.test.js": true,
 	"conf/sample-conf.go":            true,
+	"component.json":                 true,
 }
 
 func init() {
@@ -39,7 +40,12 @@ func init_task(c *config.Config, q *registry.Queue) error {
 		return errors.New(err)
 	}
 
-	return copyFiles(filepath.Base(cur), base, cur)
+	if err := copyFiles(filepath.Base(cur), base, cur); err != nil {
+		return err
+	}
+
+	fmt.Println("Don't forget to run `bower install` inside the client folder")
+	return nil
 }
 
 // Copy recursively all the files in src to the dest folder. Appname will
