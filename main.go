@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+
+	"github.com/ernestokarim/cb/registry"
 )
 
 var (
@@ -24,8 +26,12 @@ func main() {
 		return
 	}
 
-	queue = args
-	if err := runQueue(); err != nil {
+	q := &registry.Queue{}
+	for _, task := range args {
+		q.AddTask(task)
+	}
+
+	if err := q.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

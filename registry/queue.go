@@ -1,19 +1,24 @@
-package main
+package registry
 
 import (
 	"strconv"
 	"strings"
 
 	"github.com/ernestokarim/cb/errors"
-	"github.com/ernestokarim/cb/registry"
 )
 
-var queue []string
+type Queue struct {
+	tasks []string
+}
 
-func runQueue() error {
-	for len(queue) > 0 {
+func (q *Queue) AddTask(t string) {
+	q.tasks = append(q.tasks, t)
+}
+
+func (q *Queue) Run() error {
+	for len(q.tasks) > 0 {
 		var t string
-		t, queue = queue[0], queue[1:]
+		t, q.tasks = q.tasks[0], q.tasks[1:]
 
 		var task string
 		var version int
@@ -36,12 +41,12 @@ func runQueue() error {
 			version = -1
 		}
 
-		f, err := registry.GetTask(task, version)
+		f, err := getTask(task, version)
 		if err != nil {
 			return err
 		}
 
-		if err := f(); err != nil {
+		if err := f(q); err != nil {
 			return err
 		}
 	}

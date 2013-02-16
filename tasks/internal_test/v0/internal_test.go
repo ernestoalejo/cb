@@ -10,7 +10,7 @@ func init() {
 	registry.NewTask("internal_test", 0, internal_test)
 }
 
-func internal_test() error {
+func internal_test(q *registry.Queue) error {
 	fmt.Println("Hello World!")
 	return nil
 }
