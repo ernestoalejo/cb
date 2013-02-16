@@ -1,0 +1,166 @@
+{% define "base" %}
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>{{.AppName}}</title>
+
+  <meta name="viewport" content="width=device-width">
+
+  <!-- build:css styles/{{.AppName}}.css -->
+  <!-- endbuild -->
+
+  <style type="text/css">
+    [ng\:cloak], [ng-cloak], .ng-cloak { display: none; }
+  </style>
+
+  {% if not .DevServer %}
+    <script>
+      var _gaq=[['_setAccount','UA-XXXXX-X']];
+      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+      g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+      s.parentNode.insertBefore(g,s)}(document,'script'));
+    </script>
+  {% end %}
+
+</head>
+<body ng-app="app">
+
+  <div style="display: none;" ng-controller="GlobalCtrl"></div>
+
+  <div class="navbar navbar-fixed-top">
+    <div class="navbar-inner"><div class="container">
+      <a href="#!/" class="brand">{{.AppName}}</a>
+    </div></div>
+  </div>
+
+  <div id="wrap" class="container container-fluid">
+    <!--[if lt IE 8]>
+      <p class="chromeframe">
+        Estás usando una versión <strong>antigua</strong> de tu navegador
+        y te expones a peligros importantes de seguridad.<br>
+        Por favor <a href="http://browsehappy.com/">actualiza tu navegador</a> o
+        <a href="http://www.google.com/chromeframe/?redirect=true">activa
+        Google Chrome Frame</a> para ver correctamente este sitio.
+      </p>
+    <![endif]-->
+
+    {% if and .DevServer .Compiled %}{% if not .Test %}
+      <div class="alert alert-info">
+        Estás en la versión compilada en el servidor de prueba.
+        <a href="/dev">Ir a la versión dev</a>
+      </div>
+    {% end %}{% end %}
+
+    <div class="row-fluid">
+      <div ng-view></div>
+    </div>
+    <div id="push"></div>
+  </div>
+
+  <footer id="footer">
+    <div class="container">
+      <p class="muted credit">Copyright &copy; 2013.</p>
+    </div>
+  </footer>
+
+  <div id="http-error" class="modal hide fade" tabindex="-1">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h3>Error en la conexión</h3>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-error">
+        Ha ocurrido un error mientras se sincronizaban los datos con el servidor.
+      </div>
+      <p>Comprueba que sigues conectado correctamente a Internet y prueba de nuevo.
+        Si el error persiste puedes probar a
+        <a href="javascript:location.reload();">recargar la página</a>.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+    </div>
+  </div>
+
+  <div class="global-msg" id="throbber" ng-controller="GlobalMsgCtrl"
+      ng-show="gm.get() != '';" style="display: none;">
+    <div class="inline-block label label-warning" ng-show="gm.get() == 'loading'">
+      <i class="icon-spinner icon-spin pull-left"></i>&nbsp;&nbsp;
+      Cargando datos...
+    </div>
+    <div class="inline-block label" ng-class="gm.getClass()" ng-show="gm.get() != 'loading'">
+      <table><tr>
+        <td ng-bind-html-unsafe="gm.get();"></td>
+        <td><button class="close msg-close" ng-click="close()">&times;</button></td>
+      </tr></table>
+    </div>
+  </div>
+
+  <!--[if lt IE 9]>
+    <!-- concatmin: scripts/ie.js -->
+    // TODO: Incluir es5-shim & json3 una vez determinemos a bower.
+    <!-- endconcatmin -->
+  <![endif]-->
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script>
+    // TODO: Cambiar a la dirección correcta una vez determinemos a bower.
+    window.jQuery || document.write('<script src="components/jquery/jquery.min.js">' +
+      '<\/script>');
+  </script>
+
+  // TODO: Cambiar a la dirección correcta una vez determinemos a bower.
+  <!-- concatmin: scripts/{{.AppName}}.js -->
+    <!-- min --><script src="components/bower-angular/angular.js"></script>
+
+    <!-- build:js scripts/scripts.js -->
+      <script src="scripts/app.js"></script>
+      <script src="scripts/controllers/home.js"></script>
+      <script src="scripts/controllers/global.js"></script>
+      <script src="scripts/http-interceptor.js"></script>
+      <script src="scripts/services/global.js"></script>
+      <script src="scripts/directives/match.js"></script>
+    <!-- endbuild -->
+  <!-- endconcatmin -->
+
+  {% if .Test %}
+    <script type="text/javascript" src="../test/lib/angular/angular-mocks.js"></script>
+    <script type="text/javascript" src="scripts/app.test.js"></script>
+  {% else %}
+    <script type="text/javascript">
+      window.data = {% .Data %};
+    </script>
+  {% end %}
+
+  <div ng-controller="FeedbackCtrl">
+    <div id="feedback">
+      <button class="feedback-btn" ng-click="showFeedback()">Ayuda / Contacto</button>
+    </div>
+
+    <div id="feedback-dlg" class="modal hide fade" tabindex="-1">
+      <div class="modal-header">
+        <button class="close" data-dismiss="modal">&times;</button>
+        <h3>Ayuda / Contacto</h3>
+      </div>
+      <div class="modal-body">
+        <p>Dinos que te ocurre e intentaremos ayudarte en menos de 48 horas.</p>
+        <textarea class="span6" ng-model="message" rows="7"
+          placeholder="Tengo problemas con..." id="message"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary feedback-send" ng-disabled="!message"
+            ng-click="send()">Enviar mensaje</button>
+        <button class="btn" data-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+{% end %}

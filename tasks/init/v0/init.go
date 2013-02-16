@@ -20,7 +20,10 @@ const SELF_PKG = "github.com/ernestokarim/cb/tasks/init/v0/templates"
 
 // List of files that must be passed through the template system
 var needTemplates = map[string]bool{
-	"app.yaml": true,
+	"app.yaml":                       true,
+	"templates/base.html":            true,
+	"client/app/scripts/app.js":      true,
+	"client/app/scripts/app.test.js": true,
 }
 
 func init() {
