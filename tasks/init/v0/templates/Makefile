@@ -32,6 +32,8 @@ LOCAL_REMOTE_API_URL = http://localhost:8080/_ah/remote_api
 # The temp directory.
 TMP = /tmp
 
+# The configuration file
+CONF_FILE=conf/conf.go
 
 # The default command.
 default: help
@@ -139,3 +141,15 @@ test:
 download:
 	mkdir -p $(CODE_BACKUP)
 	$(APPCFG) download_app -A $(PROJECT) -V $(PROJECT_VERSION) $(CODE_BACKUP)
+ 
+
+# To decrypt the configurations
+decrypt_conf: _pwd_prompt
+    openssl cast5-cbc -d -in ${CONF_FILE}.cast5 -out ${CONF_FILE}
+    chmod 600 ${CONF_FILE}
+ 
+# To encrypt the configurations
+encrypt_conf: _pwd_prompt
+    openssl cast5-cbc -e -in ${CONF_FILE} -out ${CONF_FILE}.cast5
+
+

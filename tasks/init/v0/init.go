@@ -24,6 +24,7 @@ var needTemplates = map[string]bool{
 	"templates/base.html":            true,
 	"client/app/scripts/app.js":      true,
 	"client/app/scripts/app.test.js": true,
+	"conf/sample-conf.go":            true,
 }
 
 func init() {
