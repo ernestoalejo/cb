@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -36,11 +37,22 @@ func copyFiles(appname, src, dest string) error {
 		return errors.New(err)
 	}
 
+	cur, err := os.Getwd()
+	if err != nil {
+		return errors.New(err)
+	}
+
 	for _, entry := range files {
 		fullsrc := filepath.Join(src, entry.Name())
 		fulldest := filepath.Join(dest, entry.Name())
 
+		rel, err := filepath.Rel(cur, fulldest)
+		if err != nil {
+			return errors.New(err)
+		}
+
 		if entry.IsDir() {
+			log.Printf("create folder %s\n", rel)
 			if err := os.MkdirAll(fulldest, 0755); err != nil {
 				return errors.New(err)
 			}
@@ -48,7 +60,7 @@ func copyFiles(appname, src, dest string) error {
 				return err
 			}
 		} else {
-			if err := copyFile(appname, fullsrc, fulldest); err != nil {
+			if err := copyFile(appname, fullsrc, fulldest, rel); err != nil {
 				return err
 			}
 		}
@@ -56,25 +68,17 @@ func copyFiles(appname, src, dest string) error {
 	return nil
 }
 
-func copyFile(appname, srcPath, destPath string) error {
+func copyFile(appname, srcPath, destPath, rel string) error {
 	_, err := os.Stat(destPath)
 	if err == nil {
-		cur, err := os.Getwd()
-		if err != nil {
-			return errors.New(err)
-		}
-
-		p, err := filepath.Rel(cur, destPath)
-		if err != nil {
-			return errors.New(err)
-		}
-
-		q := fmt.Sprintf("Do you want to overwrite %s?", p)
+		q := fmt.Sprintf("Do you want to overwrite %s?", rel)
 		if !utils.Ask(q) {
 			return nil
 		}
 	} else if !os.IsNotExist(err) {
 		return errors.New(err)
+	} else {
+		log.Printf("copy file %s\n", rel)
 	}
 
 	src, err := os.Open(srcPath)
