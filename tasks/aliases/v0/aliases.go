@@ -7,5 +7,6 @@ import (
 func init() {
 	registry.NewAlias("styles", 0, []*registry.Alias{
 		{"recess", 0},
+		{"sass", 0},
 	})
 }

@@ -1,5 +1,8 @@
 {
   "recess": {
     "bootstrap.css": "styles/bootstrap/main.less"
+  },
+  "sass": {
+    "app.css": "styles/app.scss"
   }
 }

@@ -5,5 +5,6 @@ import (
 	_ "github.com/ernestokarim/cb/tasks/cbtest/v0"
 	_ "github.com/ernestokarim/cb/tasks/init/v0"
 	_ "github.com/ernestokarim/cb/tasks/recess/v0"
+	_ "github.com/ernestokarim/cb/tasks/sass/v0"
 	_ "github.com/ernestokarim/cb/tasks/server/v0"
 )
