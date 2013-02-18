@@ -7,7 +7,7 @@ import (
 	"github.com/ernestokarim/cb/errors"
 )
 
-type Task func(c *config.Config, q *Queue) error
+type Task func(c config.Config, q *Queue) error
 
 var tasks = map[string]map[int]Task{}
 
@@ -27,7 +27,7 @@ type Alias struct {
 }
 
 func NewAlias(name string, version int, aliases []*Alias) {
-	NewTask(name, version, func(c *config.Config, q *Queue) error {
+	NewTask(name, version, func(c config.Config, q *Queue) error {
 		for _, alias := range aliases {
 			q.AddTask(fmt.Sprintf("%s:%d", alias.Name, alias.Version))
 		}

@@ -17,7 +17,7 @@ func (q *Queue) AddTask(t string) {
 	q.tasks = append(q.tasks, t)
 }
 
-func (q *Queue) Run(config *config.Config) error {
+func (q *Queue) Run(config config.Config) error {
 	for len(q.tasks) > 0 {
 		var t string
 		t, q.tasks = q.tasks[0], q.tasks[1:]

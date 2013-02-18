@@ -9,22 +9,20 @@ import (
 
 type TaskSettings map[string]interface{}
 
-type Config struct {
-	Settings map[string]TaskSettings `json:"settings"`
-}
+type Config map[string]TaskSettings
 
-func LoadConfig() (*Config, error) {
-	f, err := os.Open("config.cb")
+func LoadConfig() (Config, error) {
+	f, err := os.Open("client/config.json")
 	if err != nil {
 		if os.IsNotExist(err) {
-			return &Config{map[string]TaskSettings{}}, nil
+			return Config{}, nil
 		}
 		return nil, errors.New(err)
 	}
 	defer f.Close()
 
-	var config *Config
-	if err := json.NewDecoder(f).Decode(config); err != nil {
+	config := make(Config)
+	if err := json.NewDecoder(f).Decode(&config); err != nil {
 		return nil, errors.New(err)
 	}
 

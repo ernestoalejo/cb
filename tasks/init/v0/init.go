@@ -32,7 +32,7 @@ func init() {
 	registry.NewTask("init", 0, init_task)
 }
 
-func init_task(c *config.Config, q *registry.Queue) error {
+func init_task(c config.Config, q *registry.Queue) error {
 	base := utils.PackagePath(SELF_PKG)
 
 	cur, err := os.Getwd()
