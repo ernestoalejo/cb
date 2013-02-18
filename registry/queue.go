@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"log"
 	"strconv"
 	"strings"
 
@@ -46,6 +47,8 @@ func (q *Queue) Run(config *config.Config) error {
 		if err != nil {
 			return err
 		}
+
+		log.Printf(" >>> Running `%s` task, version %d...\n", task, version)
 
 		if err := f(config, q); err != nil {
 			return err
