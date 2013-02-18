@@ -34,7 +34,6 @@ func init() {
 
 func init_task(c config.Config, q *registry.Queue) error {
 	base := utils.PackagePath(SELF_PKG)
-
 	cur, err := os.Getwd()
 	if err != nil {
 		return errors.New(err)
