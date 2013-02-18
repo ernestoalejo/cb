@@ -21,6 +21,20 @@ func NewTask(name string, version int, f Task) {
 	tasks[name] = m
 }
 
+type Alias struct {
+	Name    string
+	Version int
+}
+
+func NewAlias(name string, version int, aliases []*Alias) {
+	NewTask(name, version, func(c *config.Config, q *Queue) error {
+		for _, alias := range aliases {
+			q.AddTask(fmt.Sprintf("%s:%d", alias.Name, alias.Version))
+		}
+		return nil
+	})
+}
+
 func PrintTasks() {
 	fmt.Println("\nTASKS:")
 	for name, _ := range tasks {

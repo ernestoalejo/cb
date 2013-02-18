@@ -1,14 +1,17 @@
 package v0
 
 import (
+	"fmt"
+
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
 )
 
 func init() {
-	registry.NewTask("server", 0, server)
+	registry.NewTask("less", 0, less)
 }
 
-func server(c *config.Config, q *registry.Queue) error {
+func less(c *config.Config, q *registry.Queue) error {
+	fmt.Println("Hello World!")
 	return nil
 }
