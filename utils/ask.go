@@ -2,15 +2,10 @@ package utils
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"os"
-)
 
-// TODO: Move to flags.go in the config package
-var (
-	alwaysY = flag.Bool("y", false, "answer yes to all overwrites")
-	alwaysN = flag.Bool("n", false, "answer no to all overwrites")
+	"github.com/ernestokarim/cb/config"
 )
 
 func Ask(q string) bool {
@@ -19,7 +14,7 @@ func Ask(q string) bool {
 	buf := bufio.NewReader(os.Stdin)
 	for {
 		var ans string
-		if !*alwaysY && !*alwaysN {
+		if !*config.AlwaysY && !*config.AlwaysN {
 			fmt.Printf("%s", q)
 
 			line, _, err := buf.ReadLine()
@@ -29,10 +24,10 @@ func Ask(q string) bool {
 			ans = string(line)
 		}
 
-		if ans == "Y" || ans == "y" || *alwaysY {
+		if ans == "Y" || ans == "y" || *config.AlwaysY {
 			return true
-		} else if ans == "n" || ans == "N" || ans == "" || *alwaysN {
-			// Redudant check for ans == "" && *alwaysN, leave for cleaner code
+		} else if ans == "n" || ans == "N" || ans == "" || *config.AlwaysN {
+			// Redudant check for ans == "" && *config.AlwaysN, leave for cleaner code
 			return false
 		}
 

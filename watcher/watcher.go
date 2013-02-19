@@ -110,7 +110,9 @@ func processEvent(ev *fsnotify.FileEvent) error {
 	}
 
 	// Otherwise add it to the list of modified files
-	log.Printf("modified `%s`\n", ev.Name)
+	if *config.Verbose {
+		log.Printf("modified `%s`\n", ev.Name)
+	}
 	modified[ev.Name] = true
 
 	return nil
