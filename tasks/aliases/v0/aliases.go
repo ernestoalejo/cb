@@ -13,5 +13,6 @@ func init() {
 		{"clean", 0},
 		{"recess", 0},
 		{"sass", 0},
+		{"watch", 0},
 	})
 }
