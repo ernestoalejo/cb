@@ -19,6 +19,10 @@ func Format(format string, args ...interface{}) error {
 }
 
 func New(original error) error {
+	if _, ok := original.(*Error); ok {
+		return original
+	}
+
 	return &Error{
 		OriginalErr: original,
 		CallStack:   fmt.Sprintf("%s", debug.Stack()),

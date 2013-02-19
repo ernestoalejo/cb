@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// TODO: Move to flags.go in the config package
 var (
 	alwaysY = flag.Bool("y", false, "answer yes to all overwrites")
 	alwaysN = flag.Bool("n", false, "answer no to all overwrites")
