@@ -42,7 +42,7 @@ func (p *Proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 		return nil, errors.New(err)
 	}
 
-	log.Printf("%s %s %s\n", r.Method, r.URL, resp.Status)
+	log.Printf("%s %d %s\n", r.Method, resp.StatusCode, r.URL)
 
 	return resp, nil
 }
