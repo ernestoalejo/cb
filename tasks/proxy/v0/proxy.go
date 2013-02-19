@@ -1,6 +1,8 @@
 package v0
 
 import (
+	"bytes"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -36,34 +38,51 @@ func proxy(c config.Config, q *registry.Queue) error {
 type Proxy struct {
 }
 
-func (p *Proxy) RoundTrip(r *http.Request) (*http.Response, error) {
-	resp, err := http.DefaultTransport.RoundTrip(r)
-	if err != nil {
-		return nil, errors.New(err)
+func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
+	if p.isOurs(r) {
+		resp, err = p.processRequest(r)
+	} else {
+		resp, err = http.DefaultTransport.RoundTrip(r)
+		if err != nil {
+			err = errors.New(err)
+			return
+		}
 	}
 
 	log.Printf("%s %d %s\n", r.Method, resp.StatusCode, r.URL)
+	return
+}
 
+func (p *Proxy) isOurs(r *http.Request) bool {
+	u := r.URL.Path
+	prefixes := []string{
+		"/",
+	}
+	for _, prefix := range prefixes {
+		if u[:len(prefix)] == prefix {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (p *Proxy) processRequest(r *http.Request) (*http.Response, error) {
+	code := http.StatusOK
+
+	body := []byte("hello")
+	respBody := bytes.NewReader(body)
+
+	resp := &http.Response{
+		StatusCode:    code,
+		Status:        http.StatusText(code),
+		Proto:         "HTTP/1.1",
+		ProtoMajor:    1,
+		ProtoMinor:    1,
+		Header:        make(http.Header),
+		Body:          ioutil.NopCloser(respBody),
+		ContentLength: int64(respBody.Len()),
+		Request:       r,
+	}
 	return resp, nil
 }
-
-/*
-// Creates a new response based on an error.
-func errResponse(r *http.Request, err error) *http.Response {
-	// Log the error to the console
-	log.Println("ERROR: %s", err)
-
-	// Create the response using the error as the body
-	resp := fmt.Sprintf("%s", err)
-	return &http.Response{
-		Status:        "500 Internal Server Error",
-		StatusCode:    500,
-		Proto:         r.Proto,
-		ProtoMajor:    r.ProtoMajor,
-		ProtoMinor:    r.ProtoMinor,
-		Body:          ioutil.NopCloser(bytes.NewBufferString(resp)),
-		ContentLength: int64(len(resp)),
-	}
-}
-
-*/
