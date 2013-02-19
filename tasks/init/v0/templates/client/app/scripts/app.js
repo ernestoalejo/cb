@@ -11,17 +11,18 @@ m.config(['$routeProvider', '$locationProvider',
 
     $routeProvider
         .when('/', {
-          redirectTo: '/enroll/introduction'
+          templateUrl: '/views/home/home.html',
+          controller: HomeCtrl
         })
 
         .when('/accounts/login', {
-          templateUrl: '/_/partials/accounts/login',
+          templateUrl: '/views/accounts/login.html',
           controller: LoginCtrl,
           resolve: {r: require('notlogged')}
         })
 
         .otherwise({
-          templateUrl: '/partials/stuff/404.html',
+          templateUrl: '/home/global/404.html',
           controller: NotFoundCtrl
         });
   }]);
