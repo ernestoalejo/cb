@@ -19,11 +19,37 @@ var (
 )
 
 func FolderSync(path string) error {
+	if err := watch(path); err != nil {
+		return err
+	}
+
+	select {
+	case <-unblock:
+	case err := <-errorCh:
+		return err
+	}
+
+	return nil
+}
+
+func FolderAsync(path string) error {
+	if err := watch(path); err != nil {
+		return err
+	}
+
+	go func() {
+		err := <-errorCh
+		log.Fatal(err)
+	}()
+
+	return nil
+}
+
+func watch(path string) error {
 	var err error
 	if watcher, err = fsnotify.NewWatcher(); err != nil {
 		return errors.New(err)
 	}
-	defer watcher.Close()
 
 	go watchEvents()
 
@@ -32,13 +58,6 @@ func FolderSync(path string) error {
 	}
 
 	log.Println("Watching...")
-
-	select {
-	case <-unblock:
-	case err := <-errorCh:
-		return err
-	}
-
 	return nil
 }
 
@@ -78,7 +97,6 @@ func watchEvents() {
 }
 
 func processEvent(ev *fsnotify.FileEvent) error {
-	log.Println(ev)
 	info, err := os.Stat(ev.Name)
 	if err != nil && !os.IsNotExist(err) {
 		return errors.New(err)
