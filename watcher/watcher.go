@@ -140,7 +140,7 @@ func processEvent(ev *fsnotify.FileEvent) error {
 		}
 	}
 
-	log.Printf("modified `%s`\n", ev.Name)
+	log.Printf("modified `%s` [%s]\n", ev.Name, key)
 	modified[key] = true
 
 	return nil

@@ -40,7 +40,7 @@ func exec_recess(c config.Config, q *registry.Queue, mode string) error {
 			return err
 		}
 
-		log.Printf("Created file %s\n", file.Dest)
+		log.Printf("created file %s\n", file.Dest)
 	}
 
 	return nil

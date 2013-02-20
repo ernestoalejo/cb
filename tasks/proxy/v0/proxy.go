@@ -33,7 +33,7 @@ func proxy(c config.Config, q *registry.Queue) error {
 
 	http.Handle("/", proxy)
 
-	log.Println("Serving app at http://localhost:9810/...")
+	log.Println("serving app at http://localhost:9810/...")
 	if err := http.ListenAndServe(":9810", nil); err != nil {
 		return errors.New(err)
 	}
