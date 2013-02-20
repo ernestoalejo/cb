@@ -2,6 +2,7 @@ package v0
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -27,7 +29,7 @@ func proxy(c config.Config, q *registry.Queue) error {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(u)
-	proxy.Transport = &Proxy{}
+	proxy.Transport = &Proxy{c}
 
 	http.Handle("/", proxy)
 
@@ -39,11 +41,12 @@ func proxy(c config.Config, q *registry.Queue) error {
 }
 
 type Proxy struct {
+	c config.Config
 }
 
 func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	if isOurs(r) {
-		resp, err = processRequest(r)
+		resp, err = p.processRequest(r)
 	} else {
 		resp, err = http.DefaultTransport.RoundTrip(r)
 		if err != nil {
@@ -56,6 +59,56 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 		log.Printf("%s %d %s\n", r.Method, resp.StatusCode, r.URL)
 	}
 	return
+}
+
+func (p *Proxy) processRequest(r *http.Request) (*http.Response, error) {
+	var body []byte
+	var err error
+	if strings.HasPrefix(r.URL.Path, "/styles/") {
+		name := r.URL.Path[8:]
+		found := false
+
+		dests := []string{"sass", "recess"}
+		for _, dest := range dests {
+			for style, _ := range p.c[dest] {
+				if style == name {
+					found = true
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+		if found {
+			body, err = readFile(filepath.Join("client", "temp", "styles", name))
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		body, err = readFile(filepath.Join("client", "app", r.URL.Path))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if body == nil {
+		return nil, errors.Format("file not found")
+	}
+
+	respBody := bytes.NewReader(body)
+	return &http.Response{
+		StatusCode:    http.StatusOK,
+		Status:        http.StatusText(http.StatusOK),
+		Proto:         "HTTP/1.1",
+		ProtoMajor:    1,
+		ProtoMinor:    1,
+		Header:        make(http.Header),
+		Body:          ioutil.NopCloser(respBody),
+		ContentLength: int64(respBody.Len()),
+		Request:       r,
+	}, nil
 }
 
 func isOurs(r *http.Request) bool {
@@ -73,26 +126,6 @@ func isOurs(r *http.Request) bool {
 	}
 
 	return false
-}
-
-func processRequest(r *http.Request) (*http.Response, error) {
-	body, err := readFile(filepath.Join("client", "app", r.URL.Path))
-	if err != nil {
-		return nil, err
-	}
-	respBody := bytes.NewReader(body)
-
-	return &http.Response{
-		StatusCode:    http.StatusOK,
-		Status:        http.StatusText(http.StatusOK),
-		Proto:         "HTTP/1.1",
-		ProtoMajor:    1,
-		ProtoMinor:    1,
-		Header:        make(http.Header),
-		Body:          ioutil.NopCloser(respBody),
-		ContentLength: int64(respBody.Len()),
-		Request:       r,
-	}, nil
 }
 
 func readFile(name string) ([]byte, error) {
