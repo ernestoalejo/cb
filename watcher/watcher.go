@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -11,71 +12,54 @@ import (
 )
 
 var (
-	watcher  *fsnotify.Watcher
-	watched  = map[string]bool{}
-	unblock  = make(chan bool)
-	errorCh  = make(chan error)
-	modified = map[string]bool{}
+	watcher      *fsnotify.Watcher
+	watchConfigs = map[string]*watchConfig{}
+	unblock      = make(chan bool)
+	errorCh      = make(chan error)
+	modified     = map[string]bool{}
 )
 
-func FolderSync(path string) error {
-	if err := watch(path); err != nil {
-		return err
+type watchCallback func()
+
+type watchConfig struct {
+	path, filename, fileext, key string
+}
+
+func Dirs(dirs []string, key string) error {
+	if watcher == nil {
+		var err error
+		if watcher, err = fsnotify.NewWatcher(); err != nil {
+			return errors.New(err)
+		}
+		go watchEvents()
 	}
 
+	for _, dir := range dirs {
+		path := filepath.Join("client", filepath.Dir(dir))
+		if err := watcher.Watch(path); err != nil {
+			return errors.New(err)
+		}
+
+		ext := filepath.Ext(dir)
+		name := filepath.Base(dir)
+		name = name[:len(name)-len(ext)]
+		watchConfigs[path] = &watchConfig{
+			path:     path,
+			filename: name,
+			fileext:  ext,
+			key:      key,
+		}
+
+		log.Printf("watching `%s`\n", dir)
+	}
+	return nil
+}
+
+func Enable() error {
 	select {
 	case <-unblock:
 	case err := <-errorCh:
 		return err
-	}
-
-	return nil
-}
-
-func FolderAsync(path string) error {
-	if err := watch(path); err != nil {
-		return err
-	}
-
-	go func() {
-		err := <-errorCh
-		log.Fatal(err)
-	}()
-
-	return nil
-}
-
-func watch(path string) error {
-	var err error
-	if watcher, err = fsnotify.NewWatcher(); err != nil {
-		return errors.New(err)
-	}
-
-	go watchEvents()
-
-	if err := filepath.Walk(path, walkFn); err != nil {
-		return errors.New(err)
-	}
-
-	log.Println("Watching...")
-	return nil
-}
-
-func walkFn(path string, info os.FileInfo, err error) error {
-	if err != nil {
-		return errors.New(err)
-	}
-	if !info.IsDir() {
-		return nil
-	}
-
-	if err := watcher.Watch(path); err != nil {
-		return errors.New(err)
-	}
-	watched[path] = true
-
-	if *config.Verbose {
-		log.Printf("watching `%s`\n", path)
 	}
 
 	return nil
@@ -102,36 +86,56 @@ func processEvent(ev *fsnotify.FileEvent) error {
 		return errors.New(err)
 	}
 
-	// If it's a folder we were watching, remove it
-	if err != nil && watched[ev.Name] {
-		delete(watched, ev.Name)
+	var key string
+
+	// If it's a folder we were watching, active the tasks and
+	// remove the watcher
+	if err != nil && watchConfigs[ev.Name] != nil {
+		key = watchConfigs[ev.Name].key
+		delete(watchConfigs, ev.Name)
 		if err := watcher.RemoveWatch(ev.Name); err != nil {
 			return errors.New(err)
 		}
 		if *config.Verbose {
 			log.Printf("remove watcher `%s`\n", ev.Name)
 		}
-		return nil
 	}
 
-	// If it's a new folder, follow it too
+	// TODO: Recursive scanning
+	// If it's a new folder, and we have a recursive parent, add it to
+	// the watcher list
 	if err == nil && info.IsDir() && ev.IsCreate() {
-		if err := watcher.Watch(ev.Name); err != nil {
-			return errors.New(err)
-		}
-		watched[ev.Name] = true
-
-		if *config.Verbose {
-			log.Printf("watching `%s`\n", ev.Name)
-		}
-		return nil
 	}
 
-	// Otherwise add it to the list of modified files
-	if *config.Verbose {
-		log.Printf("modified `%s`\n", ev.Name)
+	// Find the watcher that holds the file modified, checking the filename
+	// and fileext filters in the way
+	if key == "" {
+		for _, c := range watchConfigs {
+			p, err := filepath.Rel(c.path, ev.Name)
+			if err != nil || strings.Contains(p, "..") {
+				continue
+			}
+
+			ext := filepath.Ext(ev.Name)
+			name := filepath.Base(ev.Name)
+			name = name[:len(name)-len(ext)]
+			if c.filename != "*" && name != c.filename {
+				continue
+			}
+			if c.fileext != "*" && ext != c.fileext {
+				continue
+			}
+
+			key = c.key
+			break
+		}
+		if key == "" {
+			return nil
+		}
 	}
-	modified[ev.Name] = true
+
+	log.Printf("modified `%s`\n", ev.Name)
+	modified[key] = true
 
 	return nil
 }

@@ -4,5 +4,13 @@
   },
   "sass": {
     "app.css": "styles/app.scss"
+  },
+  "watch": {
+    "less": {
+      "dirs": ["app/components/bootstrap/less/*.less", "app/styles/bootstrap/*.less"]
+    },
+    "sass": {
+      "dirs": ["app/styles/*.scss"]
+    }
   }
 }
