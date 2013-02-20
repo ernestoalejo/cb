@@ -26,17 +26,9 @@ func watch_sync(c config.Config, q *registry.Queue) error {
 }
 
 func readConfig(key string, info interface{}) ([]string, error) {
-	m, ok := info.(map[string]interface{})
+	dirsLst, ok := info.([]interface{})
 	if !ok {
-		return nil, errors.Format("`%s` watch dest is not an object", key)
-	}
-	if m["dirs"] == nil || m["tasks"] == nil {
-		return nil, errors.Format("`%s``watch dest has not dirs & task keys", key)
-	}
-
-	dirsLst, ok := m["dirs"].([]interface{})
-	if !ok {
-		return nil, errors.Format("`%s` watch dest has not a list of dirs", key)
+		return nil, errors.Format("`%s` watch dest is not a list of dirs", key)
 	}
 
 	dirs := []string{}
