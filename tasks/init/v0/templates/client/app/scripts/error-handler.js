@@ -40,7 +40,7 @@ m.factory('$exceptionHandler', ['$injector', '$log', function($injector, $log) {
 
     // Show some feedback to the user
     $('#http-error').modal();
-    
+
     insideErr = false;
   }
 }]);

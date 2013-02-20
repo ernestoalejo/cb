@@ -70,6 +70,6 @@ m.factory('Selector', [function() {
     },
     isNavbarDirty: function() {
       return dirtyNavbar_;
-    },
+    }
   };
 }]);
