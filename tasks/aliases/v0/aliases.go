@@ -14,5 +14,6 @@ func init() {
 		{"recess", 0},
 		{"sass", 0},
 		{"watch", 0},
+		{"proxy", 0},
 	})
 }

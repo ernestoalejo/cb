@@ -2,7 +2,6 @@ package v0
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,6 +15,7 @@ import (
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
+	"github.com/ernestokarim/cb/watcher"
 )
 
 func init() {
@@ -29,7 +29,7 @@ func proxy(c config.Config, q *registry.Queue) error {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(u)
-	proxy.Transport = &Proxy{c}
+	proxy.Transport = &Proxy{c, q}
 
 	http.Handle("/", proxy)
 
@@ -41,7 +41,8 @@ func proxy(c config.Config, q *registry.Queue) error {
 }
 
 type Proxy struct {
-	c config.Config
+	c     config.Config
+	queue *registry.Queue
 }
 
 func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
@@ -72,6 +73,12 @@ func (p *Proxy) processRequest(r *http.Request) (*http.Response, error) {
 		for _, dest := range dests {
 			for style, _ := range p.c[dest] {
 				if style == name {
+					if watcher.CheckModified(dest) {
+						p.queue.AddTask(dest)
+						if err := p.queue.Run(p.c); err != nil {
+							return nil, err
+						}
+					}
 					found = true
 					break
 				}

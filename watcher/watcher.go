@@ -65,6 +65,12 @@ func Enable() error {
 	return nil
 }
 
+func CheckModified(key string) bool {
+	b := modified[key]
+	delete(modified, key)
+	return b
+}
+
 func watchEvents() {
 	for {
 		select {
