@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	minRe = regexp.MustCompile(`<!-- min --><script src="(.+)"></script>`)
+	minRe = regexp.MustCompile(`<!-- min --><script src="(.+?)"></script>`)
 )
 
 func init() {
