@@ -25,5 +25,6 @@ func init() {
 		{"minignore", 0},
 		{"compile", 0},
 		{"concat", 0},
+		{"htmlmin", 0},
 	})
 }

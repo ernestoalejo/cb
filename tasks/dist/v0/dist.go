@@ -15,11 +15,14 @@ func init() {
 }
 
 func prepare_dist(c config.Config, q *registry.Queue) error {
-	if err := os.MkdirAll(filepath.Join("client", "temp"), 0755); err != nil {
-		return errors.New(err)
+	dirs := []string{
+		filepath.Join("client", "temp", "views"),
+		filepath.Join("client", "dist"),
 	}
-	if err := os.MkdirAll(filepath.Join("client", "dist"), 0755); err != nil {
-		return errors.New(err)
+	for _, dir := range dirs {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return errors.New(err)
+		}
 	}
 
 	src := filepath.Join("client", "app", "base.html")

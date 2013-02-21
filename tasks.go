@@ -7,6 +7,7 @@ import (
 	_ "github.com/ernestokarim/cb/tasks/compile/v0"
 	_ "github.com/ernestokarim/cb/tasks/concat/v0"
 	_ "github.com/ernestokarim/cb/tasks/dist/v0"
+	_ "github.com/ernestokarim/cb/tasks/htmlmin/v0"
 	_ "github.com/ernestokarim/cb/tasks/imagemin/v0"
 	_ "github.com/ernestokarim/cb/tasks/init/v0"
 	_ "github.com/ernestokarim/cb/tasks/lint/v0"
