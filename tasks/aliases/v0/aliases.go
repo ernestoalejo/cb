@@ -16,4 +16,9 @@ func init() {
 		{"watch", 0},
 		{"proxy", 0},
 	})
+	registry.NewAlias("build", 0, []*registry.Alias{
+		{"clean", 0},
+		{"build_recess", 0},
+		{"build_sass", 0},
+	})
 }
