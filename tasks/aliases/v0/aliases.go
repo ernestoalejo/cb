@@ -20,5 +20,6 @@ func init() {
 		{"clean", 0},
 		{"build_recess", 0},
 		{"build_sass", 0},
+		{"imagemin", 0},
 	})
 }
