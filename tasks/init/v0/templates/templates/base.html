@@ -14,6 +14,8 @@
   <meta name="viewport" content="width=device-width">
 
   <!-- build:css styles/{{.AppName}}.css -->
+  <link rel="stylesheet" href="styles/app.css">
+  <link rel="stylesheet" href="styles/bootstrap.css">
   <!-- endbuild -->
 
   <style type="text/css">
@@ -103,10 +105,10 @@
   </div>
 
   <!--[if lt IE 9]>
-    <!-- concatmin: scripts/ie.js -->
+    <!-- concat: scripts/ie.js -->
       <!-- min --><script src="components/es5-shim/es5-shim.js"></script>
       <!-- min --><script src="components/json3/lib/json3.js"></script>
-    <!-- endconcatmin -->
+    <!-- endconcat -->
   <![endif]-->
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -115,7 +117,7 @@
       '<\/script>');
   </script>
 
-  <!-- concatmin: scripts/{{.AppName}}.js -->
+  <!-- concat: scripts/{{.AppName}}.js -->
     <!-- min --><script src="components/bower-angular/angular.js"></script>
     <!-- ignore --><script src="components/bower-angular/angular-sanitize.js"></script>
 
@@ -127,7 +129,7 @@
       <script src="scripts/http-interceptor.js"></script>
       <script src="scripts/services/global.js"></script>
     <!-- endbuild -->
-  <!-- endconcatmin -->
+  <!-- endconcat -->
 
   {% if .Test %}
     <script type="text/javascript" src="components/bower-angular/angular-mocks.js"></script>
