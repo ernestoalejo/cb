@@ -108,6 +108,9 @@ func optipng(src, dest string) error {
 	}
 
 	if err := os.Remove(dest + ".bak"); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return errors.New(err)
 	}
 
