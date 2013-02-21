@@ -2,7 +2,6 @@ package v0
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -67,7 +66,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		}
 
 	default:
-		if err := copyFile(path, dest); err != nil {
+		if err := utils.CopyFile(path, dest); err != nil {
 			return err
 		}
 	}
@@ -111,29 +110,6 @@ func optipng(src, dest string) error {
 		if os.IsNotExist(err) {
 			return nil
 		}
-		return errors.New(err)
-	}
-
-	return nil
-}
-
-// Copy a file, from srcPath to destPath
-func copyFile(srcPath, destPath string) error {
-	log.Printf("copy file `%s`\n", srcPath)
-
-	dest, err := os.Create(destPath)
-	if err != nil {
-		return errors.New(err)
-	}
-	defer dest.Close()
-
-	src, err := os.Open(srcPath)
-	if err != nil {
-		return errors.New(err)
-	}
-	defer src.Close()
-
-	if _, err := io.Copy(dest, src); err != nil {
 		return errors.New(err)
 	}
 

@@ -3,6 +3,7 @@ package v0
 import (
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -10,11 +11,15 @@ import (
 )
 
 func init() {
+	registry.NewTask("clear", 0, clean)
 	registry.NewTask("clean", 0, clean)
 }
 
 func clean(c config.Config, q *registry.Queue) error {
-	folders := []string{"client/temp"}
+	folders := []string{
+		filepath.Join("client", "temp"),
+		filepath.Join("client", "dist"),
+	}
 	for _, folder := range folders {
 		if err := os.RemoveAll(folder); err != nil {
 			return errors.New(err)
