@@ -1,6 +1,7 @@
 package v0
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -22,6 +23,22 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 	for _, dir := range dirs {
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return errors.New(err)
+		}
+	}
+
+	dirs = []string{"fonts", "components"}
+	for _, dir := range dirs {
+		args := []string{
+			"-r",
+			filepath.Join("client", "app", dir),
+			filepath.Join("client", "temp", dir),
+		}
+		output, err := utils.Exec("cp", args)
+		if err == utils.ErrExec {
+			fmt.Println(output)
+			return nil
+		} else if err != nil {
+			return err
 		}
 	}
 
