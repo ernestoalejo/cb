@@ -70,7 +70,7 @@ func copyFiles(appname, src, dest string) error {
 		}
 
 		if entry.IsDir() {
-			log.Printf("create folder %s\n", rel)
+			log.Printf("create folder `%s`\n", rel)
 			if err := os.MkdirAll(fulldest, 0755); err != nil {
 				return errors.New(err)
 			}
@@ -91,7 +91,7 @@ func copyFiles(appname, src, dest string) error {
 func copyFile(appname, srcPath, destPath, rel string) error {
 	_, err := os.Stat(destPath)
 	if err == nil {
-		q := fmt.Sprintf("Do you want to overwrite %s?", rel)
+		q := fmt.Sprintf("Do you want to overwrite `%s`?", rel)
 		if !utils.Ask(q) {
 			return nil
 		}
@@ -99,7 +99,7 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 		return errors.New(err)
 	}
 
-	log.Printf("copy file %s\n", rel)
+	log.Printf("copy file `%s`\n", rel)
 
 	dest, err := os.Create(destPath)
 	if err != nil {
