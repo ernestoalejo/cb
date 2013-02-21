@@ -18,8 +18,10 @@ func init() {
 	})
 	registry.NewAlias("build", 0, []*registry.Alias{
 		{"clean", 0},
+		{"prepare_dist", 0},
 		{"build_recess", 0},
 		{"build_sass", 0},
 		{"imagemin", 0},
+		{"minignore", 0},
 	})
 }
