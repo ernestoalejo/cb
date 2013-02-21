@@ -13,10 +13,10 @@
 
   <meta name="viewport" content="width=device-width">
 
-  <!-- build:css styles/{{.AppName}}.css -->
+  <!-- concat:css styles/{{.AppName}}.css -->
   <link rel="stylesheet" href="styles/app.css">
   <link rel="stylesheet" href="styles/bootstrap.css">
-  <!-- endbuild -->
+  <!-- endconcat -->
 
   <style type="text/css">
     [ng\:cloak], [ng-cloak], .ng-cloak { display: none; }
@@ -97,7 +97,7 @@
     </div>
   </div>
 
-  <!-- concat: scripts/ie.js -->
+  <!-- concat:js scripts/ie.js -->
     <!--[if lt IE 9]>
       <script src="components/es5-shim/es5-shim.min.js"></script>
       <script src="components/json3/lib/json3.min.js"></script>
@@ -110,11 +110,11 @@
       '<\/script>');
   </script>
 
-  <!-- concat: scripts/{{.AppName}}.js -->
+  <!-- concat:js scripts/{{.AppName}}.js -->
     <!-- min --><script src="components/bower-angular/angular.js"></script>
     <!-- ignore --><script src="components/bower-angular/angular-sanitize.js"></script>
 
-    <!-- build:js scripts/scripts.js -->
+    <!-- build scripts/scripts.js -->
       <script src="scripts/app.js"></script>
       <script src="scripts/controllers/global.js"></script>
       <script src="scripts/controllers/home.js"></script>

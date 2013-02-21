@@ -4,7 +4,7 @@ import (
 	_ "github.com/ernestokarim/cb/tasks/aliases/v0"
 	_ "github.com/ernestokarim/cb/tasks/cbtest/v0"
 	_ "github.com/ernestokarim/cb/tasks/clean/v0"
-	_ "github.com/ernestokarim/cb/tasks/compile/v0"
+	_ "github.com/ernestokarim/cb/tasks/concat/v0"
 	_ "github.com/ernestokarim/cb/tasks/dist/v0"
 	_ "github.com/ernestokarim/cb/tasks/imagemin/v0"
 	_ "github.com/ernestokarim/cb/tasks/init/v0"

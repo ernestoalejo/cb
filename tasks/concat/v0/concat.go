@@ -15,15 +15,15 @@ import (
 )
 
 var (
-	tagRe   = regexp.MustCompile(`<!-- build:(css|js) (.+?) -->`)
+	tagRe   = regexp.MustCompile(`<!-- concat:(css|js) (.+?) -->`)
 	styleRe = regexp.MustCompile(`<link rel="stylesheet" href="(.+?)">`)
 )
 
 func init() {
-	registry.NewTask("compile", 0, compile)
+	registry.NewTask("concat", 0, concat)
 }
 
-func compile(c config.Config, q *registry.Queue) error {
+func concat(c config.Config, q *registry.Queue) error {
 	base := filepath.Join("client", "temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {
@@ -32,17 +32,17 @@ func compile(c config.Config, q *registry.Queue) error {
 
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
-		if strings.Contains(line, "<!-- build:css") {
+		if strings.Contains(line, "<!-- concat:css") {
 			match := tagRe.FindStringSubmatch(line)
 			if match == nil {
-				return errors.Format("incorrect build tag, line %d", i)
+				return errors.Format("incorrect concat tag, line %d", i)
 			}
 
 			start := i
 			lines[i] = ""
 
 			files := []string{}
-			for !strings.Contains(line, "<!-- endbuild -->") {
+			for !strings.Contains(line, "<!-- endconcat -->") {
 				match := styleRe.FindStringSubmatch(line)
 				if match != nil {
 					lines[i] = ""
@@ -51,12 +51,12 @@ func compile(c config.Config, q *registry.Queue) error {
 
 				i++
 				if i >= len(lines) {
-					return errors.Format("build css block not closed, line %d", start)
+					return errors.Format("concat css block not closed, line %d", start)
 				}
 				line = lines[i]
 			}
 
-			if err := compileCss(match[2], files); err != nil {
+			if err := concatCss(match[2], files); err != nil {
 				return err
 			}
 			line = fmt.Sprintf("<link rel=\"stylesheet\" href=\"%s\">", match[2])
@@ -70,7 +70,7 @@ func compile(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func compileCss(dest string, srcs []string) error {
+func concatCss(dest string, srcs []string) error {
 	files := make([]string, len(srcs))
 	for i, src := range srcs {
 		raw, err := ioutil.ReadFile(filepath.Join("client", "temp", src))
