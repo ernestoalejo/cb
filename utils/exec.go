@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"log"
 	"os/exec"
 
+	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 )
 
@@ -11,6 +13,10 @@ var ErrExec = errors.Format("exec failed")
 // Execute a new command and return the output and an error
 // if present
 func Exec(app string, args []string) (string, error) {
+	if *config.Verbose {
+		log.Printf("EXEC: %s %+v\n", app, args)
+	}
+
 	cmd := exec.Command(app, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
