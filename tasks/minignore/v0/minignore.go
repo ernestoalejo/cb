@@ -21,7 +21,8 @@ func init() {
 }
 
 func minignore(c config.Config, q *registry.Queue) error {
-	lines, err := utils.ReadLines(filepath.Join("client", "temp", "base.html"))
+	base := filepath.Join("client", "temp", "base.html")
+	lines, err := utils.ReadLines(base)
 	if err != nil {
 		return err
 	}
@@ -41,7 +42,9 @@ func minignore(c config.Config, q *registry.Queue) error {
 		lines[i] = line
 	}
 
-	fmt.Println(lines)
+	if err := utils.WriteFile(base, strings.Join(lines, "")); err != nil {
+		return errors.New(err)
+	}
 
 	return nil
 }
