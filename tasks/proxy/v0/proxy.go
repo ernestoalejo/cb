@@ -49,6 +49,7 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	if isOurs(r) {
 		resp, err = p.processRequest(r)
 	} else {
+		r.Header.Set("X-Request-From", "cb")
 		resp, err = http.DefaultTransport.RoundTrip(r)
 		if err != nil {
 			err = errors.New(err)

@@ -53,13 +53,6 @@
       </p>
     <![endif]-->
 
-    {% if and .DevServer .Compiled %}{% if not .Test %}
-      <div class="alert alert-info">
-        Estás en la versión compilada en el servidor de prueba.
-        <a href="/dev">Ir a la versión dev</a>
-      </div>
-    {% end %}{% end %}
-
     <div class="row-fluid">
       <div ng-view></div>
     </div>
@@ -104,12 +97,13 @@
     </div>
   </div>
 
-  <!--[if lt IE 9]>
+
     <!-- concat: scripts/ie.js -->
-      <!-- min --><script src="components/es5-shim/es5-shim.js"></script>
-      <!-- min --><script src="components/json3/lib/json3.js"></script>
+      <!--[if lt IE 9]>
+        <script src="components/es5-shim/es5-shim.min.js"></script>
+        <script src="components/json3/lib/json3.min.js"></script>
+      <![endif]-->
     <!-- endconcat -->
-  <![endif]-->
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
   <script>
