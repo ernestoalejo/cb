@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bufio"
 	"io"
 	"io/ioutil"
 	"log"
@@ -43,4 +44,28 @@ func CopyFile(srcPath, destPath string) error {
 	}
 
 	return nil
+}
+
+// Read a file line by line and return the list of them
+func ReadLines(path string) ([]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, errors.New(err)
+	}
+	defer f.Close()
+
+	lines := []string{}
+	r := bufio.NewReader(f)
+	for {
+		line, err := r.ReadString('\n')
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, errors.New(err)
+		}
+
+		lines = append(lines, line)
+	}
+	return lines, nil
 }
