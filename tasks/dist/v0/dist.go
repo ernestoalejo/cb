@@ -17,7 +17,7 @@ func init() {
 
 func prepare_dist(c config.Config, q *registry.Queue) error {
 	dirs := []string{
-		filepath.Join("client", "temp", "views"),
+		filepath.Join("client", "temp"),
 		filepath.Join("client", "dist"),
 	}
 	for _, dir := range dirs {
@@ -26,7 +26,7 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 		}
 	}
 
-	dirs = []string{"fonts", "components"}
+	dirs = []string{"fonts", "components", "views"}
 	for _, dir := range dirs {
 		args := []string{
 			"-r",
