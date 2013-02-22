@@ -5,27 +5,26 @@ var m = angular.module('testcb', ['errorHandler', 'ngSanitize',
   'directives.match', 'httpInterceptor', 'services.global']);
 
 
-m.config(['$routeProvider', '$locationProvider',
-  function($routeProvider, $locationProvider) {
-    $locationProvider.hashPrefix('!');
+m.config(function($routeProvider, $locationProvider) {
+  $locationProvider.hashPrefix('!');
 
-    $routeProvider
-        .when('/', {
-          templateUrl: '/views/home/home.html',
-          controller: HomeCtrl
-        })
+  $routeProvider
+      .when('/', {
+        templateUrl: '/views/home/home.html',
+        controller: HomeCtrl
+      })
 
-        .when('/accounts/login', {
-          templateUrl: '/views/accounts/login.html',
-          controller: LoginCtrl,
-          resolve: {r: require('notlogged')}
-        })
+      .when('/accounts/login', {
+        templateUrl: '/views/accounts/login.html',
+        controller: LoginCtrl,
+        resolve: {r: require('notlogged')}
+      })
 
-        .otherwise({
-          templateUrl: '/home/global/404.html',
-          controller: NotFoundCtrl
-        });
-  }]);
+      .otherwise({
+        templateUrl: '/home/global/404.html',
+        controller: NotFoundCtrl
+      });
+});
 
 
 var requirements = {

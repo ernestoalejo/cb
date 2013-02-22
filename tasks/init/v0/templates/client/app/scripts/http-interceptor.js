@@ -1,12 +1,13 @@
 'use strict';
 
+
 var m = angular.module('httpInterceptor', ['monachilServices']);
 
-m.config(['$httpProvider', function($httpProvider) {
+m.config(function($httpProvider) {
   $httpProvider.responseInterceptors.push('httpInterceptor');
-}]);
+});
 
-m.factory('httpInterceptor', ['$q', 'GlobalMsg', function($q, GlobalMsg) {
+m.factory('httpInterceptor', function($q, GlobalMsg) {
   var total = 0;
 
   return function(promise) {
@@ -27,4 +28,4 @@ m.factory('httpInterceptor', ['$q', 'GlobalMsg', function($q, GlobalMsg) {
       return $q.reject(response);
     });
   }
-}]);
+});

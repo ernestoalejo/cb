@@ -1,7 +1,7 @@
 
 var m = angular.module('services.global', []);
 
-m.factory('GlobalMsg', ['$timeout', function($timeout) {
+m.factory('GlobalMsg', function($timeout) {
   var msg_ = '', tm = null, type_ = 'success';
   return {
     set: function(msg, type) {
@@ -40,9 +40,9 @@ m.factory('GlobalMsg', ['$timeout', function($timeout) {
         this.set(after);
     }
   };
-}]);
+});
 
-m.factory('Selector', [function() {
+m.factory('Selector', function() {
   var navbar_ = '';
   var dirtyNavbar_ = false;
 
@@ -72,4 +72,4 @@ m.factory('Selector', [function() {
       return dirtyNavbar_;
     }
   };
-}]);
+});

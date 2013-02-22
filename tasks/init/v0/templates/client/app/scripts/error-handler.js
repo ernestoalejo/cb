@@ -6,7 +6,7 @@ var m = angular.module('errorHandler', ['ng']);
 
 var insideErr = false;
 var limitErr = 0;
-m.factory('$exceptionHandler', ['$injector', '$log', function($injector, $log) {
+m.factory('$exceptionHandler', function($injector, $log) {
   return function(ex, cause) {
     // Log errors to the console too
     $log.error.apply($log, arguments);
@@ -43,4 +43,4 @@ m.factory('$exceptionHandler', ['$injector', '$log', function($injector, $log) {
 
     insideErr = false;
   }
-}]);
+});

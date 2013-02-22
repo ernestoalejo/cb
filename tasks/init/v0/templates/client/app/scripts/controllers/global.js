@@ -4,7 +4,6 @@
 /**
  * Control some global services needed for the page.
  */
-GlobalCtrl.$inject = ['$rootScope', '$location', 'Selector'];
 function GlobalCtrl($rootScope, $location, Selector) {
   // Change the sidebar and navbar when navigating
   $rootScope.$on('$routeChangeStart', function() {
@@ -36,14 +35,12 @@ function GlobalCtrl($rootScope, $location, Selector) {
 /**
  * Show a page not-found error for the client routes.
  */
-NotFoundCtrl.$inject = [];
 function NotFoundCtrl() { }
 
 
 /**
  * Controller for the global message showed on success/error/warning/...
  */
-GlobalMsgCtrl.$inject = ['$scope', 'GlobalMsg'];
 function GlobalMsgCtrl($scope, GlobalMsg) {
   $scope.gm = GlobalMsg;
 
