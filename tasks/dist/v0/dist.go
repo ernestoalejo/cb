@@ -2,6 +2,7 @@ package v0
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -26,11 +27,21 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 		}
 	}
 
-	dirs = []string{"fonts", "components", "views"}
+	dirs = []string{"fonts", "components", "views", "images"}
 	for _, dir := range dirs {
+		origin := filepath.Join("client", "app", dir)
+		if _, err := os.Stat(origin); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return errors.New(err)
+		}
+
+		log.Printf("copy folder `%s`\n", origin)
+
 		args := []string{
 			"-r",
-			filepath.Join("client", "app", dir),
+			origin,
 			filepath.Join("client", "temp", dir),
 		}
 		output, err := utils.Exec("cp", args)

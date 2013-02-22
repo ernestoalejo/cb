@@ -17,9 +17,9 @@ func init() {
 }
 
 // Compress & optimize images. It does not run if the folder images does not
-// exists inside the app directory.
+// exists inside the temp directory.
 func imagemin(c config.Config, q *registry.Queue) error {
-	root := filepath.Join("client", "app", "images")
+	root := filepath.Join("client", "temp", "images")
 	if _, err := os.Stat(root); err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -41,7 +41,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	base := filepath.Join("client", "app", "images")
+	base := filepath.Join("client", "temp", "images")
 	dest, err := filepath.Rel(base, path)
 	if err != nil {
 		return errors.New(err)
@@ -62,11 +62,6 @@ func walkFn(path string, info os.FileInfo, err error) error {
 
 	case ".png":
 		if err := optipng(path, dest); err != nil {
-			return err
-		}
-
-	default:
-		if err := utils.CopyFile(path, dest); err != nil {
 			return err
 		}
 	}
