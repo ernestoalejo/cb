@@ -78,7 +78,7 @@ func compileJs(dest string, srcs []string) error {
 
 	args := []string{}
 	for _, src := range srcs {
-		args = append(args, filepath.Join("client", "app", src))
+		args = append(args, filepath.Join("client", "temp", src))
 	}
 	args = append(args, "-o", destPath, "-c", "-m")
 

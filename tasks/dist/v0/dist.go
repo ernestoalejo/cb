@@ -27,7 +27,9 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 		}
 	}
 
-	dirs = []string{"fonts", "components", "views", "images", "styles"}
+	dirs = []string{
+		"fonts", "components", "views", "images", "styles", "scripts",
+	}
 	for _, dir := range dirs {
 		origin := filepath.Join("client", "app", dir)
 		if _, err := os.Stat(origin); err != nil {
