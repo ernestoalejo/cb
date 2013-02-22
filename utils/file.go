@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 )
 
@@ -25,7 +26,9 @@ func WriteFile(name, content string) error {
 
 // Copy a file, from srcPath to destPath
 func CopyFile(srcPath, destPath string) error {
-	log.Printf("copy file `%s`\n", srcPath)
+	if *config.Verbose {
+		log.Printf("copy file `%s`\n", srcPath)
+	}
 
 	dest, err := os.Create(destPath)
 	if err != nil {

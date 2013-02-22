@@ -61,7 +61,9 @@ func changeName(path string, info os.FileInfo, err error) error {
 	oldname := filepath.Base(path)
 	changes[oldname] = newname
 
-	log.Printf("`%s` converted to `%s`\n", oldname, newname)
+	if *config.Verbose {
+		log.Printf("`%s` converted to `%s`\n", oldname, newname)
+	}
 
 	if err := os.Rename(path, newpath); err != nil {
 		return errors.New(err)

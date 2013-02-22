@@ -115,6 +115,8 @@ func concatFiles(dest string, srcs []string) error {
 		return err
 	}
 
-	log.Printf("created file `%s`\n", dest)
+	if *config.Verbose {
+		log.Printf("created file `%s`\n", dest)
+	}
 	return nil
 }

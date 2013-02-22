@@ -23,6 +23,7 @@ func init() {
 		{"build_sass", 0},
 		{"imagemin", 0},
 		{"minignore", 0},
+		{"ngmin", 0},
 		{"compile", 0},
 		{"concat", 0},
 		{"cacherev", 0},

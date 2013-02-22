@@ -39,7 +39,9 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 			return errors.New(err)
 		}
 
-		log.Printf("copy folder `%s`\n", origin)
+		if *config.Verbose {
+			log.Printf("copy folder `%s`\n", origin)
+		}
 
 		args := []string{
 			"-r",

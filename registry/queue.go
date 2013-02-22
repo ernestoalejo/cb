@@ -48,7 +48,8 @@ func (q *Queue) Run(config config.Config) error {
 			return err
 		}
 
-		log.Printf(" >>> Running `%s` task, version %d...\n", task, version)
+		log.Printf(" >>> [%2d] Running `%s` task, version %d...\n",
+			len(q.tasks), task, version)
 
 		if err := f(config, q); err != nil {
 			return err

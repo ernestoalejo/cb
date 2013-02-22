@@ -24,7 +24,9 @@ func clean(c config.Config, q *registry.Queue) error {
 		if err := os.RemoveAll(folder); err != nil {
 			return errors.New(err)
 		}
-		log.Printf("remove %s\n", folder)
+		if *config.Verbose {
+			log.Printf("remove %s\n", folder)
+		}
 	}
 	return nil
 }

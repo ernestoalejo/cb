@@ -45,7 +45,9 @@ func exec_sass(c config.Config, q *registry.Queue, mode string) error {
 			return err
 		}
 
-		log.Printf("created file %s\n", file.Dest)
+		if *config.Verbose {
+			log.Printf("created file %s\n", file.Dest)
+		}
 	}
 
 	return nil
