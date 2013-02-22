@@ -49,6 +49,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 
 	newlines := []string{}
 	for i, line := range lines {
+		// Controllers
 		if strings.Contains(line, "Ctrl(") {
 			ls, err := ctrlAnnotations(path, i+1, line)
 			if err != nil {
@@ -58,6 +59,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 			continue
 		}
 
+		// Functions
 		funcs := []string{"factory", "directive", "config"}
 		used := false
 		for _, f := range funcs {
@@ -68,11 +70,12 @@ func walkFn(path string, info os.FileInfo, err error) error {
 				}
 				newlines = append(newlines, ls...)
 
+				// Closing of functions
 				found := false
 				for j := i; j < len(lines); j++ {
 					if lines[j] == "});\n" {
 						found = true
-						lines[j] = "}]);"
+						lines[j] = "}]);\n"
 						break
 					}
 				}
@@ -89,6 +92,10 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		}
 
 		newlines = append(newlines, line)
+	}
+
+	if err := utils.WriteFile(path, strings.Join(newlines, "")); err != nil {
+		return err
 	}
 
 	return nil
@@ -156,7 +163,12 @@ func funcAnnotations(file string, n int, line string) ([]string, error) {
 		strArgs += ", "
 	}
 
-	line = fmt.Sprintf("%s.%s('%s', [%sfunction(%s) {", match[1], match[2],
-		match[3], strArgs, match[5])
+	if match[4] == "" {
+		line = fmt.Sprintf("%s.%s([%sfunction(%s) {\n", match[1], match[2],
+			strArgs, match[5])
+	} else {
+		line = fmt.Sprintf("%s.%s('%s', [%sfunction(%s) {\n", match[1],
+			match[2], match[4], strArgs, match[5])
+	}
 	return []string{line}, nil
 }
