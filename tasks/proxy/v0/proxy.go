@@ -1,16 +1,11 @@
 package v0
 
 import (
-	"bytes"
-	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -18,22 +13,31 @@ import (
 	"github.com/ernestokarim/cb/watcher"
 )
 
+var (
+	configs config.Config
+	queue   *registry.Queue
+)
+
 func init() {
 	registry.NewTask("proxy", 0, proxy)
 }
 
 func proxy(c config.Config, q *registry.Queue) error {
+	configs = c
+	queue = q
+
 	u, err := url.Parse("http://localhost:8080")
 	if err != nil {
 		return errors.New(err)
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(u)
-	proxy.Transport = &Proxy{c, q}
+	proxy.Transport = &Proxy{}
 
 	http.Handle("/", proxy)
 	http.HandleFunc("/components/", appServer)
 	http.HandleFunc("/scripts/", appServer)
+	http.HandleFunc("/styles/", stylesServer)
 	http.HandleFunc("/favicon.ico", appServer)
 
 	log.Println("serving app at http://localhost:9810/...")
@@ -43,21 +47,14 @@ func proxy(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-type Proxy struct {
-	c     config.Config
-	queue *registry.Queue
-}
+type Proxy struct{}
 
 func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
-	if isOurs(r) {
-		resp, err = p.processRequest(r)
-	} else {
-		r.Header.Set("X-Request-From", "cb")
-		resp, err = http.DefaultTransport.RoundTrip(r)
-		if err != nil {
-			err = errors.New(err)
-			return
-		}
+	r.Header.Set("X-Request-From", "cb")
+	resp, err = http.DefaultTransport.RoundTrip(r)
+	if err != nil {
+		err = errors.New(err)
+		return
 	}
 
 	if resp != nil {
@@ -66,91 +63,31 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	return
 }
 
-func (p *Proxy) processRequest(r *http.Request) (*http.Response, error) {
-	var body []byte
-	var err error
-	if strings.HasPrefix(r.URL.Path, "/styles/") {
-		name := r.URL.Path[8:]
-		found := false
-
-		dests := []string{"sass", "recess"}
-		for _, dest := range dests {
-			for style, _ := range p.c[dest] {
-				if style == name {
-					if watcher.CheckModified(dest) {
-						p.queue.AddTask(dest)
-						if err := p.queue.Run(p.c); err != nil {
-							return nil, err
-						}
-					}
-					found = true
-					break
-				}
-			}
-			if found {
-				break
-			}
-		}
-		if found {
-			body, err = readFile(filepath.Join("client", "temp", "styles", name))
-			if err != nil {
-				return nil, err
-			}
-		}
-	} else {
-		body, err = readFile(filepath.Join("client", "app", r.URL.Path))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if body == nil {
-		return nil, errors.Format("file not found")
-	}
-
-	respBody := bytes.NewReader(body)
-	return &http.Response{
-		StatusCode:    http.StatusOK,
-		Status:        http.StatusText(http.StatusOK),
-		Proto:         "HTTP/1.1",
-		ProtoMajor:    1,
-		ProtoMinor:    1,
-		Header:        make(http.Header),
-		Body:          ioutil.NopCloser(respBody),
-		ContentLength: int64(respBody.Len()),
-		Request:       r,
-	}, nil
-}
-
-func isOurs(r *http.Request) bool {
-	prefixes := []string{
-		"/styles/",
-	}
-	u := r.URL.Path
-	for _, prefix := range prefixes {
-		if len(u) >= len(prefix) && u[:len(prefix)] == prefix {
-			return true
-		}
-	}
-
-	return false
-}
-
 func appServer(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join("client", "app", r.URL.Path))
 }
 
-func readFile(name string) ([]byte, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		return nil, errors.New(err)
+func stylesServer(w http.ResponseWriter, r *http.Request) {
+	if err := recompileStyles(r); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
 	}
-	defer f.Close()
+	http.ServeFile(w, r, filepath.Join("client", "temp", r.URL.Path))
+}
 
-	buf := new(bytes.Buffer)
-	if _, err := io.Copy(buf, f); err != nil {
-		return nil, errors.New(err)
+func recompileStyles(r *http.Request) error {
+	name := r.URL.Path[8:]
+	dests := []string{"sass", "recess"}
+	for _, dest := range dests {
+		for style, _ := range configs[dest] {
+			if style == name && watcher.CheckModified(dest) {
+				queue.AddTask(dest)
+				if err := queue.Run(configs); err != nil {
+					return err
+				}
+				return nil
+			}
+		}
 	}
-
-	return buf.Bytes(), nil
+	return nil
 }
