@@ -1,8 +1,15 @@
 'use strict';
 
 
-var m = angular.module('app', ['errorHandler', 'ngSanitize',
-  'directives.match', 'httpInterceptor', 'services.global']);
+var m = angular.module('app', [
+  'controllers.global',
+  'controllers.home',
+  'directives.match',
+  'errorHandler',
+  'httpInterceptor',
+  'ngSanitize',
+  'services.global'
+]);
 
 
 m.config(function($routeProvider, $locationProvider) {

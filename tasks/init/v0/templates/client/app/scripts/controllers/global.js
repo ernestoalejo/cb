@@ -1,10 +1,12 @@
 'use strict';
 
 
-/**
- * Control some global services needed for the page.
- */
-function GlobalCtrl($rootScope, $location, Selector) {
+var m = angular.module('controllers.global', [
+  'services.global'
+]);
+
+
+m.controller('GlobalCtrl', function ($rootScope, $location, Selector) {
   // Change the sidebar and navbar when navigating
   $rootScope.$on('$routeChangeStart', function() {
     Selector.setDirty();
@@ -29,23 +31,17 @@ function GlobalCtrl($rootScope, $location, Selector) {
       throw new Error('unkwnown route error: ' + msg);
     }
   });
-}
+});
 
 
-/**
- * Show a page not-found error for the client routes.
- */
-function NotFoundCtrl() { }
+m.controller('NotFoundCtrl', function() { });
 
 
-/**
- * Controller for the global message showed on success/error/warning/...
- */
-function GlobalMsgCtrl($scope, GlobalMsg) {
+m.controller('GlobalMsgCtrl', function($scope, GlobalMsg) {
   $scope.gm = GlobalMsg;
 
   $scope.close = function() {
     GlobalMsg.set('');
   };
-}
+});
 

@@ -1,5 +1,8 @@
+'use strict';
+
 
 var m = angular.module('services.global', []);
+
 
 m.factory('GlobalMsg', function($timeout) {
   var msg_ = '', tm = null, type_ = 'success';
@@ -41,6 +44,7 @@ m.factory('GlobalMsg', function($timeout) {
     }
   };
 });
+
 
 m.factory('Selector', function() {
   var navbar_ = '';

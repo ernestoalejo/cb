@@ -2,7 +2,7 @@
 
 
 describe('Controller: GlobalMsgCtrl', function() {
-  beforeEach(module('app'));
+  beforeEach(module('controllers.global'));
 
   var scope, GlobalMsg;
   beforeEach(inject(function($injector) {
@@ -11,7 +11,7 @@ describe('Controller: GlobalMsgCtrl', function() {
     var $rootScope = $injector.get('$rootScope');
 
     scope = $rootScope.$new();
-    $controller(GlobalMsgCtrl, {$scope: scope});
+    $controller('GlobalMsgCtrl', {$scope: scope});
   }));
 
   it('should save the service in the scope', function() {
