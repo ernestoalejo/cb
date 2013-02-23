@@ -66,7 +66,7 @@ m.factory('Selector', function() {
     },
 
     isDirty: function() {
-      return dirtyNavbar_ && dirtySidebar_;
+      return dirtyNavbar_;
     },
     isNavbarDirty: function() {
       return dirtyNavbar_;
