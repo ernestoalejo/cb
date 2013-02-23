@@ -6,7 +6,7 @@
     "app.css": "styles/app.scss"
   },
   "watch": {
-    "less": ["app/components/bootstrap/less/*.less", "app/styles/bootstrap/*.less"],
+    "recess": ["app/components/bootstrap/less/*.less", "app/styles/bootstrap/*.less"],
     "sass": ["app/styles/*.scss"]
   }
 }

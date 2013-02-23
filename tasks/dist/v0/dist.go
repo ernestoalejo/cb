@@ -14,6 +14,7 @@ import (
 
 func init() {
 	registry.NewTask("prepare_dist", 0, prepare_dist)
+	registry.NewTask("copy_dist", 0, copy_dist)
 }
 
 func prepare_dist(c config.Config, q *registry.Queue) error {

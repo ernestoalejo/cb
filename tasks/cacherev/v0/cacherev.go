@@ -22,7 +22,7 @@ func init() {
 }
 
 func cacherev(c config.Config, q *registry.Queue) error {
-	dirs := []string{"images", "styles", "scripts", "fonts"}
+	dirs := []string{"images", "styles", "scripts", "fonts", "components"}
 	for _, dir := range dirs {
 		dir = filepath.Join("client", "temp", dir)
 		if err := filepath.Walk(dir, changeName); err != nil {
