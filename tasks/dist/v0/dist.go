@@ -45,9 +45,9 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 
 	changes := utils.LoadChanges()
 	for i, dir := range dirs {
-		name, ok := changes[filepath.Base(dir)]
+		name, ok := changes[dir]
 		if ok {
-			dir = filepath.Join(filepath.Dir(dir), name)
+			dir = name
 		}
 		dirs[i] = dir
 	}

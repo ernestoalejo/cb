@@ -54,20 +54,25 @@ func changeName(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
+	rel, err := filepath.Rel(filepath.Join("client", "temp"), path)
+	if err != nil {
+		return errors.New(err)
+	}
+
 	newname, err := calcNewName(path)
 	if err != nil {
 		return err
 	}
-	newpath := filepath.Join(filepath.Dir(path), newname)
+	newpath := filepath.Join(filepath.Dir(rel), newname)
 
-	oldname := filepath.Base(path)
-	changes[oldname] = newname
+	changes[rel] = newpath
 
 	if *config.Verbose {
-		log.Printf("`%s` converted to `%s`\n", oldname, newname)
+		log.Printf("`%s` converted to `%s`\n", filepath.Base(path), newname)
 	}
 
-	if err := os.Rename(path, newpath); err != nil {
+	abspath := filepath.Join("client", "temp", newpath)
+	if err := os.Rename(path, abspath); err != nil {
 		return errors.New(err)
 	}
 	return nil
