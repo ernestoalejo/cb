@@ -15,9 +15,10 @@ import (
 )
 
 var (
-	tagRe    = regexp.MustCompile(`<!-- concat:(css|js) (.+?) -->`)
+	placeRe  = regexp.MustCompile(`<script> var concat_script_here; </script>`)
 	scriptRe = regexp.MustCompile(`<script src="(.+?)"></script>`)
 	styleRe  = regexp.MustCompile(`<link rel="stylesheet" href="(.+?)">`)
+	tagRe    = regexp.MustCompile(`<!-- concat:(css|js) (.+?) -->`)
 )
 
 func init() {
@@ -69,6 +70,7 @@ func concat(c config.Config, q *registry.Queue) error {
 
 			start := i
 			lines[i] = ""
+			pos := -1
 
 			files := []string{}
 			for !strings.Contains(line, "<!-- endconcat -->") {
@@ -76,6 +78,12 @@ func concat(c config.Config, q *registry.Queue) error {
 				if match != nil {
 					lines[i] = ""
 					files = append(files, match[1])
+				} else {
+					match = placeRe.FindStringSubmatch(line)
+					if match != nil {
+						lines[i] = ""
+						pos = i
+					}
 				}
 
 				i++
@@ -88,7 +96,12 @@ func concat(c config.Config, q *registry.Queue) error {
 			if err := concatFiles(match[2], files); err != nil {
 				return err
 			}
-			line = fmt.Sprintf("<script src=\"%s\"></script>\n", match[2])
+			if pos == -1 {
+				line = fmt.Sprintf("<script src=\"%s\"></script>\n", match[2])
+			} else {
+				line = ""
+				lines[pos] = fmt.Sprintf("<script src=\"%s\"></script>\n", match[2])
+			}
 		}
 		lines[i] = line
 	}

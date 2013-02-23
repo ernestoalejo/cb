@@ -1,3 +1,5 @@
 
 datastore
 conf/conf.go
+static
+templates/base.html
