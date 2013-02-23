@@ -4,14 +4,10 @@ basePath = '..';
 files = [
   JASMINE,
   JASMINE_ADAPTER,
-  'dist/',
-  'app/components/bower-angular/angular-*.js',
-  'app/scripts/*.js',
-  'app/scripts/**/*.js',
+  'dist/scripts/*.js',
+  'app/components/bower-angular/angular-mocks.js',
   'test/unit/**/*.js'
 ];
-
-exclude = ['app/components/bower-angular/angular-scenario.js']
 
 autoWatch = true;
 

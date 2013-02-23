@@ -1,6 +1,8 @@
 package v0
 
 import (
+	"log"
+
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
@@ -18,6 +20,11 @@ func test(c config.Config, q *registry.Queue) error {
 	} else {
 		configFile = "client/config/testacular.conf.js"
 	}
+
+	if *config.Verbose {
+		log.Printf("using config `%s`\n", configFile)
+	}
+
 	args := []string{"start", configFile}
 	if err := utils.ExecCopyOutput("testacular", args); err != nil {
 		return err
