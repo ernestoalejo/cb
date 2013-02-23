@@ -32,6 +32,9 @@ func proxy(c config.Config, q *registry.Queue) error {
 	proxy.Transport = &Proxy{c, q}
 
 	http.Handle("/", proxy)
+	http.HandleFunc("/components/", appServer)
+	http.HandleFunc("/scripts/", appServer)
+	http.HandleFunc("/favicon.ico", appServer)
 
 	log.Println("serving app at http://localhost:9810/...")
 	if err := http.ListenAndServe(":9810", nil); err != nil {
@@ -120,13 +123,10 @@ func (p *Proxy) processRequest(r *http.Request) (*http.Response, error) {
 }
 
 func isOurs(r *http.Request) bool {
-	u := r.URL.Path
 	prefixes := []string{
-		"/components/",
-		"/scripts/",
 		"/styles/",
-		"/favicon.ico",
 	}
+	u := r.URL.Path
 	for _, prefix := range prefixes {
 		if len(u) >= len(prefix) && u[:len(prefix)] == prefix {
 			return true
@@ -134,6 +134,10 @@ func isOurs(r *http.Request) bool {
 	}
 
 	return false
+}
+
+func appServer(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, filepath.Join("client", "app", r.URL.Path))
 }
 
 func readFile(name string) ([]byte, error) {
