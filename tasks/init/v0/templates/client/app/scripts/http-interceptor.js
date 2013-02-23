@@ -1,7 +1,7 @@
 'use strict';
 
 
-var m = angular.module('httpInterceptor', ['monachilServices']);
+var m = angular.module('httpInterceptor', ['services.global']);
 
 m.config(function($httpProvider) {
   $httpProvider.responseInterceptors.push('httpInterceptor');

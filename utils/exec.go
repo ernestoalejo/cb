@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"io"
 	"log"
+	"os"
 	"os/exec"
 
 	"github.com/ernestokarim/cb/config"
@@ -26,4 +28,31 @@ func Exec(app string, args []string) (string, error) {
 		return "", errors.New(err)
 	}
 	return string(output), nil
+}
+
+func ExecCopyOutput(app string, args []string) error {
+	if *config.Verbose {
+		log.Printf("EXEC: %s %+v\n", app, args)
+	}
+
+	cmd := exec.Command(app, args...)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return errors.New(err)
+	}
+
+	if err := cmd.Start(); err != nil {
+		return errors.New(err)
+	}
+
+	if _, err := io.Copy(os.Stdout, stdout); err != nil {
+		return errors.New(err)
+	}
+
+	if err := cmd.Wait(); err != nil {
+		return errors.New(err)
+	}
+
+	return nil
 }

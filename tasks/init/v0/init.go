@@ -20,13 +20,11 @@ const SELF_PKG = "github.com/ernestokarim/cb/tasks/init/v0/templates"
 
 // List of files that must be passed through the template system
 var needTemplates = map[string]bool{
-	"app.yaml":                       true,
-	"client/app/base.html":           true,
-	"client/app/scripts/app.js":      true,
-	"client/app/scripts/app.test.js": true,
-	"client/config.json":             true,
-	"component.json":                 true,
-	"conf/sample-conf.go":            true,
+	"app.yaml":             true,
+	"client/app/base.html": true,
+	"client/config.json":   true,
+	"component.json":       true,
+	"conf/sample-conf.go":  true,
 }
 
 func init() {

@@ -1,7 +1,7 @@
 'use strict';
 
 
-var m = angular.module('testcb', ['errorHandler', 'ngSanitize',
+var m = angular.module('app', ['errorHandler', 'ngSanitize',
   'directives.match', 'httpInterceptor', 'services.global']);
 
 
@@ -14,11 +14,11 @@ m.config(function($routeProvider, $locationProvider) {
         controller: HomeCtrl
       })
 
-      .when('/accounts/login', {
+      /*.when('/accounts/login', {
         templateUrl: '/views/accounts/login.html',
         controller: LoginCtrl,
         resolve: {r: require('notlogged')}
-      })
+      })*/
 
       .otherwise({
         templateUrl: '/home/global/404.html',
