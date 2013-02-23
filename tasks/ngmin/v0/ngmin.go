@@ -15,8 +15,7 @@ import (
 )
 
 var (
-	controllerRe = regexp.MustCompile(`function (.+?)Ctrl\((.*?)\) {`)
-	funcRe       = regexp.MustCompile(`(.+?)\.(factory|directive|config)\(('(.+?)', )?function\((.*?)\) {`)
+	funcRe = regexp.MustCompile(`(.+?)\.(factory|directive|config)\(('(.+?)', )?function\((.*?)\) {`)
 )
 
 func init() {
@@ -49,18 +48,8 @@ func walkFn(path string, info os.FileInfo, err error) error {
 
 	newlines := []string{}
 	for i, line := range lines {
-		// Controllers
-		if strings.Contains(line, "Ctrl(") {
-			ls, err := ctrlAnnotations(path, i+1, line)
-			if err != nil {
-				return err
-			}
-			newlines = append(newlines, ls...)
-			continue
-		}
-
 		// Functions
-		funcs := []string{"factory", "directive", "config"}
+		funcs := []string{"factory", "directive", "config", "controller"}
 		used := false
 		for _, f := range funcs {
 			if strings.Contains(line, f+"(") {
@@ -99,31 +88,6 @@ func walkFn(path string, info os.FileInfo, err error) error {
 	}
 
 	return nil
-}
-
-func ctrlAnnotations(file string, n int, line string) ([]string, error) {
-	match := controllerRe.FindStringSubmatch(line)
-	if match == nil {
-		return nil, errors.Format("%s:%d - incorrect controller func", file, n)
-	}
-
-	if *config.Verbose {
-		log.Printf("instrumenting controller `%s` - %s:%d\n", match[1], file, n)
-	}
-
-	args := strings.Split(match[2], ", ")
-	if len(args) != strings.Count(line, ",")+1 {
-		return nil, errors.Format("%s:%d - incorrect controller args", file, n)
-	}
-
-	if len(args) != 1 || args[0] != "" {
-		for i, arg := range args {
-			args[i] = fmt.Sprintf("'%s'", arg)
-		}
-	}
-	strArgs := strings.Join(args, ", ")
-	firstLine := fmt.Sprintf("%sCtrl.$inject = [%s];\n", match[1], strArgs)
-	return []string{firstLine, line}, nil
 }
 
 func funcAnnotations(file string, n int, line string) ([]string, error) {
