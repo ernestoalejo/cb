@@ -2,6 +2,7 @@ package v0
 
 import (
 	"log"
+	"mime"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -27,6 +28,10 @@ type handler func(w http.ResponseWriter, r *http.Request)
 func proxy(c config.Config, q *registry.Queue) error {
 	configs = c
 	queue = q
+
+	if err := configureExts(); err != nil {
+		return err
+	}
 
 	u, err := url.Parse("http://localhost:8080")
 	if err != nil {
@@ -102,6 +107,18 @@ func recompileStyles(r *http.Request) error {
 				}
 				return nil
 			}
+		}
+	}
+	return nil
+}
+
+func configureExts() error {
+	exts := map[string]string{
+		".woff": "application/x-font-woff",
+	}
+	for ext, t := range exts {
+		if err := mime.AddExtensionType(ext, t); err != nil {
+			return errors.New(err)
 		}
 	}
 	return nil
