@@ -46,10 +46,11 @@ func proxy(c config.Config, q *registry.Queue) error {
 		"/favicon.ico": appHandler,
 		"/fonts/":      appHandler,
 		"/images/":     appHandler,
+		"/scenarios/":  scenariosHandler,
 		"/scripts/":    appHandler,
 		"/styles/":     stylesHandler,
-		"/scenarios/":  scenariosHandler,
 		"/test":        testHandler,
+		"/utils.js":    scenariosHandler,
 	}
 	for url, f := range urls {
 		http.Handle(url, LoggingHandler(http.HandlerFunc(f)))
