@@ -18,7 +18,7 @@ m.config(function($routeProvider, $locationProvider) {
   $routeProvider
       .when('/', {
         templateUrl: '/views/home/home.html',
-        controller: HomeCtrl
+        controller: 'HomeCtrl'
       })
 
       /*.when('/accounts/login', {
@@ -29,7 +29,7 @@ m.config(function($routeProvider, $locationProvider) {
 
       .otherwise({
         templateUrl: '/home/global/404.html',
-        controller: NotFoundCtrl
+        controller: 'NotFoundCtrl'
       });
 });
 

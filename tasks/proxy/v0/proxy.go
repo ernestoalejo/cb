@@ -35,10 +35,14 @@ func proxy(c config.Config, q *registry.Queue) error {
 	proxy.Transport = &Proxy{}
 
 	http.Handle("/", proxy)
-	http.HandleFunc("/components/", appServer)
-	http.HandleFunc("/scripts/", appServer)
-	http.HandleFunc("/styles/", stylesServer)
-	http.HandleFunc("/favicon.ico", appServer)
+	http.HandleFunc("/components/", appHandler)
+	http.HandleFunc("/favicon.ico", appHandler)
+	http.HandleFunc("/fonts/", appHandler)
+	http.HandleFunc("/images/", appHandler)
+	http.HandleFunc("/scenarios/", scenariosHandler)
+	http.HandleFunc("/scripts/", appHandler)
+	http.HandleFunc("/styles/", stylesHandler)
+	http.HandleFunc("/test", testHandler)
 
 	log.Println("serving app at http://localhost:9810/...")
 	if err := http.ListenAndServe(":9810", nil); err != nil {
@@ -63,11 +67,19 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	return
 }
 
-func appServer(w http.ResponseWriter, r *http.Request) {
+func appHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join("client", "app", r.URL.Path))
 }
 
-func stylesServer(w http.ResponseWriter, r *http.Request) {
+func testHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, filepath.Join("client", "test", "e2e", "runner.html"))
+}
+
+func scenariosHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, filepath.Join("client", "test", "e2e", r.URL.Path))
+}
+
+func stylesHandler(w http.ResponseWriter, r *http.Request) {
 	if err := recompileStyles(r); err != nil {
 		http.Error(w, err.Error(), 500)
 		return
