@@ -148,8 +148,14 @@ decrypt_conf: _pwd_prompt
 	openssl cast5-cbc -d -in ${CONF_FILE}.cast5 -out ${CONF_FILE}
 	chmod 600 ${CONF_FILE}
  
+
 # To encrypt the configurations
 encrypt_conf: _pwd_prompt
 	openssl cast5-cbc -e -in ${CONF_FILE} -out ${CONF_FILE}.cast5
 
+
+# Compile the client code and move it to the static folder
+compile:
+	@cb build && $(RM) static && cp -r client/dist static && \
+		$(RM) templates/base.html && mv static/base.html templates/base.html
 

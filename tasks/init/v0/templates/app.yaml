@@ -12,44 +12,45 @@ builtins:
 
 handlers:
 # Static files
+- url: /components/(.*)
+  static_files: static/components/\1
+  upload: static/components/(.*)
+  expiration: "20d"
+
 - url: /fonts/(.*)
   static_files: static/fonts/\1
   upload: static/fonts/(.*)
-  expiration: "365d"
+  expiration: "20d"
 
 - url: /images/(.*)
   static_files: static/images/\1
   upload: static/images/(.*)
-  expiration: "365d"
+  expiration: "20d"
 
 - url: /scripts/(.*)
   static_files: static/scripts/\1
   upload: static/scripts/(.*)
-  expiration: "365d"
+  expiration: "20d"
 
 - url: /styles/(.*)
   static_files: static/styles/\1
   upload: static/styles/(.*)
-  expiration: "365d"
+  expiration: "20d"
 
 - url: /views/(.*)
   static_files: static/views/\1
   upload: static/views/(.*)
-
-- url: /manifest.appcache
-  static_files: static/manifest.appcache
-  upload: static/manifest.appcache
-  expiration: "1s"
+  expiration: "20s"
 
 - url: /favicon.ico
   static_files: static/favicon.ico
   upload: static/favicon.ico
-  expiration: "365d"
+  expiration: "20d"
 
 - url: /robots.txt
   static_files: static/robots.txt
   upload: static/robots.txt
-  expiration: "365d"
+  expiration: "20d"
 
 # Special urls, for tasks and cron
 - url: /tasks/.*
