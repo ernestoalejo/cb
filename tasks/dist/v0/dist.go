@@ -18,46 +18,19 @@ func init() {
 }
 
 func prepare_dist(c config.Config, q *registry.Queue) error {
-	dirs := []string{
-		filepath.Join("client", "temp"),
-		filepath.Join("client", "dist"),
-	}
-	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return errors.New(err)
-		}
+	dist := filepath.Join("client", "dist")
+	if err := os.MkdirAll(dist, 0755); err != nil {
+		return errors.New(err)
 	}
 
-	dirs = []string{
-		"fonts", "components", "views", "images", "styles", "scripts",
-	}
-	for _, dir := range dirs {
-		origin := filepath.Join("client", "app", dir)
-		dest := filepath.Join("client", "temp", dir)
+	origin := filepath.Join("client", "app")
+	dest := filepath.Join("client", "temp")
 
-		if _, err := os.Stat(origin); err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-			return errors.New(err)
-		}
-
-		if *config.Verbose {
-			log.Printf("copy `%s`\n", origin)
-		}
-
-		output, err := utils.Exec("cp", []string{"-r", origin, dest})
-		if err == utils.ErrExec {
-			fmt.Println(output)
-			return nil
-		} else if err != nil {
-			return err
-		}
-	}
-
-	src := filepath.Join("client", "app", "base.html")
-	dest := filepath.Join("client", "temp", "base.html")
-	if err := utils.CopyFile(src, dest); err != nil {
+	output, err := utils.Exec("cp", []string{"-r", origin, dest})
+	if err == utils.ErrExec {
+		fmt.Println(output)
+		return nil
+	} else if err != nil {
 		return err
 	}
 
