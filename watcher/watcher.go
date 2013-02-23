@@ -50,7 +50,9 @@ func Dirs(dirs []string, key string) error {
 			key:      key,
 		}
 
-		log.Printf("watching `%s`\n", dir)
+		if *config.Verbose {
+			log.Printf("watching `%s`\n", dir)
+		}
 	}
 	return nil
 }
