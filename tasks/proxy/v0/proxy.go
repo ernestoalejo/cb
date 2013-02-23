@@ -22,6 +22,8 @@ func init() {
 	registry.NewTask("proxy", 0, proxy)
 }
 
+type handler func(w http.ResponseWriter, r *http.Request)
+
 func proxy(c config.Config, q *registry.Queue) error {
 	configs = c
 	queue = q
@@ -34,15 +36,20 @@ func proxy(c config.Config, q *registry.Queue) error {
 	proxy := httputil.NewSingleHostReverseProxy(u)
 	proxy.Transport = &Proxy{}
 
+	urls := map[string]handler{
+		"/components/": appHandler,
+		"/favicon.ico": appHandler,
+		"/fonts/":      appHandler,
+		"/images/":     appHandler,
+		"/scripts/":    appHandler,
+		"/styles/":     stylesHandler,
+		"/scenarios/":  scenariosHandler,
+		"/test":        testHandler,
+	}
+	for url, f := range urls {
+		http.Handle(url, LoggingHandler(http.HandlerFunc(f)))
+	}
 	http.Handle("/", proxy)
-	http.HandleFunc("/components/", appHandler)
-	http.HandleFunc("/favicon.ico", appHandler)
-	http.HandleFunc("/fonts/", appHandler)
-	http.HandleFunc("/images/", appHandler)
-	http.HandleFunc("/scenarios/", scenariosHandler)
-	http.HandleFunc("/scripts/", appHandler)
-	http.HandleFunc("/styles/", stylesHandler)
-	http.HandleFunc("/test", testHandler)
 
 	log.Println("serving app at http://localhost:9810/...")
 	if err := http.ListenAndServe(":9810", nil); err != nil {
@@ -59,10 +66,6 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	if err != nil {
 		err = errors.New(err)
 		return
-	}
-
-	if resp != nil {
-		log.Printf("%s %d %s\n", r.Method, resp.StatusCode, r.URL)
 	}
 	return
 }
