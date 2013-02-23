@@ -15,7 +15,8 @@ import (
 )
 
 var (
-	funcRe = regexp.MustCompile(`(.+?)\.(factory|directive|config)\(('(.+?)', )?function\((.*?)\) {`)
+	funcRe = regexp.MustCompile(`^(.+?)\.(factory|directive|config|controller)` +
+		`\(('(.+?)', )?function\((.*?)\) {\n$`)
 )
 
 func init() {
@@ -52,7 +53,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		funcs := []string{"factory", "directive", "config", "controller"}
 		used := false
 		for _, f := range funcs {
-			if strings.Contains(line, f+"(") {
+			if strings.HasPrefix(line, f+"(") {
 				ls, err := funcAnnotations(path, i+1, line)
 				if err != nil {
 					return err

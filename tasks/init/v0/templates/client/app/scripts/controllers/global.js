@@ -6,7 +6,7 @@ var m = angular.module('controllers.global', [
 ]);
 
 
-m.controller('GlobalCtrl', function ($rootScope, $location, Selector) {
+m.controller('GlobalCtrl', function($rootScope, $location, Selector) {
   // Change the sidebar and navbar when navigating
   $rootScope.$on('$routeChangeStart', function() {
     Selector.setDirty();
@@ -34,7 +34,9 @@ m.controller('GlobalCtrl', function ($rootScope, $location, Selector) {
 });
 
 
-m.controller('NotFoundCtrl', function() { });
+m.controller('NotFoundCtrl', function() {
+  // empty
+});
 
 
 m.controller('GlobalMsgCtrl', function($scope, GlobalMsg) {

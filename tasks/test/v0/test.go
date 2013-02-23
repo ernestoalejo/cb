@@ -12,7 +12,13 @@ func init() {
 }
 
 func test(c config.Config, q *registry.Queue) error {
-	args := []string{"start", "client/config/testacular.conf.js"}
+	var configFile string
+	if *config.Compiled {
+		configFile = "client/config/testacular-compiled.conf.js"
+	} else {
+		configFile = "client/config/testacular.conf.js"
+	}
+	args := []string{"start", configFile}
 	if err := utils.ExecCopyOutput("testacular", args); err != nil {
 		return err
 	}
