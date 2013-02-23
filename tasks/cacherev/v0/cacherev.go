@@ -38,6 +38,8 @@ func cacherev(c config.Config, q *registry.Queue) error {
 		}
 	}
 
+	utils.SaveChanges(changes)
+
 	return nil
 }
 

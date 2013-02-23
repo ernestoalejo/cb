@@ -24,8 +24,9 @@ var needTemplates = map[string]bool{
 	"client/app/base.html":           true,
 	"client/app/scripts/app.js":      true,
 	"client/app/scripts/app.test.js": true,
-	"conf/sample-conf.go":            true,
+	"client/config.json":             true,
 	"component.json":                 true,
+	"conf/sample-conf.go":            true,
 }
 
 func init() {
@@ -70,7 +71,9 @@ func copyFiles(appname, src, dest string) error {
 		}
 
 		if entry.IsDir() {
-			log.Printf("create folder `%s`\n", rel)
+			if *config.Verbose {
+				log.Printf("create folder `%s`\n", rel)
+			}
 			if err := os.MkdirAll(fulldest, 0755); err != nil {
 				return errors.New(err)
 			}
@@ -99,7 +102,9 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 		return errors.New(err)
 	}
 
-	log.Printf("copy file `%s`\n", rel)
+	if *config.Verbose {
+		log.Printf("copy file `%s`\n", rel)
+	}
 
 	dest, err := os.Create(destPath)
 	if err != nil {

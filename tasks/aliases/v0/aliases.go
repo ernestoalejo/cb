@@ -28,5 +28,6 @@ func init() {
 		{"concat", 0},
 		{"cacherev", 0},
 		{"htmlmin", 0},
+		{"copy_dist", 0},
 	})
 }

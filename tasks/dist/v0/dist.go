@@ -33,6 +33,8 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 	}
 	for _, dir := range dirs {
 		origin := filepath.Join("client", "app", dir)
+		dest := filepath.Join("client", "temp", dir)
+
 		if _, err := os.Stat(origin); err != nil {
 			if os.IsNotExist(err) {
 				continue
@@ -41,15 +43,10 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 		}
 
 		if *config.Verbose {
-			log.Printf("copy folder `%s`\n", origin)
+			log.Printf("copy `%s`\n", origin)
 		}
 
-		args := []string{
-			"-r",
-			origin,
-			filepath.Join("client", "temp", dir),
-		}
-		output, err := utils.Exec("cp", args)
+		output, err := utils.Exec("cp", []string{"-r", origin, dest})
 		if err == utils.ErrExec {
 			fmt.Println(output)
 			return nil
@@ -65,4 +62,76 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 	}
 
 	return nil
+}
+
+func copy_dist(c config.Config, q *registry.Queue) error {
+	dirs, err := readConfig(c["dist"])
+	if err != nil {
+		return err
+	}
+
+	changes := utils.LoadChanges()
+	for i, dir := range dirs {
+		name, ok := changes[filepath.Base(dir)]
+		if ok {
+			dir = filepath.Join(filepath.Dir(dir), name)
+		}
+		dirs[i] = dir
+	}
+
+	for _, dir := range dirs {
+		origin := filepath.Join("client", "temp", dir)
+		dest := filepath.Join("client", "dist", dir)
+
+		info, err := os.Stat(origin)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return errors.New(err)
+		}
+		if !info.IsDir() {
+			if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
+				return errors.New(err)
+			}
+		}
+
+		if *config.Verbose {
+			log.Printf("copy `%s`\n", origin)
+		}
+
+		output, err := utils.Exec("cp", []string{"-r", origin, dest})
+		if err == utils.ErrExec {
+			fmt.Println(output)
+			return nil
+		} else if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func readConfig(m map[string]interface{}) ([]string, error) {
+	info, ok := m["files"]
+	if !ok {
+		return nil, errors.Format("dist files not present")
+	}
+
+	dirsLst, ok := info.([]interface{})
+	if !ok {
+		return nil, errors.Format("dist files is not a list of dirs")
+	}
+
+	dirs := []string{}
+	for _, item := range dirsLst {
+		s, ok := item.(string)
+		if !ok {
+			return nil, errors.Format("dist files are not strings")
+		}
+
+		dirs = append(dirs, s)
+	}
+
+	return dirs, nil
 }
