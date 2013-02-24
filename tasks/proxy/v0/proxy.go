@@ -51,6 +51,7 @@ func proxy(c config.Config, q *registry.Queue) error {
 		"/styles/":     stylesHandler,
 		"/test":        testHandler,
 		"/utils.js":    scenariosHandler,
+		"/views/":      appHandler,
 	}
 	for url, f := range urls {
 		http.Handle(url, LoggingHandler(http.HandlerFunc(f)))
@@ -67,7 +68,9 @@ func proxy(c config.Config, q *registry.Queue) error {
 type Proxy struct{}
 
 func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
-	r.Header.Set("X-Request-From", "cb")
+	if !*config.Compiled {
+		r.Header.Set("X-Request-From", "cb")
+	}
 	resp, err = http.DefaultTransport.RoundTrip(r)
 	if err != nil {
 		err = errors.New(err)
