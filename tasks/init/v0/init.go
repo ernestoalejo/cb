@@ -1,8 +1,9 @@
 package v0
 
 import (
+	"bytes"
 	"fmt"
-	"io"
+	"hash/crc32"
 	"io/ioutil"
 	"log"
 	"os"
@@ -90,8 +91,39 @@ func copyFiles(appname, src, dest string) error {
 // Copy a file, using templates if needed, from srcPath to destPath.
 // Rel is the relative-to-root-dest path.
 func copyFile(appname, srcPath, destPath, rel string) error {
+	var content []byte
+	if needTemplates[rel] {
+		t, err := template.ParseFiles(srcPath)
+		if err != nil {
+			return errors.New(err)
+		}
+
+		buf := bytes.NewBuffer(nil)
+		if err := t.Execute(buf, getTemplateData(appname)); err != nil {
+			return err
+		}
+		content = buf.Bytes()
+	} else {
+		src, err := os.Open(srcPath)
+		if err != nil {
+			return errors.New(err)
+		}
+		defer src.Close()
+
+		content, err = ioutil.ReadAll(src)
+		if err != nil {
+			return errors.New(err)
+		}
+	}
+
 	_, err := os.Stat(destPath)
 	if err == nil {
+		if equal, err := compareFiles(content, destPath); err != nil {
+			return err
+		} else if equal {
+			return nil
+		}
+
 		q := fmt.Sprintf("Do you want to overwrite `%s`?", rel)
 		if !utils.Ask(q) {
 			return nil
@@ -104,31 +136,8 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 		log.Printf("copy file `%s`\n", rel)
 	}
 
-	dest, err := os.Create(destPath)
-	if err != nil {
-		return errors.New(err)
-	}
-	defer dest.Close()
-
-	if needTemplates[rel] {
-		t, err := template.ParseFiles(srcPath)
-		if err != nil {
-			return errors.New(err)
-		}
-
-		if err := t.Execute(dest, getTemplateData(appname)); err != nil {
-			return err
-		}
-	} else {
-		src, err := os.Open(srcPath)
-		if err != nil {
-			return errors.New(err)
-		}
-		defer src.Close()
-
-		if _, err := io.Copy(dest, src); err != nil {
-			return errors.New(err)
-		}
+	if err := utils.WriteFile(destPath, string(content)); err != nil {
+		return err
 	}
 
 	return nil
@@ -138,4 +147,24 @@ func getTemplateData(appname string) map[string]interface{} {
 	return map[string]interface{}{
 		"AppName": appname,
 	}
+}
+
+func compareFiles(src []byte, dest string) (bool, error) {
+	f, err := os.Open(dest)
+	if err != nil {
+		return false, errors.New(err)
+	}
+	defer f.Close()
+
+	contents, err := ioutil.ReadAll(f)
+	if err != nil {
+		return false, errors.New(err)
+	}
+
+	contentsHash := fmt.Sprintf("%x", crc32.ChecksumIEEE(contents))
+	srcHash := fmt.Sprintf("%x", crc32.ChecksumIEEE(src))
+
+	fmt.Println(srcHash, contentsHash)
+
+	return srcHash == contentsHash, nil
 }
