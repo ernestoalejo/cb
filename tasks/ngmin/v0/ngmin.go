@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	funcRe = regexp.MustCompile(`^(.+?)\.(factory|directive|config|controller)` +
+	funcRe = regexp.MustCompile(`^m\.(factory|directive|config|controller)` +
 		`\(('(.+?)', )?function\((.*?)\) {\n$`)
 )
 
@@ -53,7 +53,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		funcs := []string{"factory", "directive", "config", "controller"}
 		used := false
 		for _, f := range funcs {
-			if strings.HasPrefix(line, f+"(") {
+			if strings.HasPrefix(line, "m."+f+"(") {
 				ls, err := funcAnnotations(path, i+1, line)
 				if err != nil {
 					return err
@@ -98,7 +98,7 @@ func funcAnnotations(file string, n int, line string) ([]string, error) {
 	}
 
 	if *config.Verbose {
-		if match[4] == "" {
+		if match[3] == "" {
 			log.Printf("instrumenting function `config` - %s:%d\n", file, n)
 		} else {
 			log.Printf("instrumenting function `%s` - %s:%d\n", match[4], file, n)
@@ -109,10 +109,10 @@ func funcAnnotations(file string, n int, line string) ([]string, error) {
 	// (directive, ...) will have one more pause than the ones
 	// who don't (config, ...)
 	var d int
-	if match[4] == "" {
+	if match[3] == "" {
 		d++
 	}
-	args := strings.Split(match[5], ", ")
+	args := strings.Split(match[4], ", ")
 	if len(args) != strings.Count(line, ",")+d {
 		return nil, errors.Format("%s:%d - incorrect function args", file, n)
 	}
@@ -128,12 +128,11 @@ func funcAnnotations(file string, n int, line string) ([]string, error) {
 		strArgs += ", "
 	}
 
-	if match[4] == "" {
-		line = fmt.Sprintf("%s.%s([%sfunction(%s) {\n", match[1], match[2],
-			strArgs, match[5])
+	if match[3] == "" {
+		line = fmt.Sprintf("m.%s([%sfunction(%s) {\n", match[1], strArgs, match[4])
 	} else {
-		line = fmt.Sprintf("%s.%s('%s', [%sfunction(%s) {\n", match[1],
-			match[2], match[4], strArgs, match[5])
+		line = fmt.Sprintf("m.%s('%s', [%sfunction(%s) {\n", match[1], match[3],
+			strArgs, match[4])
 	}
 	return []string{line}, nil
 }
