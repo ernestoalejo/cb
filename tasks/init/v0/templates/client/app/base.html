@@ -133,7 +133,9 @@
     <!-- endcompile -->
   {% else %}
     <script type="text/javascript">
-      window.data = {% .Data %};
+      {% range .Data %}
+        angular.module('{% .Module %}').constant('{% .Name %}', {% .Value %});
+      {% end %}
     </script>
   {% end %}
 
