@@ -42,17 +42,26 @@ func proxy(c config.Config, q *registry.Queue) error {
 	proxy.Transport = &Proxy{}
 
 	urls := map[string]handler{
-		"/components/": appHandler,
-		"/favicon.ico": appHandler,
-		"/fonts/":      appHandler,
-		"/images/":     appHandler,
-		"/scenarios/":  scenariosHandler,
+		"/scenarios/":          scenariosHandler,
+		"/test":                testHandler,
+		"/utils.js":            scenariosHandler,
+		"/angular-scenario.js": angularScenarioHandler,
+	}
+	devUrls := map[string]handler{
 		"/scripts/":    appHandler,
 		"/styles/":     stylesHandler,
-		"/test":        testHandler,
-		"/utils.js":    scenariosHandler,
+		"/fonts/":      appHandler,
+		"/images/":     appHandler,
+		"/components/": appHandler,
+		"/favicon.ico": appHandler,
 		"/views/":      appHandler,
 	}
+	if !*config.Compiled {
+		for k, v := range devUrls {
+			urls[k] = v
+		}
+	}
+
 	for url, f := range urls {
 		http.Handle(url, LoggingHandler(http.HandlerFunc(f)))
 	}
@@ -89,6 +98,11 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 
 func scenariosHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filepath.Join("client", "test", "e2e", r.URL.Path))
+}
+
+func angularScenarioHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, filepath.Join("client", "app", "components",
+		"bower-angular", r.URL.Path))
 }
 
 func stylesHandler(w http.ResponseWriter, r *http.Request) {

@@ -33,6 +33,10 @@ func test(c config.Config, q *registry.Queue) error {
 }
 
 func e2e(c config.Config, q *registry.Queue) error {
-	q.AddTask("server")
+	if *config.Compiled {
+		q.AddTask("proxy")
+	} else {
+		q.AddTask("server")
+	}
 	return nil
 }
