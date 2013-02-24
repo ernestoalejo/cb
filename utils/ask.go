@@ -17,11 +17,11 @@ func Ask(q string) bool {
 		if !*config.AlwaysY && !*config.AlwaysN {
 			fmt.Printf("%s", q)
 
-			line, _, err := buf.ReadLine()
+			var err error
+			ans, err = buf.ReadString('\n')
 			if err != nil {
 				panic(err)
 			}
-			ans = string(line)
 		}
 
 		if ans == "Y" || ans == "y" || *config.AlwaysY {
