@@ -54,6 +54,32 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		used := false
 		for _, f := range funcs {
 			if strings.HasPrefix(line, "m."+f+"(") {
+				// Easy alert of a common error
+				if line[len(line)-2] == ' ' {
+					return errors.Format("%s:%d - final space", path, i+1)
+				}
+
+				// Line continues in the next one
+				if line[len(line)-2] == ',' {
+					l := line
+					i++
+					for {
+						l = fmt.Sprintf("%s %s\n", l[:len(l)-1],
+							strings.TrimSpace(lines[i]))
+						lines[i] = ""
+						i++
+						if i >= len(lines) {
+							return errors.Format("%s:%d - cannot found "+
+								"function start", path, i)
+						}
+						if strings.Contains(l, "{") {
+							line = l
+							break
+						}
+					}
+				}
+
+				// Annotate the function
 				ls, err := funcAnnotations(path, i+1, line)
 				if err != nil {
 					return err
