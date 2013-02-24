@@ -9,4 +9,5 @@ var (
 	AlwaysY  = flag.Bool("y", false, "answer yes to all overwrites")
 	AlwaysN  = flag.Bool("n", false, "answer no to all overwrites")
 	Compiled = flag.Bool("compiled", false, "test the compiled version of the app")
+	Help     = flag.Bool("help", false, "show this help message")
 )

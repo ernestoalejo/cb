@@ -2,6 +2,8 @@ package registry
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -36,13 +38,34 @@ func NewAlias(name string, version int, aliases []*Alias) {
 }
 
 func PrintTasks() {
-	fmt.Println("\nTASKS:")
-	for name, _ := range tasks {
-		fmt.Printf("    %s\n", name)
+	userTasks := map[string]bool{
+		"build":   true,
+		"e2e":     true,
+		"fixlint": true,
+		"init":    true,
+		"lint":    true,
+		"server":  true,
+		"test":    true,
 	}
+
+	system := []string{}
+	user := []string{}
+	for name, _ := range tasks {
+		if userTasks[name] {
+			user = append(user, name)
+		} else {
+			system = append(system, name)
+		}
+	}
+	sort.Strings(system)
+	sort.Strings(user)
+
+	fmt.Println("\n * USER TASKS:", strings.Join(user, ", "))
+	fmt.Println("\n * SYSTEM TASKS:", strings.Join(system, ", "))
+	fmt.Println()
 }
 
-// Obtain the task by name and version. If version is -1 it will return the 
+// Obtain the task by name and version. If version is -1 it will return the
 // latest version of that task.
 func getTask(name string, version int) (Task, error) {
 	m := tasks[name]

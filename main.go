@@ -9,14 +9,12 @@ import (
 	"github.com/ernestokarim/cb/registry"
 )
 
-var (
-	help = flag.Bool("help", false, "show this help message")
-)
+var ()
 
 func main() {
 	flag.Parse()
 
-	if *help {
+	if *config.Help {
 		usage()
 		return
 	}
@@ -43,7 +41,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Println("Usage: cb [target] [options...]")
+	fmt.Println("\n Usage: cb [target] [options...]")
 	flag.PrintDefaults()
 	registry.PrintTasks()
 }
