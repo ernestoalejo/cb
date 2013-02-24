@@ -19,6 +19,7 @@
       "robots.txt",
       "scripts/ie.js",
       "scripts/{{.AppName}}.js",
+      "scripts/test.js",
       "styles/{{.AppName}}.css",
       "views"
     ]

@@ -113,7 +113,7 @@
 
   <!-- concat:js scripts/{{.AppName}}.js -->
     <!-- min --><script src="components/bower-angular/angular.js"></script>
-    <!-- ignore --><script src="components/bower-angular/angular-sanitize.js"></script>
+    <!-- min --><script src="components/bower-angular/angular-sanitize.js"></script>
 
     <!-- compile scripts/scripts.js -->
       <script src="scripts/app.js"></script>
@@ -127,8 +127,10 @@
   <!-- endconcat -->
 
   {% if .Test %}
-    <script type="text/javascript" src="components/bower-angular/angular-mocks.js"></script>
-    <script type="text/javascript" src="scripts/app.test.js"></script>
+    <!-- compile scripts/test.js -->
+      <script src="components/bower-angular/angular-mocks.js"></script>      
+      <script src="scripts/app.test.js"></script>
+    <!-- endcompile -->
   {% else %}
     <script type="text/javascript">
       window.data = {% .Data %};

@@ -35,6 +35,8 @@ TMP = /tmp
 # The configuration file
 CONF_FILE=conf/conf.go
 
+RM=rm -rf
+
 # The default command.
 default: help
 
