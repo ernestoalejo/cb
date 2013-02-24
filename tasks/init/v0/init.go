@@ -164,7 +164,5 @@ func compareFiles(src []byte, dest string) (bool, error) {
 	contentsHash := fmt.Sprintf("%x", crc32.ChecksumIEEE(contents))
 	srcHash := fmt.Sprintf("%x", crc32.ChecksumIEEE(src))
 
-	fmt.Println(srcHash, contentsHash)
-
 	return srcHash == contentsHash, nil
 }
