@@ -27,7 +27,8 @@ func exec_sass(c config.Config, q *registry.Queue, mode string) error {
 	}
 
 	for _, file := range files {
-		args := []string{file.Src, "--cache-location", "client/temp/sass-cache"}
+		cache := filepath.Join("client", "temp", "sass-cache")
+		args := []string{file.Src, "--cache-location", cache}
 		if mode == "dev" {
 			args = append(args, "-l")
 		} else if mode == "prod" {

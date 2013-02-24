@@ -15,7 +15,24 @@ import (
 	"github.com/ernestokarim/cb/utils"
 )
 
-var changes = map[string]string{}
+var (
+	changes     = map[string]string{}
+	allowedExts = map[string]bool{
+		".gif":  true,
+		".js":   true,
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+		".css":  true,
+		".otf":  true,
+		".eot":  true,
+		".svg":  true,
+		".ttf":  true,
+		".woff": true,
+		".ico":  true,
+		".txt":  true,
+	}
+)
 
 func init() {
 	registry.NewTask("cacherev", 0, cacherev)
@@ -51,6 +68,9 @@ func changeName(path string, info os.FileInfo, err error) error {
 		return errors.New(err)
 	}
 	if info.IsDir() {
+		return nil
+	}
+	if !allowedExts[filepath.Ext(path)] {
 		return nil
 	}
 
