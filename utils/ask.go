@@ -22,6 +22,7 @@ func Ask(q string) bool {
 			if err != nil {
 				panic(err)
 			}
+			ans = ans[:len(ans)-1]
 		}
 
 		if ans == "Y" || ans == "y" || *config.AlwaysY {

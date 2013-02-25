@@ -62,22 +62,67 @@ describe('Controller: GlobalMsgCtrl', function() {
   });
 
   it('should react on errors', (function() {
-      $location.path('/notlogged');
-      $rootScope.$broadcast('$routeChangeError', '/notlogged', '/prev', 'notlogged');
-      expect($location.path()).toBe('/');
+    $location.path('/notlogged');
+    $rootScope.$broadcast('$routeChangeError', '/notlogged', '/prev',
+        'notlogged');
+    expect($location.path()).toBe('/');
 
-      $location.path('/logged');
-      $rootScope.$broadcast('$routeChangeError', '/logged', '/prev', 'logged');
-      expect($location.path()).toBe('/accounts/login');
+    $location.path('/logged');
+    $rootScope.$broadcast('$routeChangeError', '/logged', '/prev',
+        'logged');
+    expect($location.path()).toBe('/accounts/login');
 
-      $location.path('/admin');
-      $rootScope.$broadcast('$routeChangeError', '/admin', '/prev', 'admin');
-      expect($location.path()).toBe('/');
+    $location.path('/admin');
+    $rootScope.$broadcast('$routeChangeError', '/admin', '/prev', 'admin');
+    expect($location.path()).toBe('/');
 
-      $location.path('/unknown');
-      expect(function() {
-        $rootScope.$broadcast('$routeChangeError', '/unknown', '/prev', 'unknown');
-      }).toThrow(new Error("unkwnown route error: unknown"));
-    }));
+    $location.path('/unknown');
+    expect(function() {
+      $rootScope.$broadcast('$routeChangeError', '/unknown', '/prev',
+          'unknown');
+    }).toThrow(new Error('unkwnown route error: unknown'));
+  }));
 });
 
+
+describe('Controller: FeedbackCtrl', function() {
+  beforeEach(module('controllers.global'));
+
+  var scope, GlobalMsg, $httpBackend;
+  beforeEach(inject(function($injector) {
+    GlobalMsg = $injector.get('GlobalMsg');
+    $httpBackend = $injector.get('$httpBackend');
+
+    var $controller = $injector.get('$controller');
+    var $rootScope = $injector.get('$rootScope');
+
+    scope = $rootScope.$new();
+    $controller('FeedbackCtrl', {$scope: scope});
+  }));
+
+  it('should reset the form & show a message on success', function() {
+    $httpBackend.expectPOST('/_/feedback').respond({});
+
+    scope.message = 'testing';
+    scope.send();
+
+    expect(scope.message).toBe('');
+    $httpBackend.flush();
+
+    expect(GlobalMsg.get()).toBe('Hemos recibido tu mensaje correctamente');
+    expect(GlobalMsg.getClass()).toBe('label-success');
+  });
+
+  it('should put the message again in the textarea on fail', function() {
+    $httpBackend.expectPOST('/_/feedback').respond(function() {
+      return [403, {}];
+    });
+
+    scope.message = 'testing';
+    scope.send();
+
+    expect(scope.message).toBe('');
+    $httpBackend.flush();
+    expect(scope.message).toBe('testing');
+  });
+});

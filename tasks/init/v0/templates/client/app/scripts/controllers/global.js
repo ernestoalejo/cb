@@ -23,7 +23,6 @@ m.controller('GlobalCtrl', function($rootScope, $location, Selector) {
     if (msg == 'notlogged') {
       $location.path('/');
     } else if (msg == 'logged') {
-      PagesCache.add($location.url());
       $location.path('/accounts/login');
     } else if (msg == 'admin') {
       $location.path('/');
@@ -47,3 +46,28 @@ m.controller('GlobalMsgCtrl', function($scope, GlobalMsg) {
   };
 });
 
+
+m.controller('FeedbackCtrl', function($scope, $http, GlobalMsg) {
+  var $msg = $('#message');
+  var $dlg = $('#feedback-dlg');
+
+  $dlg.on('shown', function() {
+    $msg.focus();
+  });
+
+  $scope.showFeedback = function() {
+    $dlg.modal();
+  };
+
+  $scope.send = function() {
+    var msg = $scope.message;
+    $scope.message = '';
+
+    $http.post('/_/feedback', {message: msg}).success(function() {
+      GlobalMsg.setTemp('Hemos recibido tu mensaje correctamente', 'success');
+    }).error(function() {
+      $scope.message = msg;
+    });
+    $dlg.modal('hide');
+  };
+});

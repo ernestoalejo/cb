@@ -96,6 +96,29 @@
     </div>
   </div>
 
+  <div ng-controller="FeedbackCtrl">
+    <div id="feedback">
+      <button class="feedback-btn" ng-click="showFeedback()">Ayuda / Contacto</button>
+    </div>
+
+    <div id="feedback-dlg" class="modal hide fade" tabindex="-1">
+      <div class="modal-header">
+        <button class="close" data-dismiss="modal">&times;</button>
+        <h3>Ayuda / Contacto</h3>
+      </div>
+      <div class="modal-body">
+        <p>Dinos que te ocurre e intentaremos ayudarte en menos de 48 horas.</p>
+        <textarea class="span6" ng-model="message" rows="7"
+          placeholder="Tengo problemas con..." id="message"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary feedback-send" ng-disabled="!message"
+            ng-click="send()">Enviar mensaje</button>
+        <button class="btn" data-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- concat:js scripts/ie.js -->
     <!--[if lt IE 9]>
       <script src="components/es5-shim/es5-shim.min.js"></script>
@@ -113,6 +136,9 @@
   <!-- concat:js scripts/{{.AppName}}.js -->
     <!-- min --><script src="components/bower-angular/angular.js"></script>
     <!-- min --><script src="components/bower-angular/angular-sanitize.js"></script>
+    <!-- compile scripts/bootstrap.js -->
+      <script src="app/components/bootstrap/js/bootstrap-transition.js"></script>
+    <!-- endcompile -->
 
     <!-- compile scripts/scripts.js -->
       <script src="scripts/app.js"></script>
@@ -137,29 +163,6 @@
       {% end %}
     </script>
   {% end %}
-
-  <div ng-controller="FeedbackCtrl">
-    <div id="feedback">
-      <button class="feedback-btn" ng-click="showFeedback()">Ayuda / Contacto</button>
-    </div>
-
-    <div id="feedback-dlg" class="modal hide fade" tabindex="-1">
-      <div class="modal-header">
-        <button class="close" data-dismiss="modal">&times;</button>
-        <h3>Ayuda / Contacto</h3>
-      </div>
-      <div class="modal-body">
-        <p>Dinos que te ocurre e intentaremos ayudarte en menos de 48 horas.</p>
-        <textarea class="span6" ng-model="message" rows="7"
-          placeholder="Tengo problemas con..." id="message"></textarea>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary feedback-send" ng-disabled="!message"
-            ng-click="send()">Enviar mensaje</button>
-        <button class="btn" data-dismiss="modal">Cancelar</button>
-      </div>
-    </div>
-  </div>
 
 </body>
 </html>
