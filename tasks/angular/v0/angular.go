@@ -39,10 +39,11 @@ func service(c config.Config, q *registry.Queue) error {
 		return err
 	}
 
-	if err := writeServiceFile(name, module); err != nil {
+	data := &ServiceData{name, module}
+	if err := writeServiceFile(data); err != nil {
 		return err
 	}
-	if err := writeServiceTestFile(name, module); err != nil {
+	if err := writeServiceTestFile(data); err != nil {
 		return err
 	}
 
@@ -68,10 +69,14 @@ func controller(c config.Config, q *registry.Queue) error {
 		return err
 	}
 
-	if err := writeControllerFile(name, module, route); err != nil {
+	data := &ControllerData{name, module, route}
+	if err := writeControllerFile(data); err != nil {
 		return err
 	}
-	if err := writeControllerTestFile(name, module, route); err != nil {
+	if err := writeControllerTestFile(data); err != nil {
+		return err
+	}
+	if err := writeControllerViewFile(data); err != nil {
 		return err
 	}
 
@@ -110,6 +115,10 @@ func writeFile(path string, tmpl string, data interface{}) error {
 		}
 	}
 
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return errors.New(err)
+	}
+
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		return errors.New(err)
@@ -135,18 +144,18 @@ type ServiceData struct {
 	Name, Module string
 }
 
-func writeServiceFile(name, module string) error {
-	parts := strings.Split(module, ".")
+func writeServiceFile(data *ServiceData) error {
+	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + ".js"
 	p := filepath.Join("client", "app", "scripts", "services", filename)
-	return writeFile(p, "service.js", &ServiceData{name, module})
+	return writeFile(p, "service.js", data)
 }
 
-func writeServiceTestFile(name, module string) error {
-	parts := strings.Split(module, ".")
+func writeServiceTestFile(data *ServiceData) error {
+	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + "Spec.js"
 	p := filepath.Join("client", "test", "unit", "services", filename)
-	return writeFile(p, "serviceSpec.js", &ServiceData{name, module})
+	return writeFile(p, "serviceSpec.js", data)
 }
 
 // ==================================================================
@@ -155,16 +164,24 @@ type ControllerData struct {
 	Name, Module, Route string
 }
 
-func writeControllerFile(name, module, route string) error {
-	parts := strings.Split(module, ".")
+func writeControllerFile(data *ControllerData) error {
+	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + ".js"
 	p := filepath.Join("client", "app", "scripts", "controllers", filename)
-	return writeFile(p, "controller.js", &ControllerData{name, module, route})
+	return writeFile(p, "controller.js", data)
 }
 
-func writeControllerTestFile(name, module, route string) error {
-	parts := strings.Split(module, ".")
+func writeControllerTestFile(data *ControllerData) error {
+	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + "Spec.js"
 	p := filepath.Join("client", "test", "unit", "controllers", filename)
-	return writeFile(p, "controllerSpec.js", &ControllerData{name, module, route})
+	return writeFile(p, "controllerSpec.js", data)
+}
+
+func writeControllerViewFile(data *ControllerData) error {
+	parts := strings.Split(data.Module, ".")
+	name := parts[len(parts)-1]
+	filename := strings.ToLower(data.Name) + ".html"
+	p := filepath.Join("client", "app", "views", name, filename)
+	return writeFile(p, "view.html", data)
 }
