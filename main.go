@@ -35,7 +35,7 @@ func main() {
 		q.AddTask(task)
 	}
 
-	if err := q.Run(config); err != nil {
+	if err := q.RunWithTimer(config); err != nil {
 		log.Fatal(err)
 	}
 }

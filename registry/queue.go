@@ -4,6 +4,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -15,6 +16,15 @@ type Queue struct {
 
 func (q *Queue) AddTask(t string) {
 	q.tasks = append(q.tasks, t)
+}
+
+func (q *Queue) RunWithTimer(config config.Config) error {
+	start := time.Now()
+	if err := q.Run(config); err != nil {
+		return err
+	}
+	log.Printf("Finished in %.3f seconds", time.Since(start).Seconds())
+	return nil
 }
 
 func (q *Queue) Run(config config.Config) error {
