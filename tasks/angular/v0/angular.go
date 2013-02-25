@@ -69,6 +69,10 @@ func controller(c config.Config, q *registry.Queue) error {
 		return err
 	}
 
+	if !strings.Contains(name, "Ctrl") {
+		name = name + "Ctrl"
+	}
+
 	data := &ControllerData{name, module, route}
 	if err := writeControllerFile(data); err != nil {
 		return err
@@ -77,6 +81,9 @@ func controller(c config.Config, q *registry.Queue) error {
 		return err
 	}
 	if err := writeControllerViewFile(data); err != nil {
+		return err
+	}
+	if err := writeControllerRouteFile(data); err != nil {
 		return err
 	}
 
@@ -184,4 +191,46 @@ func writeControllerViewFile(data *ControllerData) error {
 	filename := strings.ToLower(data.Name) + ".html"
 	p := filepath.Join("client", "app", "views", name, filename)
 	return writeFile(p, "view.html", data)
+}
+
+func writeControllerRouteFile(data *ControllerData) error {
+	path := filepath.Join("client", "app", "scripts", "app.js")
+	lines, err := utils.ReadLines(path)
+	if err != nil {
+		return err
+	}
+
+	newlines := []string{}
+	processed := false
+	for _, line := range lines {
+		if strings.Contains(line, ".otherwise") {
+			if processed {
+				return errors.Format(".otherwise line found twice, write " +
+					"the route manually in app.js")
+			}
+
+			parts := strings.Split(data.Module, ".")
+			name := parts[len(parts)-1]
+			filename := strings.ToLower(data.Name) + ".html"
+
+			newlines = append(newlines, []string{
+				fmt.Sprintf("      .when('%s', {\n", data.Route),
+				fmt.Sprintf("        templateUrl: 'views/%s/%s',\n", name, filename),
+				fmt.Sprintf("        controller: '%s'\n", data.Name),
+				"      })\n",
+			}...)
+			processed = true
+		}
+		newlines = append(newlines, line)
+	}
+	if len(newlines) == len(lines) {
+		return errors.Format(".otherwise line not found in app.js, add the " +
+			"route manually")
+	}
+
+	if err := utils.WriteFile(path, strings.Join(newlines, "")); err != nil {
+		return err
+	}
+
+	return nil
 }
