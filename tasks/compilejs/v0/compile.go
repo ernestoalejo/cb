@@ -20,10 +20,10 @@ var (
 )
 
 func init() {
-	registry.NewTask("compile", 0, compile)
+	registry.NewTask("compilejs", 0, compilejs)
 }
 
-func compile(c config.Config, q *registry.Queue) error {
+func compilejs(c config.Config, q *registry.Queue) error {
 	base := filepath.Join("client", "temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {

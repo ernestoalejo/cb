@@ -24,11 +24,14 @@ func init() {
 		{"imagemin", 0},
 		{"minignore", 0},
 		{"ngmin", 0},
-		{"compile", 0},
+		{"compilejs", 0},
 		{"concat", 0},
 		{"cacherev", 0},
 		{"htmlmin", 0},
 		{"copy_dist", 0},
 		{"deploy_dist", 0},
+	})
+	registry.NewAlias("compile", 0, []*registry.Alias{
+		{"build", 0},
 	})
 }
