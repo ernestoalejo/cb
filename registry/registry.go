@@ -40,6 +40,7 @@ func NewAlias(name string, version int, aliases []*Alias) {
 func PrintTasks() {
 	userTasks := map[string]bool{
 		"build":   true,
+		"compile": true,
 		"e2e":     true,
 		"fixlint": true,
 		"init":    true,
