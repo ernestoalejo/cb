@@ -2,6 +2,7 @@ package stuff
 
 import (
 	"github.com/ernestokarim/gaelib/app"
+	"github.com/ernestokarim/gaelib/errors"
 )
 
 type ErrorReporterData struct {
@@ -19,7 +20,7 @@ func ErrorReporter(r *app.Request) error {
 	}
 
 	// Log the error
-	err := app.Errorf("CLIENT ERROR:\n * Name: %s\n * Message: %s\n "+
+	err := errors.Format("CLIENT ERROR:\n * Name: %s\n * Message: %s\n "+
 		"* Stack: %s\n * Error:\n%+v\n\n",
 		data.Name, data.Message, data.Stack, data.Error)
 	app.LogError(r.C, err)

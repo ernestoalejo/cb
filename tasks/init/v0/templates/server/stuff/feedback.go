@@ -8,6 +8,7 @@ import (
 	"conf"
 
 	"github.com/ernestokarim/gaelib/app"
+	"github.com/ernestokarim/gaelib/errors"
 	"github.com/ernestokarim/gaelib/mail"
 )
 
@@ -35,7 +36,7 @@ func Feedback(r *app.Request) error {
 			}
 			html := bytes.NewBuffer(nil)
 			if err := app.Template(html, []string{"mails/feedback"}, data); err != nil {
-				return app.Error(err)
+				return errors.New(err)
 			}
 
 			m := &mail.Mail{
