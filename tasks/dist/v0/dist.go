@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -15,6 +16,7 @@ import (
 func init() {
 	registry.NewTask("prepare_dist", 0, prepare_dist)
 	registry.NewTask("copy_dist", 0, copy_dist)
+	registry.NewTask("deploy_dist", 0, deploy_dist)
 }
 
 func prepare_dist(c config.Config, q *registry.Queue) error {
@@ -82,6 +84,26 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 		}
 	}
 
+	return nil
+}
+
+func deploy_dist(c config.Config, q *registry.Queue) error {
+	commands := []string{
+		"rm -rf static",
+		"cp -r client/dist static",
+		"rm templates/base.html",
+		"mv static/base.html templates/base.html",
+	}
+	for _, c := range commands {
+		cmd := strings.Split(c, " ")
+		output, err := utils.Exec(cmd[0], cmd[1:])
+		if err == utils.ErrExec {
+			fmt.Println(output)
+			return nil
+		} else if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

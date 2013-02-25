@@ -29,5 +29,6 @@ func init() {
 		{"cacherev", 0},
 		{"htmlmin", 0},
 		{"copy_dist", 0},
+		{"deploy_dist", 0},
 	})
 }
