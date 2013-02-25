@@ -99,8 +99,9 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 		}
 
 		buf := bytes.NewBuffer(nil)
-		if err := t.Execute(buf, getTemplateData(appname)); err != nil {
-			return err
+		data := map[string]interface{}{"AppName": appname}
+		if err := t.Execute(buf, data); err != nil {
+			return errors.New(err)
 		}
 		content = buf.Bytes()
 	} else {
@@ -141,12 +142,6 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 	}
 
 	return nil
-}
-
-func getTemplateData(appname string) map[string]interface{} {
-	return map[string]interface{}{
-		"AppName": appname,
-	}
 }
 
 func compareFiles(src []byte, dest string) (bool, error) {

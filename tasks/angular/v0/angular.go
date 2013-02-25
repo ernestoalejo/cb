@@ -11,64 +11,14 @@ import (
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
+	"github.com/ernestokarim/cb/utils"
 )
 
+// Pointer to this package (to locate the templates)
+const SELF_PKG = "github.com/ernestokarim/cb/tasks/angular/v0/templates"
+
 var (
-	buf         = bufio.NewReader(os.Stdin)
-	serviceTmpl = template.Must(template.New("service").Parse(
-		`{{ if not .Exists }}'use strict';
-
-
-var m = angular.module('{{ .Data.Module }}', []);
-{{ end }}
-
-m.factory('{{ .Data.Name }}', function() {
-  return {};
-});
-`))
-	serviceTestTmpl = template.Must(template.New("serviceTest").Parse(
-		`{{ if not .Exists }}'use strict';
-
-{{ else }}
-{{ end }}
-describe('Service: {{ .Data.Name }}', function() {
-  beforeEach(module('{{ .Data.Module }}'));
-
-  var {{ .Data.Name }};
-  beforeEach(inject(function($injector) {
-    {{ .Data.Name }} = $injector.get('{{ .Data.Name }}');
-  }));
-});
-`))
-	controllerTmpl = template.Must(template.New("controller").Parse(
-		`{{ if not .Exists }}'use strict';
-
-
-var m = angular.module('{{ .Data.Module }}', []);
-{{ end }}
-
-m.controller('{{ .Data.Name }}', function() {
-  // empty
-});
-`))
-	controllerTestTmpl = template.Must(template.New("controllerTest").Parse(
-		`{{ if not .Exists }}'use strict';
-
-{{ else }}
-{{ end }}
-describe('Controller: {{ .Data.Name }}', function() {
-  beforeEach(module('{{ .Data.Module }}'));
-
-  var scope;
-  beforeEach(inject(function($injector) {
-    var $controller = $injector.get('$controller');
-    var $rootScope = $injector.get('$rootScope');
-
-    scope = $rootScope.$new();
-    $controller('{{ .Data.Name }}', {$scope: scope});
-  }));
-});
-`))
+	buf = bufio.NewReader(os.Stdin)
 )
 
 func init() {
@@ -150,7 +100,7 @@ type FileData struct {
 	Exists bool
 }
 
-func writeFile(path string, tmpl *template.Template, data interface{}) error {
+func writeFile(path string, tmpl string, data interface{}) error {
 	exists := true
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
@@ -166,7 +116,13 @@ func writeFile(path string, tmpl *template.Template, data interface{}) error {
 	}
 	defer f.Close()
 
-	if err := tmpl.Execute(f, &FileData{data, exists}); err != nil {
+	tmpl = filepath.Join(utils.PackagePath(SELF_PKG), tmpl)
+	t, err := template.ParseFiles(tmpl)
+	if err != nil {
+		return errors.New(err)
+	}
+
+	if err := t.Execute(f, &FileData{data, exists}); err != nil {
 		return errors.New(err)
 	}
 
@@ -183,16 +139,14 @@ func writeServiceFile(name, module string) error {
 	parts := strings.Split(module, ".")
 	filename := parts[len(parts)-1] + ".js"
 	p := filepath.Join("client", "app", "scripts", "services", filename)
-
-	return writeFile(p, serviceTmpl, &ServiceData{name, module})
+	return writeFile(p, "service.js", &ServiceData{name, module})
 }
 
 func writeServiceTestFile(name, module string) error {
 	parts := strings.Split(module, ".")
 	filename := parts[len(parts)-1] + "Spec.js"
 	p := filepath.Join("client", "test", "unit", "services", filename)
-
-	return writeFile(p, serviceTestTmpl, &ServiceData{name, module})
+	return writeFile(p, "serviceSpec.js", &ServiceData{name, module})
 }
 
 // ==================================================================
@@ -205,14 +159,12 @@ func writeControllerFile(name, module, route string) error {
 	parts := strings.Split(module, ".")
 	filename := parts[len(parts)-1] + ".js"
 	p := filepath.Join("client", "app", "scripts", "controllers", filename)
-
-	return writeFile(p, controllerTmpl, &ControllerData{name, module, route})
+	return writeFile(p, "controller.js", &ControllerData{name, module, route})
 }
 
 func writeControllerTestFile(name, module, route string) error {
 	parts := strings.Split(module, ".")
 	filename := parts[len(parts)-1] + "Spec.js"
 	p := filepath.Join("client", "test", "unit", "controllers", filename)
-
-	return writeFile(p, controllerTestTmpl, &ControllerData{name, module, route})
+	return writeFile(p, "controllerSpec.js", &ControllerData{name, module, route})
 }
