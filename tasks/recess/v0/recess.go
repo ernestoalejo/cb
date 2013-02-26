@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
-	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -39,13 +38,9 @@ func exec_recess(c config.Config, q *registry.Queue, mode string) error {
 		output, err := utils.Exec("recess", args)
 		if err == utils.ErrExec {
 			fmt.Println(output)
-			return nil
+			return errors.Format("tool error")
 		} else if err != nil {
 			return err
-		}
-
-		if strings.Contains(output, "throw new(LessError)") {
-			return errors.Format("tool error")
 		}
 
 		if err := utils.WriteFile(file.Dest, output); err != nil {

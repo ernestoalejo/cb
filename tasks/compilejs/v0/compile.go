@@ -85,13 +85,9 @@ func compileJs(dest string, srcs []string) error {
 	output, err := utils.Exec("uglifyjs", args)
 	if err == utils.ErrExec {
 		fmt.Println(output)
-		return nil
+		return errors.Format("tool error")
 	} else if err != nil {
 		return err
-	}
-
-	if strings.Contains(output, "ERROR") {
-		return errors.Format("tool error")
 	}
 
 	if *config.Verbose {

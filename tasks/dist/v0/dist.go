@@ -91,7 +91,7 @@ func deploy_dist(c config.Config, q *registry.Queue) error {
 	commands := []string{
 		"rm -rf static",
 		"cp -r client/dist static",
-		"rm templates/base.html",
+		"rm -f templates/base.html",
 		"mv static/base.html templates/base.html",
 	}
 	for _, c := range commands {
