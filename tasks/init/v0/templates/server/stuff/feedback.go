@@ -7,9 +7,9 @@ import (
 
 	"conf"
 
-	"github.com/ernestokarim/gaelib/v0/app"
-	"github.com/ernestokarim/gaelib/v0/errors"
-	"github.com/ernestokarim/gaelib/v0/mail"
+	"github.com/ernestokarim/gaelib/v1/app"
+	"github.com/ernestokarim/gaelib/v1/errors"
+	"github.com/ernestokarim/gaelib/v1/mail"
 )
 
 type FeedbackData struct {

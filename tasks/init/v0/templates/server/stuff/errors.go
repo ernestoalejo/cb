@@ -1,8 +1,8 @@
 package stuff
 
 import (
-	"github.com/ernestokarim/gaelib/v0/app"
-	"github.com/ernestokarim/gaelib/v0/errors"
+	"github.com/ernestokarim/gaelib/v1/app"
+	"github.com/ernestokarim/gaelib/v1/errors"
 )
 
 type ErrorReporterData struct {

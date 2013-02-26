@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/ernestokarim/gaelib/v0/app"
+	"github.com/ernestokarim/gaelib/v1/app"
 
 	"server/stuff"
 )

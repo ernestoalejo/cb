@@ -5,7 +5,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ernestokarim/gaelib/v0/ngforms"
+	"github.com/ernestokarim/gaelib/v1/ngforms"
 
 	"../server/forms"
 )
