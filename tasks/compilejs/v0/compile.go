@@ -90,6 +90,10 @@ func compileJs(dest string, srcs []string) error {
 		return err
 	}
 
+	if strings.Contains(output, "ERROR") {
+		return errors.Format("tool error")
+	}
+
 	if *config.Verbose {
 		log.Printf("created file `%s`\n", dest)
 	}
