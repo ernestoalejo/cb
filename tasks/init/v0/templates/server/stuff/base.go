@@ -1,7 +1,7 @@
 package stuff
 
 import (
-	"github.com/ernestokarim/gaelib/app"
+	"github.com/ernestokarim/gaelib/v0/app"
 
 	"appengine"
 )
