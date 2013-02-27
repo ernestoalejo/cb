@@ -1,15 +1,17 @@
 package stuff
 
 import (
+	"conf"
+
 	"github.com/ernestokarim/gaelib/v1/app"
 
 	"appengine"
 )
 
 type BaseData struct {
-	Compiled, Test bool
-	DevServer      bool
-	Data           []*ModuleData
+	Test, DevServer bool
+	Analytics       string
+	Data            []*ModuleData
 }
 
 type ModuleData struct {
@@ -41,6 +43,7 @@ func emitBase(r *app.Request, test bool) error {
 		Test:      test,
 		Data:      globalData,
 		DevServer: appengine.IsDevAppServer(),
+		Analytics: conf.ANALYTICS,
 	}
 	return r.TemplateBase([]string{"base"}, data)
 }
