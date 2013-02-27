@@ -1,13 +1,16 @@
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 
 	"conf"
 
 	"appengine"
 
 	"github.com/ernestokarim/gaelib/v1/app"
+	"github.com/ernestokarim/gaelib/v1/errors"
 	"github.com/ernestokarim/gaelib/v1/mail"
 )
 
@@ -32,7 +35,7 @@ func ErrorMail(r *app.Request) error {
 			Templates: []string{"mails/error"},
 			Data:      data,
 		}
-		if err := mail.Send(r, m); err != nil {
+		if err := mail.SendGrid(r, m); err != nil {
 			return err
 		}
 	}
@@ -41,7 +44,25 @@ func ErrorMail(r *app.Request) error {
 
 // ==================================================================
 
+type MailData struct {
+	Mail string
+}
+
 func Mail(r *app.Request) error {
+	data := new(MailData)
+	if err := r.LoadData(data); err != nil {
+		return err
+	}
+
+	buf := strings.NewReader(data.Mail)
+	m := new(mail.Mail)
+	if err := json.NewDecoder(buf).Decode(m); err != nil {
+		return errors.New(err)
+	}
+
+	if err := mail.SendGrid(r, m); err != nil {
+		return errors.New(err)
+	}
 	return nil
 }
 
@@ -68,7 +89,7 @@ func FeedbackMail(r *app.Request) error {
 			Templates: []string{"mails/feedback"},
 			Data:      data,
 		}
-		if err := mail.Send(r, m); err != nil {
+		if err := mail.SendGrid(r, m); err != nil {
 			return err
 		}
 	}
