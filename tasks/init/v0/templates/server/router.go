@@ -4,6 +4,7 @@ import (
 	"github.com/ernestokarim/gaelib/v1/app"
 
 	"server/stuff"
+	"server/tasks"
 )
 
 func init() {
@@ -18,5 +19,9 @@ func init() {
 		"::/_/reporter":               stuff.ErrorReporter,
 		"::/e2e":                      stuff.TestBase,
 		"::/google{id:[^/]{16}}.html": stuff.GoogleVerification,
+
+		"::/tasks/error-mail":    tasks.ErrorMail,
+		"::/tasks/mail":          tasks.Mail,
+		"::/tasks/feedback-mail": tasks.FeedbackMail,
 	})
 }

@@ -12,20 +12,20 @@
   <table style="color: #555;" border="0" cellspacing="0" cellpadding="0">
     <tr>
       <td><b>Application:&nbsp;</b></td>
-      <td>{{.AppId}}</td>
+      <td>{{ .AppId }}</td>
     </tr>
   </table><br>
 
   <div style="background-color: #f5f5f5; font-family: arial; border-top: 1px solid #e5e5e5;
       padding: 4px 0 5px 32px; font-weight: bold;">Error</div>
 
-  <p>{{.Error|nl2br}}</p>
+  <pre style="font-size: 13px;">{{ .Data.Error }}</pre>
 
   <p>&nbsp;</p>
   <p>&nbsp;</p>
   <hr color="silver">
   <p style="color: gray;">
-    Mensaje enviado por un servicio automático a {{.UserMail}}.
+    Mensaje enviado por un servicio automático a {{ .To }}.
   </p>
 
 </body>

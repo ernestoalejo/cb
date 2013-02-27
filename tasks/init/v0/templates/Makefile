@@ -146,13 +146,13 @@ download:
  
 
 # To decrypt the configurations
-decrypt_conf: _pwd_prompt
+decrypt_conf:
 	openssl cast5-cbc -d -in ${CONF_FILE}.cast5 -out ${CONF_FILE}
 	chmod 600 ${CONF_FILE}
  
 
 # To encrypt the configurations
-encrypt_conf: _pwd_prompt
+encrypt_conf:
 	openssl cast5-cbc -e -in ${CONF_FILE} -out ${CONF_FILE}.cast5
 
 

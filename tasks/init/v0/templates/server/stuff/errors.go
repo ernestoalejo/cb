@@ -13,17 +13,18 @@ type ErrorReporterData struct {
 }
 
 func ErrorReporter(r *app.Request) error {
-	// Load the error data
 	data := new(ErrorReporterData)
 	if err := r.LoadJsonData(data); err != nil {
 		return err
 	}
+	if data.Name == "" && data.Message == "" && data.Stack == "" && data.Error == "" {
+		return nil
+	}
 
-	// Log the error
 	err := errors.Format("CLIENT ERROR:\n * Name: %s\n * Message: %s\n "+
 		"* Stack: %s\n * Error:\n%+v\n\n",
 		data.Name, data.Message, data.Stack, data.Error)
-	app.LogError(r.C, err)
+	r.LogError(err)
 
 	return nil
 }
