@@ -1,6 +1,9 @@
 package stuff
 
 import (
+	"appengine"
+	"appengine/taskqueue"
+
 	"github.com/ernestokarim/gaelib/v1/app"
 )
 
@@ -16,35 +19,17 @@ func Feedback(r *app.Request) error {
 	if data.Message == "" {
 		return app.Forbidden()
 	}
-	/*
-		// Try to send an email to the admin if the app is in production
-		if !appengine.IsDevAppServer() {
-			appid := appengine.AppID(r.C)
-			for _, admin := range conf.ADMIN_EMAILS {
-				data := map[string]interface{}{
-					"Message":  data.Message,
-					"UserMail": admin,
-					"AppId":    appid,
-				}
-				html := bytes.NewBuffer(nil)
-				if err := app.Template(html, []string{"mails/feedback"}, data); err != nil {
-					return errors.New(err)
-				}
 
-				m := &mail.Mail{
-					To:       admin,
-					ToName:   "Administrador",
-					From:     "feedback@" + appid + ".appspotmail.com",
-					FromName: "Feedback",
-					Subject:  "Mensaje del usuario",
-					Html:     string(html.Bytes()),
-				}
-				if err := mail.SendMail(r.C, m); err != nil {
-					return err
-				}
-			}
-		} else {
-			r.C.Errorf("FEEDBACK: %s", data.Message)
-		}*/
+	if appengine.IsDevAppServer() {
+		r.C.Errorf("FEEDBACK: %s", data.Message)
+		return nil
+	}
+
+	t := app.NewTask("/tasks/feedback-mail", map[string]string{
+		"Message": data.Message,
+	})
+	if _, err := taskqueue.Add(r.C, t, "admin-mails"); err != nil {
+		return err
+	}
 	return nil
 }

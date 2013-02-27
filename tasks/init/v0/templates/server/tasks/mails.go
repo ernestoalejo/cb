@@ -39,10 +39,38 @@ func ErrorMail(r *app.Request) error {
 	return nil
 }
 
+// ==================================================================
+
 func Mail(r *app.Request) error {
 	return nil
 }
 
+// ==================================================================
+
+type FeedbackMailData struct {
+	Message string
+}
+
 func FeedbackMail(r *app.Request) error {
+	data := new(FeedbackMailData)
+	if err := r.LoadData(data); err != nil {
+		return err
+	}
+
+	appid := appengine.AppID(r.C)
+	for _, admin := range conf.ADMIN_EMAILS {
+		m := &mail.Mail{
+			To:        admin,
+			ToName:    "Admin",
+			From:      fmt.Sprintf("feedback@%s.appspotmail.com", appid),
+			FromName:  "Feedback",
+			Subject:   fmt.Sprintf("Feedback of %s", appid),
+			Templates: []string{"mails/feedback"},
+			Data:      data,
+		}
+		if err := mail.Send(r, m); err != nil {
+			return err
+		}
+	}
 	return nil
 }
