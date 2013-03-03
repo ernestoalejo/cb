@@ -50,7 +50,9 @@ func init_task(c config.Config, q *registry.Queue) error {
 		return err
 	}
 
-	fmt.Println("Don't forget to run `bower install` inside the client folder")
+	if *config.AngularMode {
+		fmt.Println("Don't forget to run `bower install` inside the client folder")
+	}
 	return nil
 }
 
