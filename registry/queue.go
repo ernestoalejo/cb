@@ -18,16 +18,16 @@ func (q *Queue) AddTask(t string) {
 	q.tasks = append(q.tasks, t)
 }
 
-func (q *Queue) RunWithTimer(config config.Config) error {
+func (q *Queue) RunWithTimer(c config.Config) error {
 	start := time.Now()
-	if err := q.Run(config); err != nil {
+	if err := q.Run(c); err != nil {
 		return err
 	}
 	log.Printf("Finished in %.3f seconds", time.Since(start).Seconds())
 	return nil
 }
 
-func (q *Queue) Run(config config.Config) error {
+func (q *Queue) Run(c config.Config) error {
 	for len(q.tasks) > 0 {
 		var t string
 		t, q.tasks = q.tasks[0], q.tasks[1:]
@@ -61,9 +61,20 @@ func (q *Queue) Run(config config.Config) error {
 		log.Printf(" >>> [%2d] Running `%s` task, version %d...\n",
 			len(q.tasks), task, version)
 
-		if err := f(config, q); err != nil {
+		if err := f(c, q); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (q *Queue) ExecTasks(tasks string, c config.Config) error {
+	lst := strings.Split(tasks, " ")
+	for _, task := range lst {
+		q.AddTask(task)
+	}
+	if err := q.Run(c); err != nil {
+		return err
 	}
 	return nil
 }

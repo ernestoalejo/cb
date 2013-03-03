@@ -119,8 +119,7 @@ func recompileStyles(r *http.Request) error {
 	for _, dest := range dests {
 		for style, _ := range configs[dest] {
 			if style == name && watcher.CheckModified(dest) {
-				queue.AddTask(dest)
-				if err := queue.Run(configs); err != nil {
+				if err := queue.ExecTasks(dest, configs); err != nil {
 					return err
 				}
 				return nil
