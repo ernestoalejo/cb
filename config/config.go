@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 
 	"github.com/ernestokarim/cb/errors"
 )
@@ -12,10 +13,31 @@ type TaskSettings map[string]interface{}
 type Config map[string]TaskSettings
 
 func LoadConfig() (Config, error) {
-	f, err := os.Open("client/config.json")
+	// Try some paths
+	c, err := openConfig(filepath.Join("client", "config.json"))
+	if err != nil {
+		return nil, err
+	}
+
+	if c == nil {
+		c, err = openConfig("config.json")
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Not found anywhere, use a default
+	if c == nil {
+		c = Config{}
+	}
+	return c, nil
+}
+
+func openConfig(path string) (Config, error) {
+	f, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return Config{}, nil
+			return nil, nil
 		}
 		return nil, errors.New(err)
 	}
