@@ -1,16 +1,16 @@
 package watcher
 
-import (
-	"log"
-	"os"
-	"path/filepath"
-	"strings"
+import ()
 
-	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
-	"github.com/howeyc/fsnotify"
-)
+func Dirs(dirst []string, key string) error {
+	return nil
+}
 
+func CheckModified(key string) (bool, error) {
+	return false, nil
+}
+
+/*
 var (
 	watcher      *fsnotify.Watcher
 	watchConfigs = map[string]*watchConfig{}
@@ -147,3 +147,4 @@ func processEvent(ev *fsnotify.FileEvent) error {
 
 	return nil
 }
+*/

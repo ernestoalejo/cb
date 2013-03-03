@@ -1,8 +1,6 @@
 package v0
 
 import (
-	"log"
-
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
@@ -11,7 +9,6 @@ import (
 
 func init() {
 	registry.NewTask("watch", 0, watch)
-	registry.NewTask("watch_sync", 0, watch_sync)
 }
 
 func watch(c config.Config, q *registry.Queue) error {
@@ -25,26 +22,7 @@ func watch(c config.Config, q *registry.Queue) error {
 			return err
 		}
 	}
-	go func() {
-		if err := watcher.Enable(); err != nil {
-			log.Fatal(err)
-		}
-	}()
 	return nil
-}
-
-func watch_sync(c config.Config, q *registry.Queue) error {
-	for key, info := range c["watch"] {
-		dirs, err := readConfig(key, info)
-		if err != nil {
-			return err
-		}
-
-		if err := watcher.Dirs(dirs, key); err != nil {
-			return err
-		}
-	}
-	return watcher.Enable()
 }
 
 func readConfig(key string, info interface{}) ([]string, error) {
