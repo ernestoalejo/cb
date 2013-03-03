@@ -1,54 +1,57 @@
 package watcher
 
-import ()
+import (
+	"log"
+	"os"
+	"path/filepath"
+	"sync"
 
-func Dirs(dirst []string, key string) error {
-	return nil
-}
-
-func CheckModified(key string) (bool, error) {
-	return false, nil
-}
-
-/*
-var (
-	watcher      *fsnotify.Watcher
-	watchConfigs = map[string]*watchConfig{}
-	unblock      = make(chan bool)
-	errorCh      = make(chan error)
-	modified     = map[string]bool{}
+	"github.com/ernestokarim/cb/cache"
+	"github.com/ernestokarim/cb/config"
+	"github.com/ernestokarim/cb/errors"
 )
 
-type watchCallback func()
+var (
+	watchers      = map[string][]*watcher{}
+	watchersMutex = &sync.Mutex{}
+)
 
-type watchConfig struct {
-	path, filename, fileext, key string
+// Represents a list of watched nodes. It can match the
+// path, the name or the ext. If any of them is '*' it will
+// be matched against anything. Recursive is enabled when a '**'
+// appears as the last element of the path.
+//
+// Examples of paths:
+//   /path/**/*.*
+//   /path/*         -> short for -> /path/*.*
+//   /path/*.jpg
+//   /path/config.*
+//   /path/**        -> short for -> /path/**/*.*
+//
+type watcher struct {
+	path, name, ext string
+	recursive       bool
 }
 
 func Dirs(dirs []string, key string) error {
-	if watcher == nil {
-		var err error
-		if watcher, err = fsnotify.NewWatcher(); err != nil {
-			return errors.New(err)
-		}
-		go watchEvents()
-	}
+	watchersMutex.Lock()
+	defer watchersMutex.Unlock()
 
 	for _, dir := range dirs {
-		path := filepath.Join("client", filepath.Dir(dir))
-		if err := watcher.Watch(path); err != nil {
-			return errors.New(err)
+		w := &watcher{name: filepath.Base(dir)}
+
+		w.ext = filepath.Ext(dir)
+		if w.ext == "" || w.ext == ".*" {
+			w.ext = "*"
 		}
 
-		ext := filepath.Ext(dir)
-		name := filepath.Base(dir)
-		name = name[:len(name)-len(ext)]
-		watchConfigs[path] = &watchConfig{
-			path:     path,
-			filename: name,
-			fileext:  ext,
-			key:      key,
+		w.path = filepath.Dir(dir)
+		if d, f := filepath.Split(w.path); f == "**" {
+			w.path = d
+			w.recursive = true
 		}
+
+		watchers[key] = append(watchers[key], w)
 
 		if *config.Verbose {
 			log.Printf("watching `%s`\n", dir)
@@ -57,94 +60,54 @@ func Dirs(dirs []string, key string) error {
 	return nil
 }
 
-func Enable() error {
-	select {
-	case <-unblock:
-	case err := <-errorCh:
-		return err
-	}
-
-	return nil
-}
-
-func CheckModified(key string) bool {
-	b := modified[key]
-	delete(modified, key)
-	return b
-}
-
-func watchEvents() {
-	for {
-		select {
-		case ev := <-watcher.Event:
-			if err := processEvent(ev); err != nil {
-				errorCh <- err
-				return
-			}
-		case err := <-watcher.Error:
-			errorCh <- errors.New(err)
-			return
+func CheckModified(key string) (bool, error) {
+	for _, w := range watchers[key] {
+		if m, err := checkWatcher(key, w); err != nil {
+			return false, err
+		} else if m {
+			return true, nil
 		}
 	}
+	return false, nil
 }
 
-func processEvent(ev *fsnotify.FileEvent) error {
-	info, err := os.Stat(ev.Name)
-	if err != nil && !os.IsNotExist(err) {
-		return errors.New(err)
-	}
-
-	var key string
-
-	// If it's a folder we were watching, active the tasks and
-	// remove the watcher
-	if err != nil && watchConfigs[ev.Name] != nil {
-		key = watchConfigs[ev.Name].key
-		delete(watchConfigs, ev.Name)
-		if err := watcher.RemoveWatch(ev.Name); err != nil {
+func checkWatcher(key string, w *watcher) (bool, error) {
+	modified := false
+	fn := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
 			return errors.New(err)
 		}
-		if *config.Verbose {
-			log.Printf("remove watcher `%s`\n", ev.Name)
+
+		// Check the path & extension
+		check := true
+		if w.name != "*" {
+			name := filepath.Base(path)
+			check = (name == w.name)
 		}
-	}
-
-	// TODO: Recursive scanning
-	// If it's a new folder, and we have a recursive parent, add it to
-	// the watcher list
-	if err == nil && info.IsDir() && ev.IsCreate() {
-	}
-
-	// Find the watcher that holds the file modified, checking the filename
-	// and fileext filters in the way
-	if key == "" {
-		for _, c := range watchConfigs {
-			p, err := filepath.Rel(c.path, ev.Name)
-			if err != nil || strings.Contains(p, "..") {
-				continue
-			}
-
-			ext := filepath.Ext(ev.Name)
-			name := filepath.Base(ev.Name)
-			name = name[:len(name)-len(ext)]
-			if c.filename != "*" && name != c.filename {
-				continue
-			}
-			if c.fileext != "*" && ext != c.fileext {
-				continue
-			}
-
-			key = c.key
-			break
+		if check && w.ext != "*" {
+			ext := filepath.Ext(path)
+			check = (ext == w.ext)
 		}
-		if key == "" {
-			return nil
+
+		// Check if it has been modified
+		if check {
+			modified, err = cache.Modified(path)
+			if err != nil {
+				return err
+			}
+			if modified {
+				log.Printf("modified `%s` [%s]\n", path, key)
+			}
 		}
+
+		// Recursive scanning ?
+		if !w.recursive && info.IsDir() {
+			return filepath.SkipDir
+		}
+		return nil
 	}
-
-	log.Printf("modified `%s` [%s]\n", ev.Name, key)
-	modified[key] = true
-
-	return nil
+	if err := filepath.Walk(w.path, fn); err != nil {
+		return false, errors.New(err)
+	}
+	return modified, nil
 }
-*/

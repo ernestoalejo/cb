@@ -4,8 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/ernestokarim/closurer/app"
-	"github.com/ernestokarim/closurer/config"
+	"github.com/ernestokarim/cb/errors"
 )
 
 var modificationCache = map[string]time.Time{}
@@ -16,7 +15,7 @@ var modificationCache = map[string]time.Time{}
 func Modified(path string) (bool, error) {
 	info, err := os.Lstat(path)
 	if err != nil {
-		return false, app.Error(err)
+		return false, errors.New(err)
 	}
 
 	modified := modificationCache[path]
