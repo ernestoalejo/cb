@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ernestokarim/cb/errors"
 )
@@ -30,6 +31,13 @@ func LoadConfig() (Config, error) {
 	if c == nil {
 		c = Config{}
 	}
+
+	if err := check(c); err != nil {
+		return nil, err
+	}
+	if err := prepare(c); err != nil {
+		return nil, err
+	}
 	return c, nil
 }
 
@@ -51,7 +59,7 @@ func openConfig(path string) (Config, error) {
 	return config, nil
 }
 
-func Check(config Config) error {
+func check(config Config) error {
 	// Both modes activated, error
 	if *AngularMode && *ClosureMode {
 		return errors.Format("cannot activate angular & closure at the same time")
@@ -74,4 +82,48 @@ func Check(config Config) error {
 	}
 
 	return nil
+}
+
+func prepare(config Config) error {
+	if config["closure"] != nil {
+		ps := []string{"library", "templates", "stylesheets", "compile"}
+		for _, p := range ps {
+			n := config["closure"][p]
+			if n == nil {
+				continue
+			}
+
+			s, ok := n.(string)
+			if !ok {
+				return errors.Format("closure.`%p` is not a valid string")
+			}
+
+			var err error
+			s, err = fixPath(s)
+			if err != nil {
+				return err
+			}
+			config["closure"][p] = s
+		}
+	}
+	return nil
+}
+
+// Replace the ~ with the correct folder path
+func fixPath(p string) (string, error) {
+	if !strings.Contains(p, "~") {
+		return p, nil
+	}
+
+	user := os.Getenv("USER")
+	if user == "" {
+		user = os.Getenv("USERNAME")
+	}
+	if user == "" {
+		return "", errors.Format("Found ~ in a path, but USER nor USERNAME are " +
+			"exported in the env")
+	}
+
+	home := filepath.Join("/home", user)
+	return strings.Replace(p, "~", home, -1), nil
 }

@@ -30,10 +30,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := config.Check(c); err != nil {
-		log.Fatal(err)
-	}
-
 	q := &registry.Queue{}
 	for _, task := range args {
 		q.AddTask(task)
