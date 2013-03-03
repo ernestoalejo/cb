@@ -21,11 +21,11 @@ const SELF_PKG = "github.com/ernestokarim/cb/tasks/init/v0/templates"
 
 // List of files that must be passed through the template system
 var needTemplates = map[string]bool{
-	"app.yaml":             true,
-	"client/app/base.html": true,
-	"client/config.json":   true,
-	"component.json":       true,
-	"conf/sample-conf.go":  true,
+	"angular/app.yaml":             true,
+	"angular/client/app/base.html": true,
+	"angular/client/config.json":   true,
+	"angular/component.json":       true,
+	"angular/conf/sample-conf.go":  true,
 }
 
 func init() {
@@ -33,7 +33,14 @@ func init() {
 }
 
 func init_task(c config.Config, q *registry.Queue) error {
-	base := utils.PackagePath(SELF_PKG)
+	var path string
+	if *config.AngularMode {
+		path = filepath.Join(SELF_PKG, "angular")
+	} else if *config.ClosureMode {
+		path = filepath.Join(SELF_PKG, "closure")
+	}
+
+	base := utils.PackagePath(path)
 	cur, err := os.Getwd()
 	if err != nil {
 		return errors.New(err)
@@ -55,16 +62,11 @@ func copyFiles(appname, src, dest string) error {
 		return errors.New(err)
 	}
 
-	cur, err := os.Getwd()
-	if err != nil {
-		return errors.New(err)
-	}
-
 	for _, entry := range files {
 		fullsrc := filepath.Join(src, entry.Name())
 		fulldest := filepath.Join(dest, entry.Name())
 
-		rel, err := filepath.Rel(cur, fulldest)
+		rel, err := filepath.Rel(utils.PackagePath(SELF_PKG), fullsrc)
 		if err != nil {
 			return errors.New(err)
 		}

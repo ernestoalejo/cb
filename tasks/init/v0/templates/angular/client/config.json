@@ -1,0 +1,27 @@
+{
+  "recess": {
+    "bootstrap.css": "styles/bootstrap/main.less"
+  },
+  "sass": {
+    "app.css": "styles/app.scss"
+  },
+  "watch": {
+    "recess": ["app/components/bootstrap/less/*.less", "app/styles/bootstrap/*.less"],
+    "sass": ["app/styles/*.scss"]
+  },
+  "dist": {
+    "files": [
+      "base.html",
+      "components/jquery/jquery.min.js",
+      "favicon.ico",
+      "fonts",
+      "images",
+      "robots.txt",
+      "scripts/ie.js",
+      "scripts/{{.AppName}}.js",
+      "scripts/test.js",
+      "styles/{{.AppName}}.css",
+      "views"
+    ]
+  }
+}
