@@ -50,3 +50,28 @@ func openConfig(path string) (Config, error) {
 
 	return config, nil
 }
+
+func Check(config Config) error {
+	// Both modes activated, error
+	if *AngularMode && *ClosureMode {
+		return errors.Format("cannot activate angular & closure at the same time")
+	}
+
+	// No options, take it from the config file
+	_, ok := config["closure"]
+	if !*AngularMode && !*ClosureMode {
+		if ok {
+			*ClosureMode = true
+		} else {
+			*AngularMode = true
+		}
+		return nil
+	}
+
+	// Redundant options detected
+	if ok {
+		return errors.Format("mode not needed in commnad line, it's in config")
+	}
+
+	return nil
+}

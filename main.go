@@ -25,8 +25,12 @@ func main() {
 		return
 	}
 
-	config, err := config.LoadConfig()
+	c, err := config.LoadConfig()
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := config.Check(c); err != nil {
 		log.Fatal(err)
 	}
 
@@ -35,7 +39,7 @@ func main() {
 		q.AddTask(task)
 	}
 
-	if err := q.RunWithTimer(config); err != nil {
+	if err := q.RunWithTimer(c); err != nil {
 		log.Fatal(err)
 	}
 }
