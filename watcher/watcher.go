@@ -38,12 +38,15 @@ func Dirs(dirs []string, key string) error {
 	defer watchersMutex.Unlock()
 
 	for _, dir := range dirs {
-		w := &watcher{name: filepath.Base(dir)}
+		w := &watcher{}
 
 		w.ext = filepath.Ext(dir)
 		if w.ext == "" || w.ext == ".*" {
 			w.ext = "*"
 		}
+
+		w.name = filepath.Base(dir)
+		w.name = w.name[:len(w.name)-len(w.ext)]
 
 		w.path = filepath.Dir(dir)
 		if d, f := filepath.Split(w.path); f == "**" {
@@ -57,6 +60,12 @@ func Dirs(dirs []string, key string) error {
 			log.Printf("watching `%s`\n", dir)
 		}
 	}
+
+	// First check to store the initial times
+	if _, err := CheckModified(key); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -78,14 +87,16 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 			return errors.New(err)
 		}
 
+		ext := filepath.Ext(path)
+		name := filepath.Base(path)
+		name = name[:len(name)-len(ext)]
+
 		// Check the path & extension
 		check := true
 		if w.name != "*" {
-			name := filepath.Base(path)
 			check = (name == w.name)
 		}
 		if check && w.ext != "*" {
-			ext := filepath.Ext(path)
 			check = (ext == w.ext)
 		}
 
@@ -95,13 +106,13 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 			if err != nil {
 				return err
 			}
-			if modified {
+			if modified && *config.Verbose {
 				log.Printf("modified `%s` [%s]\n", path, key)
 			}
 		}
 
 		// Recursive scanning ?
-		if !w.recursive && info.IsDir() {
+		if !w.recursive && info.IsDir() && w.path != path {
 			return filepath.SkipDir
 		}
 		return nil

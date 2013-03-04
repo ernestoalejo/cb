@@ -1,6 +1,8 @@
 package v0
 
 import (
+	"path/filepath"
+
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
@@ -16,6 +18,10 @@ func watch(c config.Config, q *registry.Queue) error {
 		dirs, err := readConfig(key, info)
 		if err != nil {
 			return err
+		}
+
+		for i, dir := range dirs {
+			dirs[i] = filepath.Join("client", dir)
 		}
 
 		if err := watcher.Dirs(dirs, key); err != nil {
