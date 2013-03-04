@@ -19,6 +19,8 @@ func clean(c config.Config, q *registry.Queue) error {
 	folders := []string{
 		filepath.Join("client", "temp"),
 		filepath.Join("client", "dist"),
+		"temp",
+		"dist",
 	}
 	for _, folder := range folders {
 		if err := os.RemoveAll(folder); err != nil {

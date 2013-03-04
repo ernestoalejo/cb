@@ -20,8 +20,10 @@ func watch(c config.Config, q *registry.Queue) error {
 			return err
 		}
 
-		for i, dir := range dirs {
-			dirs[i] = filepath.Join("client", dir)
+		if *config.AngularMode {
+			for i, dir := range dirs {
+				dirs[i] = filepath.Join("client", dir)
+			}
 		}
 
 		if err := watcher.Dirs(dirs, key); err != nil {

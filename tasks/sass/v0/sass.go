@@ -26,8 +26,14 @@ func exec_sass(c config.Config, q *registry.Queue, mode string) error {
 		return err
 	}
 
+	var cache string
+	if *config.AngularMode {
+		cache = filepath.Join("client", "temp", "sass-cache")
+	} else {
+		cache = filepath.Join("temp", "sass-cache")
+	}
+
 	for _, file := range files {
-		cache := filepath.Join("client", "temp", "sass-cache")
 		args := []string{file.Src, "--cache-location", cache}
 		if mode == "dev" {
 			args = append(args, "-l")
@@ -37,7 +43,7 @@ func exec_sass(c config.Config, q *registry.Queue, mode string) error {
 		output, err := utils.Exec("sass", args)
 		if err == utils.ErrExec {
 			fmt.Println(output)
-			return nil
+			return errors.Format("tool error")
 		} else if err != nil {
 			return err
 		}
@@ -59,11 +65,14 @@ type SassFile struct {
 }
 
 func sassFromConfig(c config.Config, mode string) ([]*SassFile, error) {
-	var from string
-	if mode == "dev" {
-		from = "app"
-	} else if mode == "prod" {
-		from = "temp"
+	var from, to string
+	if *config.AngularMode {
+		to = "client"
+		if mode == "dev" {
+			from = filepath.Join("client", "app")
+		} else if mode == "prod" {
+			from = filepath.Join("client", "temp")
+		}
 	}
 
 	files := []*SassFile{}
@@ -73,8 +82,8 @@ func sassFromConfig(c config.Config, mode string) ([]*SassFile, error) {
 			return nil, errors.Format("`sass` config should be a map[string]string")
 		}
 
-		src = filepath.Join("client", from, src)
-		dest = filepath.Join("client", "temp", "styles", dest)
+		src = filepath.Join(from, src)
+		dest = filepath.Join(to, "temp", "styles", dest)
 		files = append(files, &SassFile{src, dest})
 	}
 	return files, nil
