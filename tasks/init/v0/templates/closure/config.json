@@ -9,6 +9,7 @@
     "app.css": "styles/app.scss"
   },
   "watch": {
-    "sass": ["styles/*.scss"]
+    "sass": ["styles/*.scss"],
+    "soy": ["templates/**/*.soy"]
   }
 }

@@ -51,7 +51,7 @@ func compileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func recompile(r *http.Request) error {
-	targets := []string{"sass"}
+	targets := []string{"sass", "soy"}
 	for _, target := range targets {
 		if m, err := watcher.CheckModified(target); err != nil {
 			return err
