@@ -31,7 +31,7 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 	output, err := utils.Exec("cp", []string{"-r", origin, dest})
 	if err == utils.ErrExec {
 		fmt.Println(output)
-		return nil
+		return errors.Format("tool error")
 	} else if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 		output, err := utils.Exec("cp", []string{"-r", origin, dest})
 		if err == utils.ErrExec {
 			fmt.Println(output)
-			return nil
+			return errors.Format("tool error")
 		} else if err != nil {
 			return err
 		}
@@ -99,7 +99,7 @@ func deploy_dist(c config.Config, q *registry.Queue) error {
 		output, err := utils.Exec(cmd[0], cmd[1:])
 		if err == utils.ErrExec {
 			fmt.Println(output)
-			return nil
+			return errors.Format("tool error")
 		} else if err != nil {
 			return err
 		}

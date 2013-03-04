@@ -79,7 +79,7 @@ func jpegtran(src, dest string) error {
 	output, err := utils.Exec("jpegtran", args)
 	if err == utils.ErrExec {
 		fmt.Println(output)
-		return nil
+		return errors.Format("tool error")
 	} else if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func optipng(src, dest string) error {
 	output, err := utils.Exec("optipng", args)
 	if err == utils.ErrExec {
 		fmt.Println(output)
-		return nil
+		return errors.Format("tool error")
 	} else if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ernestokarim/cb/config"
+	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -18,7 +19,7 @@ func lint(c config.Config, q *registry.Queue) error {
 	output, err := utils.Exec("gjslint", args)
 	if err == utils.ErrExec {
 		fmt.Println(output)
-		return nil
+		return errors.Format("tool error")
 	} else if err != nil {
 		return err
 	}
@@ -31,7 +32,7 @@ func fixlint(c config.Config, q *registry.Queue) error {
 	output, err := utils.Exec("fixjsstyle", args)
 	if err == utils.ErrExec {
 		fmt.Println(output)
-		return nil
+		return errors.Format("tool error")
 	} else if err != nil {
 		return err
 	}

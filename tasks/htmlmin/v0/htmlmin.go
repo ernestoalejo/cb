@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
+	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -43,7 +44,7 @@ func htmlcompressor(src, dest string) error {
 	output, err := utils.Exec("java", args)
 	if err == utils.ErrExec {
 		fmt.Println(output)
-		return nil
+		return errors.Format("tool error")
 	} else if err != nil {
 		return err
 	}
