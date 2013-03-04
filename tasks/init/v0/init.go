@@ -26,6 +26,7 @@ var needTemplates = map[string]bool{
 	"angular/client/config.json":   true,
 	"angular/component.json":       true,
 	"angular/conf/sample-conf.go":  true,
+	"closure/index.html":           true,
 }
 
 func init() {
