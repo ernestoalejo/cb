@@ -6,6 +6,7 @@ import (
 	_ "github.com/ernestokarim/cb/tasks/cacherev/v0"
 	_ "github.com/ernestokarim/cb/tasks/cbtest/v0"
 	_ "github.com/ernestokarim/cb/tasks/clean/v0"
+	_ "github.com/ernestokarim/cb/tasks/closurejs/v0"
 	_ "github.com/ernestokarim/cb/tasks/compilejs/v0"
 	_ "github.com/ernestokarim/cb/tasks/concat/v0"
 	_ "github.com/ernestokarim/cb/tasks/dist/v0"

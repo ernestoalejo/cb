@@ -11,5 +11,8 @@
   "watch": {
     "sass": ["styles/*.scss"],
     "soy": ["templates/**/*.soy"]
+  },
+  "closurejs": {
+    "inputs": ["scripts/main.js"]
   }
 }
