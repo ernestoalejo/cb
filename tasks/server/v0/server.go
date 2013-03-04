@@ -20,6 +20,7 @@ func server(c config.Config, q *registry.Queue) error {
 	if *config.ClosureMode {
 		q.AddTask("clean:0")
 		q.AddTask("sass:0")
+		q.AddTask("soy:0")
 		q.AddTask("watch:0")
 	}
 	return nil
