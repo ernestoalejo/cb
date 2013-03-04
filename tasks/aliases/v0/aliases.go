@@ -9,13 +9,6 @@ func init() {
 		{"recess", 0},
 		{"sass", 0},
 	})
-	registry.NewAlias("server", 0, []*registry.Alias{
-		{"clean", 0},
-		{"recess", 0},
-		{"sass", 0},
-		{"watch", 0},
-		{"proxy", 0},
-	})
 	registry.NewAlias("build", 0, []*registry.Alias{
 		{"clean", 0},
 		{"prepare_dist", 0},
