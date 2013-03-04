@@ -14,16 +14,9 @@ import (
 	"github.com/ernestokarim/cb/watcher"
 )
 
-var (
-	configs config.Config
-	queue   *registry.Queue
-)
-
 func init() {
 	registry.NewTask("proxy", 0, proxy)
 }
-
-type handler func(w http.ResponseWriter, r *http.Request)
 
 func proxy(c config.Config, q *registry.Queue) error {
 	configs = c

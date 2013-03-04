@@ -7,6 +7,7 @@ import (
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
+	"github.com/ernestokarim/cb/watcher"
 )
 
 func init() {
@@ -19,8 +20,12 @@ func server_closure(c config.Config, q *registry.Queue) error {
 		return errors.Format("closure mode only task")
 	}
 
+	configs = c
+	queue = q
+
 	routes := map[string]handler{
-		"/": rootHandler,
+		"/":        rootHandler,
+		"/compile": compileHandler,
 	}
 	for url, f := range routes {
 		http.Handle(url, LoggingHandler(http.HandlerFunc(f)))
@@ -38,49 +43,25 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "index.html")
 }
 
-/*
-func stylesHandler(w http.ResponseWriter, r *http.Request) {
-	if err := recompileStyles(r); err != nil {
+func compileHandler(w http.ResponseWriter, r *http.Request) {
+	if err := recompile(r); err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	http.ServeFile(w, r, filepath.Join("client", "temp", r.URL.Path))
 }
 
-func recompileStyles(r *http.Request) error {
-	name := r.URL.Path[8:]
-	dests := []string{"sass", "recess"}
-	for _, dest := range dests {
-		for style, _ := range configs[dest] {
-			if style != name {
-				continue
-			}
+func recompile(r *http.Request) error {
+	targets := []string{"sass"}
+	for _, target := range targets {
+		if m, err := watcher.CheckModified(target); err != nil {
+			return err
+		} else if !m {
+			continue
+		}
 
-			if m, err := watcher.CheckModified(dest); err != nil {
-				return err
-			} else if !m {
-				return nil
-			}
-
-			if err := queue.ExecTasks(dest, configs); err != nil {
-				return err
-			}
-
-			return nil
+		if err := queue.ExecTasks(target, configs); err != nil {
+			return err
 		}
 	}
 	return nil
 }
-
-func configureExts() error {
-	exts := map[string]string{
-		".woff": "application/x-font-woff",
-	}
-	for ext, t := range exts {
-		if err := mime.AddExtensionType(ext, t); err != nil {
-			return errors.New(err)
-		}
-	}
-	return nil
-}
-*/
