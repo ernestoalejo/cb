@@ -36,6 +36,9 @@ type Tree struct {
 	// Used to compute the total time that takes building the deps tree
 	// and recomputing the dependencies.
 	start time.Time
+
+	// Count of cached sources
+	cached int
 }
 
 // Creates a new dependencies tree based on the files inside several hard-coded
@@ -79,11 +82,18 @@ func (t *Tree) check() error {
 }
 
 func (t *Tree) addSource(path string) error {
+	// Ignore the file if it's already registered
+	if t.sources[path] != nil {
+		return nil
+	}
+
 	src, err := newSource(t.c, path)
 	if err != nil {
 		return err
 	}
-
+	if src.Cached {
+		t.cached++
+	}
 	if src.Base {
 		t.base = src
 	}
@@ -119,6 +129,7 @@ func (t *Tree) PrintStats() {
 	if t.deps == nil {
 		log.Printf("depstree: %d files providing a total of %d namespaces\n",
 			len(t.sources), len(t.provides))
+		log.Printf("depstree: %d files cached", t.cached)
 	} else {
 		log.Printf("depstree: %d dependencies computed\n", len(t.deps))
 		log.Printf("depstree: %.3f seconds", time.Since(t.start).Seconds())

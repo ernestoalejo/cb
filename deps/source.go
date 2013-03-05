@@ -35,6 +35,9 @@ type Source struct {
 
 	// Name of the source file.
 	Path string
+
+	// Whether this file was extracted from the memory cache or not.
+	Cached bool
 }
 
 func newSource(c config.Config, path string) (*Source, error) {
@@ -45,6 +48,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 	if m, err := cache.Modified(cache.KEY_DEPS, path); err != nil {
 		return nil, err
 	} else if !m {
+		src.Cached = true
 		return src, nil
 	}
 
@@ -61,6 +65,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 	src.Requires = []string{}
 	src.Base = base
 	src.Path = path
+	src.Cached = false
 
 	f, err := os.Open(path)
 	if err != nil {
