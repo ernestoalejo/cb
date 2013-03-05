@@ -21,7 +21,9 @@ func server(c config.Config, q *registry.Queue) error {
 		q.AddTask("clean:0")
 		q.AddTask("sass:0")
 		q.AddTask("soy:0")
+		q.AddTask("closurejs:0")
 		q.AddTask("watch:0")
+		q.AddTask("server_closure:0")
 	}
 	return nil
 }

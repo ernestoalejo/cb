@@ -17,7 +17,7 @@ import (
 	"github.com/ernestokarim/cb/watcher"
 )
 
-const SELF_PKG = "github.com/ernestokarim/cb/tasks/closurejs/v0/templates"
+const SELF_PKG = "github.com/ernestokarim/cb/tasks/server/v0/templates"
 
 func init() {
 	registry.NewTask("server_closure", 0, server_closure)
