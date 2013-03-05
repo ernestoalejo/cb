@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/ernestokarim/cb/config"
@@ -87,6 +88,9 @@ func compileHandlerErr(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if err := tmpl.Execute(w, content.String()); err != nil {
+		if strings.Contains(err.Error(), "broken pipe") {
+			return nil
+		}
 		return errors.New(err)
 	}
 

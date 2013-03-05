@@ -6,6 +6,7 @@ import (
 	"log"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -31,6 +32,10 @@ type Tree struct {
 	// Used temporary to build the list of namespaced
 	// when resolving dependencies and detect circular references.
 	traversal []string
+
+	// Used to compute the total time that takes building the deps tree
+	// and recomputing the dependencies.
+	start time.Time
 }
 
 // Creates a new dependencies tree based on the files inside several hard-coded
@@ -40,6 +45,7 @@ func NewTree(c config.Config) (*Tree, error) {
 		sources:  map[string]*Source{},
 		provides: map[string]*Source{},
 		c:        c,
+		start:    time.Now(),
 	}
 
 	roots, err := baseJSPaths(t.c)
@@ -115,6 +121,7 @@ func (t *Tree) PrintStats() {
 			len(t.sources), len(t.provides))
 	} else {
 		log.Printf("depstree: %d dependencies computed\n", len(t.deps))
+		log.Printf("depstree: %.3f seconds", time.Since(t.start).Seconds())
 	}
 }
 
