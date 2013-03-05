@@ -102,7 +102,7 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 
 		// Check if it has been modified
 		if check {
-			modified, err = cache.Modified(path)
+			modified, err = cache.Modified(cache.KEY_WATCH, path)
 			if err != nil {
 				return err
 			}

@@ -1,7 +1,6 @@
 package deps
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -25,7 +24,9 @@ func buildWalkFn(t *Tree) filepath.WalkFunc {
 			return nil
 		}
 
-		fmt.Println(path)
+		if err := t.addSource(path); err != nil {
+			return err
+		}
 
 		return nil
 	}

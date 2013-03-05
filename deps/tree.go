@@ -2,6 +2,7 @@ package deps
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
@@ -10,6 +11,10 @@ import (
 type Tree struct {
 	sources  map[string]*Source
 	provides map[string]*Source
+	base     *Source
+
+	// Used temporary to build the tree
+	c config.Config
 }
 
 // Creates a new dependencies tree based on the files inside several hard-coded
@@ -18,9 +23,15 @@ func NewTree(c config.Config) (*Tree, error) {
 	t := &Tree{
 		sources:  map[string]*Source{},
 		provides: map[string]*Source{},
+		c:        c,
 	}
 
 	library, err := getLibraryRoot(c)
+	if err != nil {
+		return nil, err
+	}
+
+	templates, err := getTemplatesRoot(c)
 	if err != nil {
 		return nil, err
 	}
@@ -30,6 +41,7 @@ func NewTree(c config.Config) (*Tree, error) {
 		filepath.Join(library, "closure", "goog"),
 		"scripts",
 		filepath.Join("temp", "templates"),
+		filepath.Join(templates, "javascript", "soyutils_usegoog.js"),
 	}
 	for _, root := range roots {
 		if err := filepath.Walk(root, buildWalkFn(t)); err != nil {
@@ -44,77 +56,67 @@ func NewTree(c config.Config) (*Tree, error) {
 	return t, nil
 }
 
+// Check if all required namespaces are provided by the
+// scanned files
 func (t *Tree) check() error {
+	for path, source := range t.sources {
+		for _, require := range source.Requires {
+			if _, ok := t.provides[require]; !ok {
+				return errors.Format("namespace not found %s: %s", require, path)
+			}
+		}
+	}
 	return nil
+}
+
+func (t *Tree) addSource(path string) error {
+	src, err := newSource(t.c, path)
+	if err != nil {
+		return err
+	}
+
+	if src.Base {
+		t.base = src
+	}
+
+	// Scan all the previous sources searching for repeated
+	// namespaces. We ignore closure library files because they're
+	// supposed to be correct and tested by other methods
+	library, err := getLibraryRoot(t.c)
+	if err != nil {
+		return err
+	}
+	if !strings.HasPrefix(path, library) {
+		for otherPath, source := range t.sources {
+			for _, provide := range source.Provides {
+				if !in(src.Provides, provide) {
+					continue
+				}
+				return errors.Format("multiple provide `%s`: `%s` and `%s`",
+					provide, otherPath, path)
+			}
+		}
+	}
+
+	for _, provide := range src.Provides {
+		t.provides[provide] = src
+	}
+
+	t.sources[path] = src
+	return nil
+}
+
+func in(lst []string, elem string) bool {
+	for _, item := range lst {
+		if item == elem {
+			return true
+		}
+	}
+	return false
 }
 
 /*
 
-// Adds a new JS source file to the tree
-func (tree *DepsTree) AddSource(filename string) error {
-  // Build the source
-  src, cached, err := domain.NewSource(tree.dest, filename, tree.basePath)
-  if err != nil {
-    return err
-  }
-
-  // If it's the base file, save it
-
-  //depstree.basePath = path.Join(conf.Library.Root, "closure", "goog", "base.js")
-  if src.Base {
-    tree.base = src
-  }
-
-  conf := config.Current()
-
-  // Scan all the previous sources searching for repeated
-  // namespaces. We ignore closure library files because they're
-  // supposed to be correct and tested by other methods
-  if conf.Library == nil || !strings.HasPrefix(filename, conf.Library.Root) {
-    for k, source := range tree.sources {
-      for _, provide := range source.Provides {
-        if In(src.Provides, provide) {
-          return app.Errorf("multiple provide %s: %s and %s", provide, k, filename)
-        }
-      }
-    }
-  }
-
-  // Files without the goog.provide directive
-  // use a trick to provide its own name. It fullfills the need
-  // to compile things apart from the Closure style (Angular, ...).
-  if len(src.Provides) == 0 {
-    src.Provides = []string{filename}
-  }
-
-  // Add all the provides to the map
-  for _, provide := range src.Provides {
-    tree.provides[provide] = src
-  }
-
-  // Save the source
-  tree.sources[filename] = src
-
-  // Update the MustCompile flag
-  tree.MustCompile = tree.MustCompile || !cached
-
-  return nil
-}
-
-// Check if all required namespaces are provided by the
-// scanned files
-func (tree *DepsTree) Check() error {
-  for k, source := range tree.sources {
-    for _, require := range source.Requires {
-      _, ok := tree.provides[require]
-      if !ok {
-        return app.Errorf("namespace not found %s: %s", require, k)
-      }
-    }
-  }
-
-  return nil
-}
 
 // Returns the provides list of a source file, or an error if it hasn't been
 // scanned previously into the tree

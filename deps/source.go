@@ -1,111 +1,120 @@
 package deps
 
-import ()
-
-type Source struct {
-}
-
-/*package domain
-
 import (
-  "bufio"
-  "encoding/gob"
-  "io"
-  "os"
-  "regexp"
-  "strings"
+	"bufio"
+	"io"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+	"sync"
 
-  "github.com/ernestokarim/closurer/app"
-  "github.com/ernestokarim/closurer/cache"
+	"github.com/ernestokarim/cb/cache"
+	"github.com/ernestokarim/cb/config"
+	"github.com/ernestokarim/cb/errors"
 )
 
 var (
-  provideRe  = regexp.MustCompile(`^\s*goog\.provide\(\s*[\'"](.+)[\'"]\s*\)`)
-  requiresRe = regexp.MustCompile(`^\s*goog\.require\(\s*[\'"](.+)[\'"]\s*\)`)
-)
+	providesRe = regexp.MustCompile(`^\s*goog\.provide\(\s*[\'"](.+)[\'"]\s*\)`)
+	requiresRe = regexp.MustCompile(`^\s*goog\.require\(\s*[\'"](.+)[\'"]\s*\)`)
 
-func init() {
-  gob.Register(&Source{})
-}
+	sources      = map[string]*Source{}
+	sourcesMutex = &sync.Mutex{}
+)
 
 // Represents a JS source
 type Source struct {
-  // List of namespaces this file provides.
-  Provides []string
+	// List of namespaces this file provides.
+	Provides []string
 
-  // List of required namespaces for this file.
-  Requires []string
+	// List of required namespaces for this file.
+	Requires []string
 
-  // Whether this is the base.js file of the Closure Library.
-  Base bool
+	// Whether this is the base.js file of the Closure Library.
+	Base bool
 
-  // Name of the source file.
-  Filename string
+	// Name of the source file.
+	Path string
 }
 
-// Creates a new source. Returns the source, if it has been
-// loaded from cache or not, and an error.
-func NewSource(dest, filename, base string) (*Source, bool, error) {
-  src := cache.ReadData(dest+filename, new(Source)).(*Source)
+func newSource(c config.Config, path string) (*Source, error) {
+	sourcesMutex.Lock()
+	defer sourcesMutex.Unlock()
 
-  // Return the file from cache if possible
-  if modified, err := cache.Modified(dest, filename); err != nil {
-    return nil, false, err
-  } else if !modified {
-    return src, true, nil
-  }
+	src := sources[path]
+	if m, err := cache.Modified(cache.KEY_DEPS, path); err != nil {
+		return nil, err
+	} else if !m {
+		return src, nil
+	}
 
-  // Reset the source info
-  src.Provides = []string{}
-  src.Requires = []string{}
-  src.Base = (filename == base)
-  src.Filename = filename
+	if src == nil {
+		src = new(Source)
+	}
 
-  // Open the file
-  f, err := os.Open(filename)
-  if err != nil {
-    return nil, false, app.Error(err)
-  }
-  defer f.Close()
+	base, err := isBase(c, path)
+	if err != nil {
+		return nil, err
+	}
 
-  r := bufio.NewReader(f)
-  for {
-    // Read it line by line
-    line, _, err := r.ReadLine()
-    if err != nil {
-      if err == io.EOF {
-        break
-      }
-      return nil, false, err
-    }
+	src.Provides = []string{}
+	src.Requires = []string{}
+	src.Base = base
+	src.Path = path
 
-    // Find the goog.provide() calls
-    if strings.Contains(string(line), "goog.provide") {
-      matchs := provideRe.FindSubmatch(line)
-      if matchs != nil {
-        src.Provides = append(src.Provides, string(matchs[1]))
-        continue
-      }
-    }
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, errors.New(err)
+	}
+	defer f.Close()
 
-    // Find the goog.require() calls
-    if strings.Contains(string(line), "goog.require") {
-      matchs := requiresRe.FindSubmatch(line)
-      if matchs != nil {
-        src.Requires = append(src.Requires, string(matchs[1]))
-        continue
-      }
-    }
-  }
+	r := bufio.NewReader(f)
+	for {
+		line, err := r.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, errors.New(err)
+		}
 
-  // Validates the base file
-  if src.Base {
-    if len(src.Provides) > 0 || len(src.Requires) > 0 {
-      return nil, false,
-        app.Errorf("base files should not provide or require namespaces: %s", filename)
-    }
-    src.Provides = append(src.Provides, "goog")
-  }
+		// Find the goog.provide() calls
+		if strings.Contains(line, "goog.provide") {
+			matchs := providesRe.FindStringSubmatch(line)
+			if matchs != nil {
+				src.Provides = append(src.Provides, matchs[1])
+				continue
+			}
+		}
 
-  return src, false, nil
-}*/
+		// Find the goog.require() calls
+		if strings.Contains(line, "goog.require") {
+			matchs := requiresRe.FindStringSubmatch(line)
+			if matchs != nil {
+				src.Requires = append(src.Requires, matchs[1])
+				continue
+			}
+		}
+	}
+
+	if src.Base {
+		if len(src.Provides) > 0 || len(src.Requires) > 0 {
+			return nil, errors.Format("base files should not provide or"+
+				"require namespaces: %s [%s] [%s]", path, src.Provides, src.Requires)
+		}
+		src.Provides = append(src.Provides, "goog")
+	}
+
+	sources[path] = src
+
+	return src, nil
+}
+
+func isBase(c config.Config, path string) (bool, error) {
+	library, err := getLibraryRoot(c)
+	if err != nil {
+		return false, err
+	}
+	base := filepath.Join(library, "closure", "goog", "base.js")
+	return path == base, nil
+}
