@@ -10,7 +10,8 @@
   },
   "watch": {
     "sass": ["styles/*.scss"],
-    "soy": ["templates/**/*.soy"]
+    "soy": ["templates/**/*.soy"],
+    "closurejs": ["scripts/**/*.js"]
   },
   "closurejs": {
     "inputs": ["scripts/main.js"]

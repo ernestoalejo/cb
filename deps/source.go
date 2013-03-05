@@ -111,7 +111,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 }
 
 func isBase(c config.Config, path string) (bool, error) {
-	library, err := getLibraryRoot(c)
+	library, err := GetLibraryRoot(c)
 	if err != nil {
 		return false, err
 	}

@@ -21,6 +21,10 @@ type Tree struct {
 	// of namespaces we want to provide, calling ResolveDependencies()
 	deps []*Source
 
+	// List of namespaces we have resolved to obtain the list of dependencies
+	// It's printed to the deps file to load them correctly when served.
+	namespaces []string
+
 	// Used temporary to build the tree
 	c config.Config
 
@@ -81,7 +85,7 @@ func (t *Tree) addSource(path string) error {
 	// Scan all the previous sources searching for repeated
 	// namespaces. We ignore closure library files because they're
 	// supposed to be correct and tested by other methods
-	library, err := getLibraryRoot(t.c)
+	library, err := GetLibraryRoot(t.c)
 	if err != nil {
 		return err
 	}
@@ -125,6 +129,8 @@ func (t *Tree) GetProvides(path string) ([]string, error) {
 }
 
 func (t *Tree) ResolveDependencies(namespaces []string) error {
+	t.namespaces = append(t.namespaces, namespaces...)
+
 	for _, ns := range namespaces {
 		if err := t.resolve(ns); err != nil {
 			return err
@@ -186,8 +192,10 @@ func (t *Tree) WriteDeps(f io.Writer) error {
 				src.Path)
 		}
 
-		fmt.Fprintf(f, "goog.addDependency('%s', [%s], [%s]);", n, provides, requires)
+		fmt.Fprintf(f, "goog.addDependency('%s', [%s], [%s]);\n", n, provides, requires)
 	}
+	ns := fmt.Sprintf("'%s'", strings.Join(t.namespaces, "', '"))
+	fmt.Fprintf(f, "var cb_deps = [%s];\n", ns)
 	return nil
 }
 
@@ -210,11 +218,11 @@ func inSources(lst []*Source, s *Source) bool {
 }
 
 func baseJSPaths(c config.Config) ([]string, error) {
-	library, err := getLibraryRoot(c)
+	library, err := GetLibraryRoot(c)
 	if err != nil {
 		return nil, err
 	}
-	templates, err := getTemplatesRoot(c)
+	templates, err := GetTemplatesRoot(c)
 	if err != nil {
 		return nil, err
 	}

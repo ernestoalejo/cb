@@ -6,7 +6,7 @@ import (
 )
 
 // Retrieve the library root folder from the configurations
-func getLibraryRoot(c config.Config) (string, error) {
+func GetLibraryRoot(c config.Config) (string, error) {
 	if c["closure"] == nil {
 		return "", errors.Format("`closure` config required")
 	}
@@ -21,7 +21,7 @@ func getLibraryRoot(c config.Config) (string, error) {
 }
 
 // Retrieve the template root folder from the configurations
-func getTemplatesRoot(c config.Config) (string, error) {
+func GetTemplatesRoot(c config.Config) (string, error) {
 	if c["closure"] == nil {
 		return "", errors.Format("`closure` config required")
 	}
