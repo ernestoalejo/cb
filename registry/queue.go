@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 )
@@ -58,8 +59,8 @@ func (q *Queue) Run(c config.Config) error {
 			return err
 		}
 
-		log.Printf(" >>> [%2d] Running `%s` task, version %d...\n",
-			len(q.tasks), task, version)
+		log.Printf("%s[%2d] Running `%s` task, version %d...%s\n",
+			colors.BLUE, len(q.tasks), task, version, colors.RESET)
 
 		if err := f(c, q); err != nil {
 			return err

@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"path/filepath"
 
+	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
@@ -58,7 +59,8 @@ func proxy(c config.Config, q *registry.Queue) error {
 	registerUrls(urls)
 	http.Handle("/", proxy)
 
-	log.Println("serving app at http://localhost:9810/...")
+	log.Printf("%sserving app at http://localhost:9810/...%s\n",
+		colors.YELLOW, colors.RESET)
 	if err := http.ListenAndServe(":9810", nil); err != nil {
 		return errors.New(err)
 	}

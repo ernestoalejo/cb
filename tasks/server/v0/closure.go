@@ -10,6 +10,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/deps"
 	"github.com/ernestokarim/cb/errors"
@@ -39,7 +40,8 @@ func server_closure(c config.Config, q *registry.Queue) error {
 	})
 	registerUrls(map[string]handler{"/": rootHandler})
 
-	log.Println("serving app at http://localhost:9810/...")
+	log.Printf("%sserving app at http://localhost:9810/...%s\n",
+		colors.YELLOW, colors.RESET)
 	if err := http.ListenAndServe(":9810", nil); err != nil {
 		return errors.New(err)
 	}

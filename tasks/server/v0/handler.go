@@ -10,6 +10,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/ernestokarim/cb/colors"
 )
 
 // loggingHandler is the http.Handler implementation for LoggingHandlerTo and its friends
@@ -55,7 +57,15 @@ func (l *responseLogger) WriteHeader(s int) {
 // ts is the timestamp with which the entry should be logged.
 // status and size are used to provide the response HTTP status and size.
 func writeLog(req *http.Request, ts time.Time, status, size int) {
-	log.Printf("[%d] %s %s (%d)\n", status, req.Method, req.RequestURI, size)
+	var color string
+	if status == 200 || status == 304 {
+		color = colors.GREEN
+	}
+	if status == 500 || status == 403 || status == 404 {
+		color = colors.RED
+	}
+	log.Printf("%s[%d] %s %s (%d)%s\n", color, status, req.Method,
+		req.RequestURI, size, colors.RESET)
 }
 
 // LoggingHandler return a http.Handler that wraps h and logs requests to out in

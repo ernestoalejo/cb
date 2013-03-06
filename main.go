@@ -13,6 +13,7 @@ var ()
 
 func main() {
 	flag.Parse()
+	log.SetFlags(log.Ltime)
 
 	if *config.Help {
 		usage()
