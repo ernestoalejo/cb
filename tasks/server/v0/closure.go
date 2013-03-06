@@ -51,7 +51,7 @@ func server_closure(c config.Config, q *registry.Queue) error {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, "index.html")
+	http.ServeFile(w, r, "base.html")
 	return nil
 }
 

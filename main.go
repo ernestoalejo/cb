@@ -9,8 +9,6 @@ import (
 	"github.com/ernestokarim/cb/registry"
 )
 
-var ()
-
 func main() {
 	flag.Parse()
 	log.SetFlags(log.Ltime)
@@ -19,7 +17,6 @@ func main() {
 		usage()
 		return
 	}
-
 	args := flag.Args()
 	if len(args) == 0 {
 		usage()
@@ -30,12 +27,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	q := &registry.Queue{}
 	for _, task := range args {
 		q.AddTask(task)
 	}
-
 	if err := q.RunWithTimer(c); err != nil {
 		log.Fatal(err)
 	}
