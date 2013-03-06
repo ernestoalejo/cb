@@ -9,21 +9,6 @@ func init() {
 		{"recess", 0},
 		{"sass", 0},
 	})
-	registry.NewAlias("build", 0, []*registry.Alias{
-		{"clean", 0},
-		{"prepare_dist", 0},
-		{"build_recess", 0},
-		{"build_sass", 0},
-		{"imagemin", 0},
-		{"minignore", 0},
-		{"ngmin", 0},
-		{"compilejs", 0},
-		{"concat", 0},
-		{"cacherev", 0},
-		{"htmlmin", 0},
-		{"copy_dist", 0},
-		{"deploy_dist", 0},
-	})
 	registry.NewAlias("compile", 0, []*registry.Alias{
 		{"build", 0},
 	})

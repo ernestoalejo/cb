@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 )
@@ -16,7 +17,8 @@ var ErrExec = errors.Format("exec failed")
 // if present
 func Exec(app string, args []string) (string, error) {
 	if *config.Verbose {
-		log.Printf("EXEC: %s %+v\n", app, args)
+		log.Printf("%sEXEC%s %s %+v\n", colors.YELLOW, colors.RESET,
+			app, args)
 	}
 
 	cmd := exec.Command(app, args...)
