@@ -55,9 +55,7 @@ func proxy(c config.Config, q *registry.Queue) error {
 		}
 	}
 
-	for url, f := range urls {
-		http.Handle(url, LoggingHandler(http.HandlerFunc(f)))
-	}
+	registerUrls(urls)
 	http.Handle("/", proxy)
 
 	log.Println("serving app at http://localhost:9810/...")
@@ -81,29 +79,33 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	return
 }
 
-func appHandler(w http.ResponseWriter, r *http.Request) {
+func appHandler(w http.ResponseWriter, r *http.Request) error {
 	http.ServeFile(w, r, filepath.Join("client", "app", r.URL.Path))
+	return nil
 }
 
-func testHandler(w http.ResponseWriter, r *http.Request) {
+func testHandler(w http.ResponseWriter, r *http.Request) error {
 	http.ServeFile(w, r, filepath.Join("client", "test", "e2e", "runner.html"))
+	return nil
 }
 
-func scenariosHandler(w http.ResponseWriter, r *http.Request) {
+func scenariosHandler(w http.ResponseWriter, r *http.Request) error {
 	http.ServeFile(w, r, filepath.Join("client", "test", "e2e", r.URL.Path))
+	return nil
 }
 
-func angularScenarioHandler(w http.ResponseWriter, r *http.Request) {
+func angularScenarioHandler(w http.ResponseWriter, r *http.Request) error {
 	http.ServeFile(w, r, filepath.Join("client", "app", "components",
 		"bower-angular", r.URL.Path))
+	return nil
 }
 
-func stylesHandler(w http.ResponseWriter, r *http.Request) {
+func stylesHandler(w http.ResponseWriter, r *http.Request) error {
 	if err := recompileStyles(r); err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+		return err
 	}
 	http.ServeFile(w, r, filepath.Join("client", "temp", r.URL.Path))
+	return nil
 }
 
 func recompileStyles(r *http.Request) error {

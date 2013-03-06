@@ -51,7 +51,7 @@ func NewTree(c config.Config) (*Tree, error) {
 		start:    time.Now(),
 	}
 
-	roots, err := baseJSPaths(t.c)
+	roots, err := BaseJSPaths(t.c)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func (t *Tree) resolve(namespace string) error {
 }
 
 func (t *Tree) WriteDeps(f io.Writer) error {
-	paths, err := baseJSPaths(t.c)
+	paths, err := BaseJSPaths(t.c)
 	if err != nil {
 		return err
 	}
@@ -233,22 +233,4 @@ func inSources(lst []*Source, s *Source) bool {
 		}
 	}
 	return false
-}
-
-func baseJSPaths(c config.Config) ([]string, error) {
-	library, err := GetLibraryRoot(c)
-	if err != nil {
-		return nil, err
-	}
-	templates, err := GetTemplatesRoot(c)
-	if err != nil {
-		return nil, err
-	}
-	return []string{
-		library,
-		filepath.Join(library, "closure", "goog"),
-		"scripts",
-		filepath.Join("temp", "templates"),
-		filepath.Join(templates, "javascript", "soyutils_usegoog.js"),
-	}, nil
 }

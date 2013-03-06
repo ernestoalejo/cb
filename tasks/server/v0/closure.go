@@ -33,13 +33,11 @@ func server_closure(c config.Config, q *registry.Queue) error {
 	configs = c
 	queue = q
 
-	routes := map[string]handler{
-		"/":        rootHandler,
+	registerUrls(map[string]handler{
 		"/compile": compileHandler,
-	}
-	for url, f := range routes {
-		http.Handle(url, LoggingHandler(http.HandlerFunc(f)))
-	}
+		"/input/":  inputHandler,
+	})
+	registerUrls(map[string]handler{"/": rootHandler})
 
 	log.Println("serving app at http://localhost:9810/...")
 	if err := http.ListenAndServe(":9810", nil); err != nil {
@@ -49,18 +47,42 @@ func server_closure(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func rootHandler(w http.ResponseWriter, r *http.Request) {
+func rootHandler(w http.ResponseWriter, r *http.Request) error {
 	http.ServeFile(w, r, "index.html")
+	return nil
 }
 
-func compileHandler(w http.ResponseWriter, r *http.Request) {
-	if err := compileHandlerErr(w, r); err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+func inputHandler(w http.ResponseWriter, r *http.Request) error {
+	paths, err := deps.BaseJSPaths(configs)
+	if err != nil {
+		return err
 	}
+
+	name := r.URL.Path[len("/input/"):]
+	if name == "" {
+		return errors.Format("empty name")
+	}
+
+	for _, p := range paths {
+		if filepath.Ext(p) == ".js" {
+			continue
+		}
+
+		p = filepath.Join(p, name)
+		if _, err := os.Stat(p); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return errors.New(err)
+		}
+		http.ServeFile(w, r, p)
+		return nil
+	}
+
+	return errors.Format("file not found: `%s`", name)
 }
 
-func compileHandlerErr(w http.ResponseWriter, r *http.Request) error {
+func compileHandler(w http.ResponseWriter, r *http.Request) error {
 	if err := recompile(r); err != nil {
 		return err
 	}

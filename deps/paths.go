@@ -1,6 +1,8 @@
 package deps
 
 import (
+	"path/filepath"
+
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 )
@@ -33,4 +35,22 @@ func GetTemplatesRoot(c config.Config) (string, error) {
 		return "", errors.Format("`closure.templates` should be a string")
 	}
 	return s, nil
+}
+
+func BaseJSPaths(c config.Config) ([]string, error) {
+	library, err := GetLibraryRoot(c)
+	if err != nil {
+		return nil, err
+	}
+	templates, err := GetTemplatesRoot(c)
+	if err != nil {
+		return nil, err
+	}
+	return []string{
+		"scripts",
+		filepath.Join("temp", "templates"),
+		filepath.Join(library, "closure", "goog"),
+		library,
+		filepath.Join(templates, "javascript", "soyutils_usegoog.js"),
+	}, nil
 }
