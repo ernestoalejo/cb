@@ -37,6 +37,7 @@ func server_closure(c config.Config, q *registry.Queue) error {
 	registerUrls(map[string]handler{
 		"/compile": compileHandler,
 		"/input/":  inputHandler,
+		"/styles/": stylesHandler,
 	})
 	registerUrls(map[string]handler{"/": rootHandler})
 
@@ -85,8 +86,17 @@ func inputHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func compileHandler(w http.ResponseWriter, r *http.Request) error {
-	if err := recompile(r); err != nil {
-		return err
+	targets := []string{"soy", "closurejs"}
+	for _, target := range targets {
+		if m, err := watcher.CheckModified(target); err != nil {
+			return err
+		} else if !m {
+			continue
+		}
+
+		if err := queue.ExecTasks(target, configs); err != nil {
+			return err
+		}
 	}
 
 	library, err := deps.GetLibraryRoot(configs)
@@ -130,22 +140,6 @@ func addFile(w io.Writer, path string) error {
 
 	if _, err := io.Copy(w, f); err != nil {
 		return errors.New(err)
-	}
-	return nil
-}
-
-func recompile(r *http.Request) error {
-	targets := []string{"sass", "soy", "closurejs"}
-	for _, target := range targets {
-		if m, err := watcher.CheckModified(target); err != nil {
-			return err
-		} else if !m {
-			continue
-		}
-
-		if err := queue.ExecTasks(target, configs); err != nil {
-			return err
-		}
 	}
 	return nil
 }

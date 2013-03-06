@@ -12,7 +12,6 @@ import (
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
-	"github.com/ernestokarim/cb/watcher"
 )
 
 func init() {
@@ -99,39 +98,6 @@ func scenariosHandler(w http.ResponseWriter, r *http.Request) error {
 func angularScenarioHandler(w http.ResponseWriter, r *http.Request) error {
 	http.ServeFile(w, r, filepath.Join("client", "app", "components",
 		"bower-angular", r.URL.Path))
-	return nil
-}
-
-func stylesHandler(w http.ResponseWriter, r *http.Request) error {
-	if err := recompileStyles(r); err != nil {
-		return err
-	}
-	http.ServeFile(w, r, filepath.Join("client", "temp", r.URL.Path))
-	return nil
-}
-
-func recompileStyles(r *http.Request) error {
-	name := r.URL.Path[8:]
-	dests := []string{"sass", "recess"}
-	for _, dest := range dests {
-		for style, _ := range configs[dest] {
-			if style != name {
-				continue
-			}
-
-			if m, err := watcher.CheckModified(dest); err != nil {
-				return err
-			} else if !m {
-				return nil
-			}
-
-			if err := queue.ExecTasks(dest, configs); err != nil {
-				return err
-			}
-
-			return nil
-		}
-	}
 	return nil
 }
 

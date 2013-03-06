@@ -61,7 +61,7 @@ func writeLog(req *http.Request, ts time.Time, status, size int) {
 	if status == 200 || status == 304 {
 		color = colors.GREEN
 	}
-	if status == 500 || status == 403 || status == 404 {
+	if status == 500 || status == 403 || status == 404 || status == 0 {
 		color = colors.RED
 	}
 	log.Printf("%s[%d] %s %s (%d)%s\n", color, status, req.Method,
