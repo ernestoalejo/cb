@@ -19,6 +19,10 @@ func NewTask(name string, version int, f Task) {
 	if m == nil {
 		m = map[int]Task{}
 	}
+	if m[version] != nil {
+		panic("task already registered: " + name)
+	}
+
 	m[version] = f
 	tasks[name] = m
 }
