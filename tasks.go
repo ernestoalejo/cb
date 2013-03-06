@@ -11,6 +11,7 @@ import (
 	_ "github.com/ernestokarim/cb/tasks/compilejs/v0"
 	_ "github.com/ernestokarim/cb/tasks/concat/v0"
 	_ "github.com/ernestokarim/cb/tasks/dist/v0"
+	_ "github.com/ernestokarim/cb/tasks/gss/v0"
 	_ "github.com/ernestokarim/cb/tasks/htmlmin/v0"
 	_ "github.com/ernestokarim/cb/tasks/imagemin/v0"
 	_ "github.com/ernestokarim/cb/tasks/init/v0"

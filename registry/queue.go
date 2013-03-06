@@ -24,7 +24,8 @@ func (q *Queue) RunWithTimer(c config.Config) error {
 	if err := q.Run(c); err != nil {
 		return err
 	}
-	log.Printf("Finished in %.3f seconds", time.Since(start).Seconds())
+	log.Printf("%sFinished in %.3f seconds%s", colors.GREEN,
+		time.Since(start).Seconds(), colors.RESET)
 	return nil
 }
 

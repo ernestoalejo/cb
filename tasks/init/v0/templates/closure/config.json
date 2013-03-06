@@ -8,6 +8,9 @@
   "sass": {
     "app.css": "styles/app.scss"
   },
+  "gss": {
+    "styles.css": "app.css"
+  },
   "watch": {
     "sass": ["styles/*.scss"],
     "soy": ["templates/**/*.soy"],
