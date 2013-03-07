@@ -1,6 +1,7 @@
 package v0
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ernestokarim/cb/config"
@@ -27,7 +28,7 @@ func test(c config.Config, q *registry.Queue) error {
 
 	args := []string{"start", configFile}
 	if err := utils.ExecCopyOutput("testacular", args); err != nil {
-		return err
+		return fmt.Errorf("exec failed: %s", err)
 	}
 	return nil
 }
