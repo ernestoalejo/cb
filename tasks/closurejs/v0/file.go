@@ -1,10 +1,10 @@
 package v0
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
 
 type define struct {
@@ -39,7 +39,7 @@ type file struct {
 
 func getFile(c config.Config) (*file, error) {
 	if c["closurejs"] == nil {
-		return nil, errors.Format("`closurejs` config required")
+		return nil, fmt.Errorf("`closurejs` config required")
 	}
 	required := []string{
 		"dest",
@@ -52,13 +52,13 @@ func getFile(c config.Config) (*file, error) {
 	}
 	for _, r := range required {
 		if c["closurejs"][r] == nil {
-			return nil, errors.Format("`closurejs.%s` config required", r)
+			return nil, fmt.Errorf("`closurejs.%s` config required", r)
 		}
 	}
 
 	dest, ok := c["closurejs"]["dest"].(string)
 	if !ok {
-		return nil, errors.Format("`closurejs.dest` should be a string")
+		return nil, fmt.Errorf("`closurejs.dest` should be a string")
 	}
 	inputs, err := getStringList("inputs", c["closurejs"]["inputs"])
 	if err != nil {
@@ -82,7 +82,7 @@ func getFile(c config.Config) (*file, error) {
 	}
 	debug, ok := c["closurejs"]["debug"].(bool)
 	if !ok {
-		return nil, errors.Format("`closurejs.debug` should be a boolean")
+		return nil, fmt.Errorf("`closurejs.debug` should be a boolean")
 	}
 
 	return &file{
@@ -99,13 +99,13 @@ func getFile(c config.Config) (*file, error) {
 func getStringList(name string, raw interface{}) ([]string, error) {
 	lst, ok := raw.([]interface{})
 	if !ok {
-		return nil, errors.Format("`closurejs.%s` should be a list", name)
+		return nil, fmt.Errorf("`closurejs.%s` should be a list", name)
 	}
 	strs := []string{}
 	for _, item := range lst {
 		s, ok := item.(string)
 		if !ok {
-			return nil, errors.Format("`closurejs.%s` items should be strings", name)
+			return nil, fmt.Errorf("`closurejs.%s` items should be strings", name)
 		}
 		strs = append(strs, s)
 	}
@@ -115,13 +115,13 @@ func getStringList(name string, raw interface{}) ([]string, error) {
 func getDefines(raw interface{}) ([]*define, error) {
 	m, ok := raw.(map[string]interface{})
 	if !ok {
-		return nil, errors.Format("`closurejs.defines` should be an object")
+		return nil, fmt.Errorf("`closurejs.defines` should be an object")
 	}
 	defines := []*define{}
 	for k, v := range m {
 		s, ok := v.(string)
 		if !ok {
-			return nil, errors.Format("`closurejs.defines` items should be strings")
+			return nil, fmt.Errorf("`closurejs.defines` items should be strings")
 		}
 		defines = append(defines, &define{k, s})
 	}
@@ -131,20 +131,20 @@ func getDefines(raw interface{}) ([]*define, error) {
 func getChecks(raw interface{}) ([]*check, error) {
 	m, ok := raw.(map[string]interface{})
 	if !ok {
-		return nil, errors.Format("`closurejs.checks` should be an object")
+		return nil, fmt.Errorf("`closurejs.checks` should be an object")
 	}
 	checks := []*check{}
 	for k, v := range m {
 		s, ok := v.(string)
 		if !ok {
-			return nil, errors.Format("`closurejs.checks` items should be strings")
+			return nil, fmt.Errorf("`closurejs.checks` items should be strings")
 		}
 
 		if !isDefine(k) {
-			return nil, errors.Format("`closure.defines.%s` is not a valid define", k)
+			return nil, fmt.Errorf("`closure.defines.%s` is not a valid define", k)
 		}
 		if s != "off" && s != "warning" && s != "error" {
-			return nil, errors.Format("`closure.checks.%s` should be one of "+
+			return nil, fmt.Errorf("`closure.checks.%s` should be one of "+
 				"{off, warning, errror}", k)
 		}
 
@@ -181,7 +181,7 @@ func isDefine(s string) bool {
 func getCompilationLevel(raw interface{}) (string, error) {
 	s, ok := raw.(string)
 	if !ok {
-		return "", errors.Format("`closurejs.compilationLevel` should be a string")
+		return "", fmt.Errorf("`closurejs.compilationLevel` should be a string")
 	}
 	m := map[string]bool{
 		"ADVANCED_OPTIMIZATIONS": true,
@@ -189,7 +189,7 @@ func getCompilationLevel(raw interface{}) (string, error) {
 		"WHITESPACE_ONLY":        true,
 	}
 	if !m[s] {
-		return "", errors.Format("`closurejs.compilationLevel` should be one of " +
+		return "", fmt.Errorf("`closurejs.compilationLevel` should be one of " +
 			"{ADVANCED_OPTIMIZATIONS, SIMPLE_OPTIMIZATIONS, WHITESPACE_ONLY}")
 	}
 	return s, nil
