@@ -81,7 +81,11 @@ func changeName(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	rel, err := filepath.Rel(filepath.Join("client", "temp"), path)
+	var from string
+	if *config.AngularMode {
+		from = "client"
+	}
+	rel, err := filepath.Rel(filepath.Join(from, "temp"), path)
 	if err != nil {
 		return errors.New(err)
 	}
@@ -98,7 +102,7 @@ func changeName(path string, info os.FileInfo, err error) error {
 		log.Printf("`%s` converted to `%s`\n", filepath.Base(path), newname)
 	}
 
-	abspath := filepath.Join("client", "temp", newpath)
+	abspath := filepath.Join(from, "temp", newpath)
 	if err := os.Rename(path, abspath); err != nil {
 		return errors.New(err)
 	}
