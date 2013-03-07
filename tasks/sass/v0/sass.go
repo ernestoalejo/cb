@@ -41,11 +41,9 @@ func exec_sass(c config.Config, q *registry.Queue, mode string) error {
 			args = append(args, "--style", "compressed")
 		}
 		output, err := utils.Exec("sass", args)
-		if err == utils.ErrExec {
+		if err != nil {
 			fmt.Println(output)
-			return errors.Format("tool error")
-		} else if err != nil {
-			return err
+			return fmt.Errorf("compiler error: %s", err)
 		}
 
 		if err := utils.WriteFile(file.Dest, output); err != nil {

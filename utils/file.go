@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -9,16 +10,15 @@ import (
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
 
 func WriteFile(name, content string) error {
 	if err := os.MkdirAll(filepath.Dir(name), 0755); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("cannot prepare the folders: %s", err)
 	}
 
 	if err := ioutil.WriteFile(name, []byte(content), 0755); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("write file failed: %s", err)
 	}
 
 	return nil
@@ -32,18 +32,18 @@ func CopyFile(srcPath, destPath string) error {
 
 	dest, err := os.Create(destPath)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("cannot create dest file: %s", err)
 	}
 	defer dest.Close()
 
 	src, err := os.Open(srcPath)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("cannot open source file: %s", err)
 	}
 	defer src.Close()
 
 	if _, err := io.Copy(dest, src); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("copy failed: %s", err)
 	}
 
 	return nil
@@ -53,7 +53,7 @@ func CopyFile(srcPath, destPath string) error {
 func ReadLines(path string) ([]string, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, errors.New(err)
+		return nil, fmt.Errorf("cannot open file: %s", err)
 	}
 	defer f.Close()
 
@@ -65,7 +65,7 @@ func ReadLines(path string) ([]string, error) {
 			break
 		}
 		if err != nil {
-			return nil, errors.New(err)
+			return nil, fmt.Errorf("read file line failed: %s", err)
 		}
 
 		lines = append(lines, line)

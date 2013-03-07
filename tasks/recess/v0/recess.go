@@ -36,11 +36,9 @@ func exec_recess(c config.Config, q *registry.Queue, mode string) error {
 	for _, file := range files {
 		args := []string{flag, "--stripColors", file.Src}
 		output, err := utils.Exec("recess", args)
-		if err == utils.ErrExec {
+		if err != nil {
 			fmt.Println(output)
-			return errors.Format("tool error")
-		} else if err != nil {
-			return err
+			return fmt.Errorf("tool error: %s", err)
 		}
 
 		if err := utils.WriteFile(file.Dest, output); err != nil {

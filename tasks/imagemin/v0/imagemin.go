@@ -85,11 +85,9 @@ func jpegtran(src, dest string) error {
 		"-outfile", dest, src,
 	}
 	output, err := utils.Exec("jpegtran", args)
-	if err == utils.ErrExec {
+	if err != nil {
 		fmt.Println(output)
-		return errors.Format("tool error")
-	} else if err != nil {
-		return err
+		return fmt.Errorf("jpeg optimizer error: %s", err)
 	}
 
 	return nil
@@ -102,11 +100,9 @@ func optipng(src, dest string) error {
 		"-out", dest, src,
 	}
 	output, err := utils.Exec("optipng", args)
-	if err == utils.ErrExec {
+	if err != nil {
 		fmt.Println(output)
-		return errors.Format("tool error")
-	} else if err != nil {
-		return err
+		return fmt.Errorf("png optimizer error: %s", err)
 	}
 
 	if err := os.Remove(dest + ".bak"); err != nil {

@@ -1,6 +1,7 @@
 package watcher
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/ernestokarim/cb/cache"
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
 
 var (
@@ -63,7 +63,7 @@ func Dirs(dirs []string, key string) error {
 
 	// First check to store the initial times
 	if _, err := CheckModified(key); err != nil {
-		return err
+		return fmt.Errorf("check cache failed: %s", err)
 	}
 
 	return nil
@@ -72,7 +72,7 @@ func Dirs(dirs []string, key string) error {
 func CheckModified(key string) (bool, error) {
 	for _, w := range watchers[key] {
 		if m, err := checkWatcher(key, w); err != nil {
-			return false, err
+			return false, fmt.Errorf("check watcher failed: %s", err)
 		} else if m {
 			return true, nil
 		}
@@ -84,7 +84,7 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 	modified := false
 	fn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("walk failed: %s", err)
 		}
 
 		ext := filepath.Ext(path)
@@ -104,7 +104,7 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 		if check {
 			modified, err = cache.Modified(cache.KEY_WATCH, path)
 			if err != nil {
-				return err
+				return fmt.Errorf("modified check failed: %s", err)
 			}
 			if modified && *config.Verbose {
 				log.Printf("modified `%s` [%s]\n", path, key)
@@ -118,7 +118,7 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 		return nil
 	}
 	if err := filepath.Walk(w.path, fn); err != nil {
-		return false, errors.New(err)
+		return false, fmt.Errorf("watcher walk failed: %s", err)
 	}
 	return modified, nil
 }

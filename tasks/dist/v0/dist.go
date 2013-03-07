@@ -48,11 +48,9 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 			return errors.New(err)
 		}
 		output, err := utils.Exec("cp", []string{"-r", origin, to[i]})
-		if err == utils.ErrExec {
+		if err != nil {
 			fmt.Println(output)
-			return errors.Format("tool error")
-		} else if err != nil {
-			return err
+			return fmt.Errorf("copy error: %s", err)
 		}
 	}
 
@@ -98,11 +96,9 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 		}
 
 		output, err := utils.Exec("cp", []string{"-r", origin, dest})
-		if err == utils.ErrExec {
+		if err != nil {
 			fmt.Println(output)
-			return errors.Format("tool error")
-		} else if err != nil {
-			return err
+			return fmt.Errorf("copy error: %s", err)
 		}
 	}
 
@@ -119,11 +115,9 @@ func deploy_dist(c config.Config, q *registry.Queue) error {
 	for _, c := range commands {
 		cmd := strings.Split(c, " ")
 		output, err := utils.Exec(cmd[0], cmd[1:])
-		if err == utils.ErrExec {
+		if err != nil {
 			fmt.Println(output)
-			return errors.Format("tool error")
-		} else if err != nil {
-			return err
+			return fmt.Errorf("command error (%s): %s", c, err)
 		}
 	}
 	return nil

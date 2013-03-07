@@ -116,11 +116,9 @@ func build_closurejs(c config.Config, q *registry.Queue) error {
 	}
 
 	output, err := utils.Exec("java", args)
-	if err == utils.ErrExec {
+	if err != nil {
 		fmt.Println(output)
-		return errors.Format("tool error")
-	} else if err != nil {
-		return err
+		return fmt.Errorf("compiler error: %s", err)
 	}
 	if *config.Verbose {
 		log.Printf("created file %s\n", file.dest)

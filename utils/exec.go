@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -8,10 +9,7 @@ import (
 
 	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
-
-var ErrExec = errors.Format("exec failed")
 
 // Execute a new command and return the output and an error
 // if present
@@ -24,12 +22,9 @@ func Exec(app string, args []string) (string, error) {
 	cmd := exec.Command(app, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		if _, ok := err.(*exec.ExitError); ok {
-			return string(output), ErrExec
-		}
-		return "", errors.New(err)
+		err = fmt.Errorf("exec failed: %s", err)
 	}
-	return string(output), nil
+	return string(output), err
 }
 
 func ExecCopyOutput(app string, args []string) error {
@@ -38,22 +33,18 @@ func ExecCopyOutput(app string, args []string) error {
 	}
 
 	cmd := exec.Command(app, args...)
-
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("cannot create stdout pipe: %s", err)
 	}
-
 	if err := cmd.Start(); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("cannot run the command: %s", err)
 	}
-
 	if _, err := io.Copy(os.Stdout, stdout); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("cannot copy the output: %s", err)
 	}
-
 	if err := cmd.Wait(); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("wait failed: %s", err)
 	}
 
 	return nil
