@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -28,18 +27,18 @@ func imagemin(c config.Config, q *registry.Queue) error {
 		if os.IsNotExist(err) {
 			return nil
 		}
-		return errors.New(err)
+		return fmt.Errorf("stat images folder failed: %s", err)
 	}
 
 	if err := filepath.Walk(root, walkFn); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("walk images folder failed: %s", err)
 	}
 	return nil
 }
 
 func walkFn(path string, info os.FileInfo, err error) error {
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("walk error: %s", err)
 	}
 	if info.IsDir() {
 		return nil
@@ -52,12 +51,13 @@ func walkFn(path string, info os.FileInfo, err error) error {
 	base := filepath.Join(from, "temp", "images")
 	dest, err := filepath.Rel(base, path)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("rel failed: %s", err)
 	}
 	dest = filepath.Join(from, "temp", "images", dest)
 
-	if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
-		return errors.New(err)
+	dir := filepath.Dir(dest)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("create folder failed (%s): %s", dir, err)
 	}
 
 	switch filepath.Ext(path) {
@@ -65,12 +65,12 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		fallthrough
 	case ".jpeg":
 		if err := jpegtran(path, dest); err != nil {
-			return err
+			return fmt.Errorf("jpeg optimization failed: %s", err)
 		}
 
 	case ".png":
 		if err := optipng(path, dest); err != nil {
-			return err
+			return fmt.Errorf("png optimization failed: %s", err)
 		}
 	}
 
@@ -109,7 +109,7 @@ func optipng(src, dest string) error {
 		if os.IsNotExist(err) {
 			return nil
 		}
-		return errors.New(err)
+		return fmt.Errorf("remove backup file failed: %s", err)
 	}
 
 	return nil

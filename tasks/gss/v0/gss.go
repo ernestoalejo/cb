@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -18,21 +17,22 @@ func init() {
 
 func gss(c config.Config, q *registry.Queue) error {
 	if !*config.ClosureMode {
-		return errors.Format("closure mode only task")
+		return fmt.Errorf("closure mode only task")
 	}
 
 	compilerPath, err := getCompilerPath(c)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get compiler path: %s", err)
 	}
 	files, err := gssFromConfig(c)
 	if err != nil {
-		return err
+		return fmt.Errorf("read config failed: %s", err)
 	}
 
 	for _, file := range files {
-		if err := os.MkdirAll(filepath.Dir(file.dest), 0755); err != nil {
-			return errors.New(err)
+		dir := filepath.Dir(file.dest)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("create dest dir failed (%s): %s", dir, err)
 		}
 
 		args := []string{
@@ -65,7 +65,7 @@ func gssFromConfig(c config.Config) ([]*gssFile, error) {
 	for dest, rawsrc := range c["gss"] {
 		src, ok := rawsrc.(string)
 		if !ok {
-			return nil, errors.Format("`gss` config should be a map[string]string")
+			return nil, fmt.Errorf("`gss` config should be a map[string]string")
 		}
 
 		src = filepath.Join("temp", src)
@@ -78,14 +78,14 @@ func gssFromConfig(c config.Config) ([]*gssFile, error) {
 // Compute the compiler path from the config settings and return it
 func getCompilerPath(c config.Config) (string, error) {
 	if c["closure"] == nil {
-		return "", errors.Format("`closure` config required")
+		return "", fmt.Errorf("`closure` config required")
 	}
 	if c["closure"]["stylesheets"] == nil {
-		return "", errors.Format("`closure.stylesheets` config required")
+		return "", fmt.Errorf("`closure.stylesheets` config required")
 	}
 	s, ok := c["closure"]["stylesheets"].(string)
 	if !ok {
-		return "", errors.Format("`closure.stylesheets` should be a string")
+		return "", fmt.Errorf("`closure.stylesheets` should be a string")
 	}
 	s = filepath.Join(s, "build", "closure-stylesheets.jar")
 	return s, nil
