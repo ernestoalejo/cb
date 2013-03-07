@@ -9,7 +9,6 @@ import (
 	"text/template"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -30,21 +29,21 @@ func service(c config.Config, q *registry.Queue) error {
 	fmt.Printf(" - Name of the service: ")
 	name, err := getLine()
 	if err != nil {
-		return err
+		return fmt.Errorf("read name failed: %s", err)
 	}
 
 	fmt.Printf(" - Module of the service: ")
 	module, err := getLine()
 	if err != nil {
-		return err
+		return fmt.Errorf("read module failed: %s", err)
 	}
 
 	data := &ServiceData{name, module}
 	if err := writeServiceFile(data); err != nil {
-		return err
+		return fmt.Errorf("write service failed: %s", err)
 	}
 	if err := writeServiceTestFile(data); err != nil {
-		return err
+		return fmt.Errorf("write service test failed: %s", err)
 	}
 
 	return nil
@@ -54,19 +53,19 @@ func controller(c config.Config, q *registry.Queue) error {
 	fmt.Printf(" - Name of the controller: ")
 	name, err := getLine()
 	if err != nil {
-		return err
+		return fmt.Errorf("read name failed: %s", err)
 	}
 
 	fmt.Printf(" - Module of the controller: ")
 	module, err := getLine()
 	if err != nil {
-		return err
+		return fmt.Errorf("read module failed: %s", err)
 	}
 
 	fmt.Printf(" - Route of the controller: ")
 	route, err := getLine()
 	if err != nil {
-		return err
+		return fmt.Errorf("read route failed: %s", err)
 	}
 
 	if !strings.Contains(name, "Ctrl") {
@@ -75,16 +74,16 @@ func controller(c config.Config, q *registry.Queue) error {
 
 	data := &ControllerData{name, module, route}
 	if err := writeControllerFile(data); err != nil {
-		return err
+		return fmt.Errorf("write controller failed: %s", err)
 	}
 	if err := writeControllerTestFile(data); err != nil {
-		return err
+		return fmt.Errorf("write controller test failed: %s", err)
 	}
 	if err := writeControllerViewFile(data); err != nil {
-		return err
+		return fmt.Errorf("write view failed: %s", err)
 	}
 	if err := writeControllerRouteFile(data); err != nil {
-		return err
+		return fmt.Errorf("write route failed: %s", err)
 	}
 
 	return nil
@@ -96,7 +95,7 @@ func getLine() (string, error) {
 	for {
 		line, err := buf.ReadString('\n')
 		if err != nil {
-			return "", errors.New(err)
+			return "", fmt.Errorf("read line failed: %s", err)
 		}
 
 		line = strings.TrimSpace(line)
@@ -118,28 +117,29 @@ func writeFile(path string, tmpl string, data interface{}) error {
 		if os.IsNotExist(err) {
 			exists = false
 		} else {
-			return errors.New(err)
+			return fmt.Errorf("stat failed: %s", err)
 		}
 	}
 
-	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
-		return errors.New(err)
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("mkdir all failed (%s): %s", dir, err)
 	}
 
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("open file failed: %s", err)
 	}
 	defer f.Close()
 
 	tmpl = filepath.Join(utils.PackagePath(SELF_PKG), tmpl)
 	t, err := template.ParseFiles(tmpl)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("parse template failed: %s", err)
 	}
 
 	if err := t.Execute(f, &FileData{data, exists}); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("execute template failed: %s", err)
 	}
 
 	return nil
@@ -197,7 +197,7 @@ func writeControllerRouteFile(data *ControllerData) error {
 	path := filepath.Join("client", "app", "scripts", "app.js")
 	lines, err := utils.ReadLines(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("read lines failed: %s", err)
 	}
 
 	newlines := []string{}
@@ -205,7 +205,7 @@ func writeControllerRouteFile(data *ControllerData) error {
 	for _, line := range lines {
 		if strings.Contains(line, ".otherwise") {
 			if processed {
-				return errors.Format(".otherwise line found twice, write " +
+				return fmt.Errorf(".otherwise line found twice, write " +
 					"the route manually in app.js")
 			}
 
@@ -224,12 +224,12 @@ func writeControllerRouteFile(data *ControllerData) error {
 		newlines = append(newlines, line)
 	}
 	if len(newlines) == len(lines) {
-		return errors.Format(".otherwise line not found in app.js, add the " +
+		return fmt.Errorf(".otherwise line not found in app.js, add the " +
 			"route manually")
 	}
 
 	if err := utils.WriteFile(path, strings.Join(newlines, "")); err != nil {
-		return err
+		return fmt.Errorf("write file failed: %s", err)
 	}
 
 	return nil
