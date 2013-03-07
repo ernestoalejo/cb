@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
 )
 
@@ -15,7 +16,7 @@ func Ask(q string) bool {
 	for {
 		var ans string
 		if !*config.AlwaysY && !*config.AlwaysN {
-			fmt.Printf("%s", q)
+			fmt.Printf("%s%s%s", colors.YELLOW, q, colors.RESET)
 
 			var err error
 			ans, err = buf.ReadString('\n')
@@ -32,7 +33,7 @@ func Ask(q string) bool {
 			return false
 		}
 
-		fmt.Println("answer y or n")
+		fmt.Printf("%sanswer y or n%s\n", colors.RED, colors.RESET)
 	}
 	panic("should not reach here")
 }
