@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -29,7 +28,7 @@ func concat(c config.Config, q *registry.Queue) error {
 	base := filepath.Join("client", "temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {
-		return err
+		return fmt.Errorf("read base html failed: %s", err)
 	}
 
 	for i := 0; i < len(lines); i++ {
@@ -37,7 +36,7 @@ func concat(c config.Config, q *registry.Queue) error {
 		if strings.Contains(line, "<!-- concat:css") {
 			match := tagRe.FindStringSubmatch(line)
 			if match == nil {
-				return errors.Format("incorrect concat tag, line %d", i)
+				return fmt.Errorf("incorrect concat tag, line %d", i)
 			}
 
 			start := i
@@ -53,19 +52,19 @@ func concat(c config.Config, q *registry.Queue) error {
 
 				i++
 				if i >= len(lines) {
-					return errors.Format("concat css block not closed, line %d", start)
+					return fmt.Errorf("concat css block not closed, line %d", start)
 				}
 				line = lines[i]
 			}
 
 			if err := concatFiles(match[2], files); err != nil {
-				return err
+				return fmt.Errorf("concat files failed: %s", err)
 			}
 			line = fmt.Sprintf("<link rel=\"stylesheet\" href=\"%s\">\n", match[2])
 		} else if strings.Contains(line, "<!-- concat:js") {
 			match := tagRe.FindStringSubmatch(line)
 			if match == nil {
-				return errors.Format("incorrect concat tag, line %d", i)
+				return fmt.Errorf("incorrect concat tag, line %d", i)
 			}
 
 			start := i
@@ -88,13 +87,13 @@ func concat(c config.Config, q *registry.Queue) error {
 
 				i++
 				if i >= len(lines) {
-					return errors.Format("concat js block not closed, line %d", start)
+					return fmt.Errorf("concat js block not closed, line %d", start)
 				}
 				line = lines[i]
 			}
 
 			if err := concatFiles(match[2], files); err != nil {
-				return err
+				return fmt.Errorf("concat files failed: %s", err)
 			}
 			if pos == -1 {
 				line = fmt.Sprintf("<script src=\"%s\"></script>\n", match[2])
@@ -107,7 +106,7 @@ func concat(c config.Config, q *registry.Queue) error {
 	}
 
 	if err := utils.WriteFile(base, strings.Join(lines, "")); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("write file failed: %s", err)
 	}
 	return nil
 }
@@ -117,7 +116,7 @@ func concatFiles(dest string, srcs []string) error {
 	for i, src := range srcs {
 		raw, err := ioutil.ReadFile(filepath.Join("client", "temp", src))
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("read source file failed (%s): %s", src, err)
 		}
 		files[i] = string(raw)
 	}
@@ -125,7 +124,7 @@ func concatFiles(dest string, srcs []string) error {
 	content := strings.Join(files, "")
 	dest = filepath.Join("client", "temp", dest)
 	if err := utils.WriteFile(dest, content); err != nil {
-		return err
+		return fmt.Errorf("write dest file failed: %s", err)
 	}
 
 	if *config.Verbose {

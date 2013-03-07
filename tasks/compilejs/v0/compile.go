@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -27,7 +26,7 @@ func compilejs(c config.Config, q *registry.Queue) error {
 	base := filepath.Join("client", "temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {
-		return err
+		return fmt.Errorf("read base html failed: %s", err)
 	}
 
 	for i := 0; i < len(lines); i++ {
@@ -35,7 +34,7 @@ func compilejs(c config.Config, q *registry.Queue) error {
 		if strings.Contains(line, "<!-- compile") {
 			match := tagRe.FindStringSubmatch(line)
 			if match == nil {
-				return errors.Format("incorrect compile tag, line %d", i)
+				return fmt.Errorf("incorrect compile tag, line %d", i)
 			}
 
 			start := i
@@ -51,13 +50,13 @@ func compilejs(c config.Config, q *registry.Queue) error {
 
 				i++
 				if i >= len(lines) {
-					return errors.Format("compile js block not closed, line %d", start)
+					return fmt.Errorf("compile js block not closed, line %d", start)
 				}
 				line = lines[i]
 			}
 
 			if err := compileJs(match[1], files); err != nil {
-				return err
+				return fmt.Errorf("compile js failed: %s", err)
 			}
 			line = fmt.Sprintf("<script src=\"%s\"></script>\n", match[1])
 		}
@@ -65,15 +64,16 @@ func compilejs(c config.Config, q *registry.Queue) error {
 	}
 
 	if err := utils.WriteFile(base, strings.Join(lines, "")); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("write file failed: %s", err)
 	}
 	return nil
 }
 
 func compileJs(dest string, srcs []string) error {
 	destPath := filepath.Join("client", "temp", dest)
-	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
-		return errors.New(err)
+	dir := filepath.Dir(destPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("prepare dest dir failed (%s): %s", dir, err)
 	}
 
 	args := []string{}
