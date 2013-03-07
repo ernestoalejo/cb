@@ -20,13 +20,21 @@ func init() {
 }
 
 func prepare_dist(c config.Config, q *registry.Queue) error {
-	dist := filepath.Join("client", "dist")
-	if err := os.MkdirAll(dist, 0755); err != nil {
-		return errors.New(err)
+	var origin, dest string
+	if *config.AngularMode {
+		dist := filepath.Join("client", "dist")
+		if err := os.MkdirAll(dist, 0755); err != nil {
+			return errors.New(err)
+		}
+		origin = filepath.Join("client", "app")
+		dest = filepath.Join("client", "temp")
+	} else if *config.ClosureMode {
+		if err := os.MkdirAll("temp", 0755); err != nil {
+			return errors.New(err)
+		}
+		origin = "base.html"
+		dest = filepath.Join("temp", "base.html")
 	}
-
-	origin := filepath.Join("client", "app")
-	dest := filepath.Join("client", "temp")
 
 	output, err := utils.Exec("cp", []string{"-r", origin, dest})
 	if err == utils.ErrExec {
@@ -54,9 +62,13 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 		dirs[i] = dir
 	}
 
+	var from string
+	if *config.AngularMode {
+		from = "client"
+	}
 	for _, dir := range dirs {
-		origin := filepath.Join("client", "temp", dir)
-		dest := filepath.Join("client", "dist", dir)
+		origin := filepath.Join(from, "temp", dir)
+		dest := filepath.Join(from, "dist", dir)
 
 		info, err := os.Stat(origin)
 		if err != nil {

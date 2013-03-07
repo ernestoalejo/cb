@@ -27,11 +27,13 @@ func build(c config.Config, q *registry.Queue) error {
 	}
 	if *config.ClosureMode {
 		q.AddTask("clean:0")
+		q.AddTask("prepare_dist:0")
 		q.AddTask("sass:0")
 		q.AddTask("gss:0")
 		q.AddTask("soy:0")
 		q.AddTask("closurejs:0")
 		q.AddTask("build_closurejs:0")
+		q.AddTask("copy_dist:0")
 	}
 	return nil
 }

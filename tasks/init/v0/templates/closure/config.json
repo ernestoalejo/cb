@@ -47,5 +47,12 @@
     },
     "externs": [],
     "debug": false
+  },
+  "dist": {
+    "files": [
+      "scripts.js",
+      "styles.css",
+      "base.html"
+    ]
   }
 }

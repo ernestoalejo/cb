@@ -71,7 +71,7 @@ func gssFromConfig(c config.Config) ([]*gssFile, error) {
 		}
 
 		src = filepath.Join("temp", "styles", src)
-		dest = filepath.Join("temp", "styles", dest)
+		dest = filepath.Join("temp", dest)
 		files = append(files, &gssFile{src, dest})
 	}
 	return files, nil
