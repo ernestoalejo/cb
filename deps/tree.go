@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
 
 type Tree struct {
@@ -53,16 +52,16 @@ func NewTree(c config.Config) (*Tree, error) {
 
 	roots, err := BaseJSPaths(t.c)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot get base paths: %s", err)
 	}
 	for _, root := range roots {
 		if err := filepath.Walk(root, buildWalkFn(t)); err != nil {
-			return nil, errors.New(err)
+			return nil, fmt.Errorf("roots walk failed: %s", err)
 		}
 	}
 
 	if err := t.check(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("check failed: %s", err)
 	}
 
 	return t, nil
@@ -74,7 +73,7 @@ func (t *Tree) check() error {
 	for path, source := range t.sources {
 		for _, require := range source.Requires {
 			if _, ok := t.provides[require]; !ok {
-				return errors.Format("namespace not found %s: %s", require, path)
+				return fmt.Errorf("namespace not found %s: %s", require, path)
 			}
 		}
 	}
@@ -89,7 +88,7 @@ func (t *Tree) addSource(path string) error {
 
 	src, err := newSource(t.c, path)
 	if err != nil {
-		return err
+		return fmt.Errorf("source construction failed: %s", err)
 	}
 	if src.Cached {
 		t.cached++
@@ -103,7 +102,7 @@ func (t *Tree) addSource(path string) error {
 	// supposed to be correct and tested by other methods
 	library, err := GetLibraryRoot(t.c)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get library root: %s", err)
 	}
 	if !strings.HasPrefix(path, library) {
 		for otherPath, source := range t.sources {
@@ -111,7 +110,7 @@ func (t *Tree) addSource(path string) error {
 				if !in(src.Provides, provide) {
 					continue
 				}
-				return errors.Format("multiple provide `%s`: `%s` and `%s`",
+				return fmt.Errorf("multiple provide `%s`: `%s` and `%s`",
 					provide, otherPath, path)
 			}
 		}
@@ -141,7 +140,7 @@ func (t *Tree) PrintStats() {
 func (t *Tree) GetProvides(path string) ([]string, error) {
 	src, ok := t.sources[path]
 	if !ok {
-		return nil, errors.Format("input not present in the sources: `%s`", path)
+		return nil, fmt.Errorf("input not present in the sources: `%s`", path)
 	}
 	return src.Provides, nil
 }
@@ -151,11 +150,11 @@ func (t *Tree) ResolveDependencies(namespaces []string) error {
 
 	for _, ns := range namespaces {
 		if err := t.resolve(ns); err != nil {
-			return err
+			return fmt.Errorf("resolve failed: %s", err)
 		}
 	}
 	if len(t.traversal) > 0 {
-		return errors.Format("internal error: traversal should be empty")
+		return fmt.Errorf("internal error: traversal should be empty")
 	}
 	return nil
 }
@@ -163,12 +162,12 @@ func (t *Tree) ResolveDependencies(namespaces []string) error {
 func (t *Tree) resolve(namespace string) error {
 	src, ok := t.provides[namespace]
 	if !ok {
-		return errors.Format("namespace not found: `%s`", namespace)
+		return fmt.Errorf("namespace not found: `%s`", namespace)
 	}
 
 	if in(t.traversal, namespace) {
 		t.traversal = append(t.traversal, namespace)
-		return errors.Format("circular dependency: %v", t.traversal)
+		return fmt.Errorf("circular dependency: %v", t.traversal)
 	}
 
 	// Memoize results, if the source is already in the list of
@@ -178,7 +177,7 @@ func (t *Tree) resolve(namespace string) error {
 
 		for _, require := range src.Requires {
 			if err := t.resolve(require); err != nil {
-				return err
+				return fmt.Errorf("recursive resolve failed: %s", err)
 			}
 		}
 		t.deps = append(t.deps, src)
@@ -191,7 +190,7 @@ func (t *Tree) resolve(namespace string) error {
 func (t *Tree) WriteDeps(f io.Writer) error {
 	paths, err := BaseJSPaths(t.c)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get base paths: %s", err)
 	}
 	for _, src := range t.deps {
 		provides := fmt.Sprintf("'%s'", strings.Join(src.Provides, "', '"))
@@ -206,7 +205,7 @@ func (t *Tree) WriteDeps(f io.Writer) error {
 			}
 		}
 		if n == "" {
-			return errors.Format("cannot generate the relative path for `%s`",
+			return fmt.Errorf("cannot generate the relative path for `%s`",
 				src.Path)
 		}
 

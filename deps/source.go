@@ -2,6 +2,7 @@ package deps
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/ernestokarim/cb/cache"
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
 
 var (
@@ -46,7 +46,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 
 	src := sources[path]
 	if m, err := cache.Modified(cache.KEY_DEPS, path); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cache check failed: %s", err)
 	} else if !m {
 		src.Cached = true
 		return src, nil
@@ -58,7 +58,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 
 	base, err := isBase(c, path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot check if it's the base file: %s", err)
 	}
 
 	src.Provides = []string{}
@@ -69,7 +69,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, errors.New(err)
+		return nil, fmt.Errorf("open source failed: %s", err)
 	}
 	defer f.Close()
 
@@ -80,7 +80,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 			if err == io.EOF {
 				break
 			}
-			return nil, errors.New(err)
+			return nil, fmt.Errorf("read source line failed: %s", err)
 		}
 
 		// Find the goog.provide() calls
@@ -104,7 +104,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 
 	if src.Base {
 		if len(src.Provides) > 0 || len(src.Requires) > 0 {
-			return nil, errors.Format("base files should not provide or"+
+			return nil, fmt.Errorf("base files should not provide or"+
 				"require namespaces: %s [%s] [%s]", path, src.Provides, src.Requires)
 		}
 		src.Provides = append(src.Provides, "goog")
@@ -118,7 +118,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 func isBase(c config.Config, path string) (bool, error) {
 	library, err := GetLibraryRoot(c)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("cannot get library root: %s", err)
 	}
 	base := filepath.Join(library, "closure", "goog", "base.js")
 	return path == base, nil

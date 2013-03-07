@@ -1,10 +1,9 @@
 package cache
 
 import (
+	"fmt"
 	"os"
 	"time"
-
-	"github.com/ernestokarim/cb/errors"
 )
 
 // List of allowed keys, used to avoid crashings
@@ -23,7 +22,7 @@ var modificationCache = map[string]map[string]time.Time{}
 func Modified(key, path string) (bool, error) {
 	info, err := os.Lstat(path)
 	if err != nil {
-		return false, errors.New(err)
+		return false, fmt.Errorf("stat failed: %s", err)
 	}
 
 	c := modificationCache[key]

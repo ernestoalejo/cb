@@ -1,23 +1,23 @@
 package deps
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
 
 // Retrieve the library root folder from the configurations
 func GetLibraryRoot(c config.Config) (string, error) {
 	if c["closure"] == nil {
-		return "", errors.Format("`closure` config required")
+		return "", fmt.Errorf("`closure` config required")
 	}
 	if c["closure"]["library"] == nil {
-		return "", errors.Format("`closure.library` config required")
+		return "", fmt.Errorf("`closure.library` config required")
 	}
 	s, ok := c["closure"]["library"].(string)
 	if !ok {
-		return "", errors.Format("`closure.library` should be a string")
+		return "", fmt.Errorf("`closure.library` should be a string")
 	}
 	return s, nil
 }
@@ -25,14 +25,14 @@ func GetLibraryRoot(c config.Config) (string, error) {
 // Retrieve the template root folder from the configurations
 func GetTemplatesRoot(c config.Config) (string, error) {
 	if c["closure"] == nil {
-		return "", errors.Format("`closure` config required")
+		return "", fmt.Errorf("`closure` config required")
 	}
 	if c["closure"]["templates"] == nil {
-		return "", errors.Format("`closure.templates` config required")
+		return "", fmt.Errorf("`closure.templates` config required")
 	}
 	s, ok := c["closure"]["templates"].(string)
 	if !ok {
-		return "", errors.Format("`closure.templates` should be a string")
+		return "", fmt.Errorf("`closure.templates` should be a string")
 	}
 	return s, nil
 }
@@ -40,14 +40,14 @@ func GetTemplatesRoot(c config.Config) (string, error) {
 // Retrieve the template root folder from the configurations
 func GetCompilerRoot(c config.Config) (string, error) {
 	if c["closure"] == nil {
-		return "", errors.Format("`closure` config required")
+		return "", fmt.Errorf("`closure` config required")
 	}
 	if c["closure"]["compiler"] == nil {
-		return "", errors.Format("`closure.compiler` config required")
+		return "", fmt.Errorf("`closure.compiler` config required")
 	}
 	s, ok := c["closure"]["compiler"].(string)
 	if !ok {
-		return "", errors.Format("`closure.compiler` should be a string")
+		return "", fmt.Errorf("`closure.compiler` should be a string")
 	}
 	return s, nil
 }
@@ -55,11 +55,11 @@ func GetCompilerRoot(c config.Config) (string, error) {
 func BaseJSPaths(c config.Config) ([]string, error) {
 	library, err := GetLibraryRoot(c)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot get library root: %s", err)
 	}
 	templates, err := GetTemplatesRoot(c)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot get templates root: %s", err)
 	}
 	return []string{
 		"scripts",

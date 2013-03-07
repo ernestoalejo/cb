@@ -2,11 +2,10 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/ernestokarim/cb/errors"
 )
 
 type TaskSettings map[string]interface{}
@@ -47,13 +46,13 @@ func openConfig(path string) (Config, error) {
 		if os.IsNotExist(err) {
 			return nil, nil
 		}
-		return nil, errors.New(err)
+		return nil, fmt.Errorf("open config file failed: %s", err)
 	}
 	defer f.Close()
 
 	config := make(Config)
 	if err := json.NewDecoder(f).Decode(&config); err != nil {
-		return nil, errors.New(err)
+		return nil, fmt.Errorf("decode config file failed: %s", err)
 	}
 
 	return config, nil
@@ -62,7 +61,7 @@ func openConfig(path string) (Config, error) {
 func check(config Config) error {
 	// Both modes activated, error
 	if *AngularMode && *ClosureMode {
-		return errors.Format("cannot activate angular & closure at the same time")
+		return fmt.Errorf("cannot activate angular & closure at the same time")
 	}
 
 	// No options, take it from the config file
@@ -78,7 +77,7 @@ func check(config Config) error {
 
 	// Redundant options detected
 	if ok {
-		return errors.Format("mode not needed in commnad line, it's in config")
+		return fmt.Errorf("mode not needed in commnad line, it's in config")
 	}
 
 	return nil
@@ -95,7 +94,7 @@ func prepare(config Config) error {
 
 			s, ok := n.(string)
 			if !ok {
-				return errors.Format("closure.`%p` is not a valid string")
+				return fmt.Errorf("closure.`%p` is not a valid string")
 			}
 
 			var err error
@@ -120,7 +119,7 @@ func fixPath(p string) (string, error) {
 		user = os.Getenv("USERNAME")
 	}
 	if user == "" {
-		return "", errors.Format("Found ~ in a path, but USER nor USERNAME are " +
+		return "", fmt.Errorf("found ~ in a path, but USER nor USERNAME are " +
 			"exported in the env")
 	}
 

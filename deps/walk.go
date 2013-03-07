@@ -1,10 +1,9 @@
 package deps
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/ernestokarim/cb/errors"
 )
 
 // Return a function prepared to walk over the source roots searching for
@@ -12,7 +11,7 @@ import (
 func buildWalkFn(t *Tree) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("walk error: %s", err)
 		}
 		if info.IsDir() {
 			if !isValidDir(filepath.Base(path)) {
@@ -25,7 +24,7 @@ func buildWalkFn(t *Tree) filepath.WalkFunc {
 		}
 
 		if err := t.addSource(path); err != nil {
-			return err
+			return fmt.Errorf("add source failed: %s", err)
 		}
 
 		return nil
