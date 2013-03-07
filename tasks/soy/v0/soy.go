@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -19,12 +18,12 @@ func init() {
 func soy(c config.Config, q *registry.Queue) error {
 	srcs, dests, destIndexed, err := scanSrc()
 	if err != nil {
-		return err
+		return fmt.Errorf("scan source failed: %s", err)
 	}
 
 	compilerPath, err := getCompilerPath(c)
 	if err != nil {
-		return err
+		return fmt.Errorf("obtain compiler path failed: %s", err)
 	}
 
 	for i, src := range srcs {
@@ -34,8 +33,9 @@ func soy(c config.Config, q *registry.Queue) error {
 			log.Printf("recompiling `%s`\n", src)
 		}
 
-		if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
-			return errors.New(err)
+		dir := filepath.Dir(dest)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("prepare dest folder failed (%s): %s", dir, err)
 		}
 
 		args := []string{
@@ -55,7 +55,7 @@ func soy(c config.Config, q *registry.Queue) error {
 	}
 
 	if err := purgeDest(destIndexed); err != nil {
-		return err
+		return fmt.Errorf("purge dest failed: %s", err)
 	}
 
 	return nil
@@ -71,7 +71,7 @@ func scanSrc() ([]string, []string, map[string]bool, error) {
 
 	fn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("walk failed: %s", err)
 		}
 		if info.IsDir() {
 			return nil
@@ -82,12 +82,12 @@ func scanSrc() ([]string, []string, map[string]bool, error) {
 
 		destPath, err := filepath.Rel("templates", path)
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("rel failed: %s", err)
 		}
 		destPath = filepath.Join("temp", "templates", destPath+".js")
 		destInfo, err := os.Stat(destPath)
 		if err != nil && !os.IsNotExist(err) {
-			return errors.New(err)
+			return fmt.Errorf("stat failed: %s", err)
 		}
 
 		destIndexed[destPath] = true
@@ -100,7 +100,7 @@ func scanSrc() ([]string, []string, map[string]bool, error) {
 		return nil
 	}
 	if err := filepath.Walk("templates", fn); err != nil {
-		return nil, nil, nil, errors.New(err)
+		return nil, nil, nil, fmt.Errorf("walk templates failed: %s", err)
 	}
 
 	return modifiedSrc, modifiedDest, destIndexed, nil
@@ -111,7 +111,7 @@ func scanSrc() ([]string, []string, map[string]bool, error) {
 func purgeDest(destIndexed map[string]bool) error {
 	fn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("walk failed: %s", err)
 		}
 		if info.IsDir() {
 			return nil
@@ -123,7 +123,7 @@ func purgeDest(destIndexed map[string]bool) error {
 			}
 
 			if err := os.Remove(path); err != nil {
-				return errors.New(err)
+				return fmt.Errorf("remove file failed: %s", err)
 			}
 		}
 
@@ -131,7 +131,7 @@ func purgeDest(destIndexed map[string]bool) error {
 	}
 	destPath := filepath.Join("temp", "templates")
 	if err := filepath.Walk(destPath, fn); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("walk templates failed: %s", err)
 	}
 	return nil
 }
@@ -139,14 +139,14 @@ func purgeDest(destIndexed map[string]bool) error {
 // Compute the compiler path from the config settings and return it
 func getCompilerPath(c config.Config) (string, error) {
 	if c["closure"] == nil {
-		return "", errors.Format("`closure` config required")
+		return "", fmt.Errorf("`closure` config required")
 	}
 	if c["closure"]["templates"] == nil {
-		return "", errors.Format("`closure.templates` config required")
+		return "", fmt.Errorf("`closure.templates` config required")
 	}
 	s, ok := c["closure"]["templates"].(string)
 	if !ok {
-		return "", errors.Format("`closure.templates` should be a string")
+		return "", fmt.Errorf("`closure.templates` should be a string")
 	}
 	s = filepath.Join(s, "build", "SoyToJsSrcCompiler.jar")
 	return s, nil
