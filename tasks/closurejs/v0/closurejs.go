@@ -77,9 +77,13 @@ func build_closurejs(c config.Config, q *registry.Queue) error {
 	if err != nil {
 		return err
 	}
+	if err := os.MkdirAll(filepath.Dir(file.dest), 0755); err != nil {
+		return errors.New(err)
+	}
+
 	args := []string{
 		"-jar", filepath.Join(compiler, "build", "compiler.jar"),
-		"--js_output_file", filepath.Join("temp", file.dest),
+		"--js_output_file", file.dest,
 		"--js", filepath.Join(library, "closure", "goog", "base.js"),
 		"--js", filepath.Join(library, "closure", "goog", "deps.js"),
 		"--js", filepath.Join("temp", "deps.js"),

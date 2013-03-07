@@ -70,8 +70,8 @@ func gssFromConfig(c config.Config) ([]*gssFile, error) {
 			return nil, errors.Format("`gss` config should be a map[string]string")
 		}
 
-		src = filepath.Join("temp", "styles", src)
-		dest = filepath.Join("temp", dest)
+		src = filepath.Join("temp", src)
+		dest = filepath.Join("temp", "styles", dest)
 		files = append(files, &gssFile{src, dest})
 	}
 	return files, nil

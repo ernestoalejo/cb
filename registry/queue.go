@@ -19,6 +19,10 @@ func (q *Queue) AddTask(t string) {
 	q.tasks = append(q.tasks, t)
 }
 
+func (q *Queue) AddTasks(tasks []string) {
+	q.tasks = append(q.tasks, tasks...)
+}
+
 func (q *Queue) RunWithTimer(c config.Config) error {
 	start := time.Now()
 	if err := q.Run(c); err != nil {

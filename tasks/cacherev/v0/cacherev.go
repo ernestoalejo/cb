@@ -39,19 +39,26 @@ func init() {
 }
 
 func cacherev(c config.Config, q *registry.Queue) error {
+	var from string
+	if *config.AngularMode {
+		from = "client"
+	}
+
 	dirs := []string{"images", "styles", "scripts", "fonts", "components"}
 	for _, dir := range dirs {
-		dir = filepath.Join("client", "temp", dir)
+		dir = filepath.Join(from, "temp", dir)
 		if err := filepath.Walk(dir, changeName); err != nil {
 			return errors.New(err)
 		}
 	}
 
-	dirs = []string{"styles", "views", "base.html"}
-	for _, dir := range dirs {
-		dir = filepath.Join("client", "temp", dir)
-		if err := filepath.Walk(dir, changeReferences); err != nil {
-			return errors.New(err)
+	if *config.AngularMode {
+		dirs = []string{"styles", "views", "base.html"}
+		for _, dir := range dirs {
+			dir = filepath.Join("client", "temp", dir)
+			if err := filepath.Walk(dir, changeReferences); err != nil {
+				return errors.New(err)
+			}
 		}
 	}
 

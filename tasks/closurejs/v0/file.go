@@ -1,6 +1,8 @@
 package v0
 
 import (
+	"path/filepath"
+
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/errors"
 )
@@ -84,7 +86,7 @@ func getFile(c config.Config) (*file, error) {
 	}
 
 	return &file{
-		dest:             dest,
+		dest:             filepath.Join("temp", "scripts", dest),
 		inputs:           inputs,
 		defines:          defines,
 		compilationLevel: compilationLevel,

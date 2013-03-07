@@ -52,11 +52,9 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 	if err != nil {
 		return err
 	}
-
 	changes := utils.LoadChanges()
 	for i, dir := range dirs {
-		name, ok := changes[dir]
-		if ok {
+		if name, ok := changes[dir]; ok {
 			dir = name
 		}
 		dirs[i] = dir

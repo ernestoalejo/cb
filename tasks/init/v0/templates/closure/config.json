@@ -9,7 +9,7 @@
     "app.css": "styles/app.scss"
   },
   "gss": {
-    "styles.css": "app.css"
+    "styles.css": "styles/app.css"
   },
   "watch": {
     "sass": ["styles/*.scss"],
@@ -50,8 +50,8 @@
   },
   "dist": {
     "files": [
-      "scripts.js",
-      "styles.css",
+      "scripts/scripts.js",
+      "styles/styles.css",
       "base.html"
     ]
   }
