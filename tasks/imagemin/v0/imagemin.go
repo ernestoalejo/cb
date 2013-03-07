@@ -19,7 +19,11 @@ func init() {
 // Compress & optimize images. It does not run if the folder images does not
 // exists inside the temp directory.
 func imagemin(c config.Config, q *registry.Queue) error {
-	root := filepath.Join("client", "temp", "images")
+	var from string
+	if *config.AngularMode {
+		from = "client"
+	}
+	root := filepath.Join(from, "temp", "images")
 	if _, err := os.Stat(root); err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -41,12 +45,16 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	base := filepath.Join("client", "temp", "images")
+	var from string
+	if *config.AngularMode {
+		from = "client"
+	}
+	base := filepath.Join(from, "temp", "images")
 	dest, err := filepath.Rel(base, path)
 	if err != nil {
 		return errors.New(err)
 	}
-	dest = filepath.Join("client", "temp", "images", dest)
+	dest = filepath.Join(from, "temp", "images", dest)
 
 	if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
 		return errors.New(err)

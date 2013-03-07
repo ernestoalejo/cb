@@ -36,6 +36,7 @@ func build(c config.Config, q *registry.Queue) error {
 			"soy:0",
 			"closurejs:0",
 			"build_closurejs:0",
+			"imagemin:0",
 			"cacherev:0",
 			"copy_dist:0",
 		})

@@ -20,28 +20,34 @@ func init() {
 }
 
 func prepare_dist(c config.Config, q *registry.Queue) error {
-	var origin, dest string
+	var from, to []string
 	if *config.AngularMode {
 		dist := filepath.Join("client", "dist")
 		if err := os.MkdirAll(dist, 0755); err != nil {
 			return errors.New(err)
 		}
-		origin = filepath.Join("client", "app")
-		dest = filepath.Join("client", "temp")
-	} else if *config.ClosureMode {
+		from = []string{filepath.Join("client", "app")}
+		to = []string{filepath.Join("client", "temp")}
+	}
+	if *config.ClosureMode {
 		if err := os.MkdirAll("temp", 0755); err != nil {
 			return errors.New(err)
 		}
-		origin = "base.html"
-		dest = filepath.Join("temp", "base.html")
+		from = []string{"base.html", "images"}
+		to = []string{
+			filepath.Join("temp", "base.html"),
+			filepath.Join("temp", "images"),
+		}
 	}
 
-	output, err := utils.Exec("cp", []string{"-r", origin, dest})
-	if err == utils.ErrExec {
-		fmt.Println(output)
-		return errors.Format("tool error")
-	} else if err != nil {
-		return err
+	for i, origin := range from {
+		output, err := utils.Exec("cp", []string{"-r", origin, to[i]})
+		if err == utils.ErrExec {
+			fmt.Println(output)
+			return errors.Format("tool error")
+		} else if err != nil {
+			return err
+		}
 	}
 
 	return nil
