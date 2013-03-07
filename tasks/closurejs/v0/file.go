@@ -78,7 +78,7 @@ func getFile(c config.Config) (*file, error) {
 	}
 	externs, err := getStringList("externs", c["closurejs"]["externs"])
 	if err != nil {
-		return nil, fmt.ErrorF("get externs failed")
+		return nil, fmt.Errorf("get externs failed")
 	}
 	debug, ok := c["closurejs"]["debug"].(bool)
 	if !ok {
