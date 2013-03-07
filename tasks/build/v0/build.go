@@ -7,6 +7,7 @@ import (
 
 func init() {
 	registry.NewTask("build", 0, build)
+	registry.NewTask("compile", 0, build)
 }
 
 func build(c config.Config, q *registry.Queue) error {

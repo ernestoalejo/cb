@@ -27,30 +27,21 @@ func NewTask(name string, version int, f Task) {
 	tasks[name] = m
 }
 
-type Alias struct {
-	Name    string
-	Version int
-}
-
-func NewAlias(name string, version int, aliases []*Alias) {
-	NewTask(name, version, func(c config.Config, q *Queue) error {
-		for _, alias := range aliases {
-			q.AddTask(fmt.Sprintf("%s:%d", alias.Name, alias.Version))
-		}
-		return nil
-	})
-}
-
 func PrintTasks() {
 	userTasks := map[string]bool{
-		"build":   true,
-		"compile": true,
-		"e2e":     true,
-		"fixlint": true,
-		"init":    true,
-		"lint":    true,
-		"server":  true,
-		"test":    true,
+		"build":      true,
+		"compile":    true,
+		"e2e":        true,
+		"fixlint":    true,
+		"init":       true,
+		"lint":       true,
+		"server":     true,
+		"test":       true,
+		"cbtest":     true,
+		"clean":      true,
+		"clear":      true,
+		"controller": true,
+		"service":    true,
 	}
 
 	system := []string{}
