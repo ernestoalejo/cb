@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -26,14 +25,14 @@ func init() {
 func ngmin(c config.Config, q *registry.Queue) error {
 	scripts := filepath.Join("client", "temp", "scripts")
 	if err := filepath.Walk(scripts, walkFn); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("scripts walk failed: %s", err)
 	}
 	return nil
 }
 
 func walkFn(path string, info os.FileInfo, err error) error {
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("walk failed: %s", err)
 	}
 	if info.IsDir() {
 		return nil
@@ -44,7 +43,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 
 	lines, err := utils.ReadLines(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("read source failed: %s", err)
 	}
 
 	newlines := []string{}
@@ -53,55 +52,55 @@ func walkFn(path string, info os.FileInfo, err error) error {
 		funcs := []string{"factory", "directive", "config", "controller"}
 		used := false
 		for _, f := range funcs {
-			if strings.HasPrefix(line, "m."+f+"(") {
-				// Easy alert of a common error
-				if line[len(line)-2] == ' ' {
-					return errors.Format("%s:%d - final space", path, i+1)
-				}
+			if !strings.HasPrefix(line, "m."+f+"(") {
+				continue
+			}
 
-				// Line continues in the next one
-				if line[len(line)-2] == ',' {
-					l := line
+			// Easy alert of a common error
+			if line[len(line)-2] == ' ' {
+				return fmt.Errorf("%s:%d - final space", path, i+1)
+			}
+
+			// Line continues in the next one
+			if line[len(line)-2] == ',' {
+				l := line
+				i++
+				for {
+					l = fmt.Sprintf("%s %s\n", l[:len(l)-1], strings.TrimSpace(lines[i]))
+					lines[i] = ""
 					i++
-					for {
-						l = fmt.Sprintf("%s %s\n", l[:len(l)-1],
-							strings.TrimSpace(lines[i]))
-						lines[i] = ""
-						i++
-						if i >= len(lines) {
-							return errors.Format("%s:%d - cannot found "+
-								"function start", path, i)
-						}
-						if strings.Contains(l, "{") {
-							line = l
-							break
-						}
+					if i >= len(lines) {
+						return fmt.Errorf("%s:%d - cannot found function start", path, i)
 					}
-				}
-
-				// Annotate the function
-				ls, err := funcAnnotations(path, i+1, line)
-				if err != nil {
-					return err
-				}
-				newlines = append(newlines, ls...)
-
-				// Closing of functions
-				found := false
-				for j := i; j < len(lines); j++ {
-					if lines[j] == "});\n" {
-						found = true
-						lines[j] = "}]);\n"
+					if strings.Contains(l, "{") {
+						line = l
 						break
 					}
 				}
-				if !found {
-					return errors.Format("%s:%d - close brace not found", path, i+1)
-				}
-
-				used = true
-				break
 			}
+
+			// Annotate the function
+			ls, err := funcAnnotations(path, i+1, line)
+			if err != nil {
+				return fmt.Errorf("annotation failed")
+			}
+			newlines = append(newlines, ls...)
+
+			// Closing of functions
+			found := false
+			for j := i; j < len(lines); j++ {
+				if lines[j] == "});\n" {
+					found = true
+					lines[j] = "}]);\n"
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("%s:%d - close brace not found", path, i+1)
+			}
+
+			used = true
+			break
 		}
 		if used {
 			continue
@@ -111,7 +110,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 	}
 
 	if err := utils.WriteFile(path, strings.Join(newlines, "")); err != nil {
-		return err
+		return fmt.Errorf("write base html failed: %s", err)
 	}
 
 	return nil
@@ -120,7 +119,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 func funcAnnotations(file string, n int, line string) ([]string, error) {
 	match := funcRe.FindStringSubmatch(line)
 	if match == nil {
-		return nil, errors.Format("%s:%d - incorrect function func", file, n)
+		return nil, fmt.Errorf("%s:%d - incorrect function func", file, n)
 	}
 
 	if *config.Verbose {
@@ -140,7 +139,7 @@ func funcAnnotations(file string, n int, line string) ([]string, error) {
 	}
 	args := strings.Split(match[4], ", ")
 	if len(args) != strings.Count(line, ",")+d {
-		return nil, errors.Format("%s:%d - incorrect function args", file, n)
+		return nil, fmt.Errorf("%s:%d - incorrect function args", file, n)
 	}
 
 	// Add quotes if there are any arguments
