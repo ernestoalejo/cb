@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -23,7 +22,7 @@ func init() {
 func exec_sass(c config.Config, q *registry.Queue, mode string) error {
 	files, err := sassFromConfig(c, mode)
 	if err != nil {
-		return err
+		return fmt.Errorf("read config failed")
 	}
 
 	var cache string
@@ -47,7 +46,7 @@ func exec_sass(c config.Config, q *registry.Queue, mode string) error {
 		}
 
 		if err := utils.WriteFile(file.Dest, output); err != nil {
-			return err
+			return fmt.Errorf("write file failed: %s", err)
 		}
 
 		if *config.Verbose {
@@ -77,7 +76,7 @@ func sassFromConfig(c config.Config, mode string) ([]*SassFile, error) {
 	for dest, rawSrc := range c["sass"] {
 		src, ok := rawSrc.(string)
 		if !ok {
-			return nil, errors.Format("`sass` config should be a map[string]string")
+			return nil, fmt.Errorf("`sass` config should be a map[string]string")
 		}
 
 		src = filepath.Join(from, src)

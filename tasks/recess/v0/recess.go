@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -23,7 +22,7 @@ func init() {
 func exec_recess(c config.Config, q *registry.Queue, mode string) error {
 	files, err := lessFromConfig(c, mode)
 	if err != nil {
-		return err
+		return fmt.Errorf("read config failed: %s", err)
 	}
 
 	var flag string
@@ -42,7 +41,7 @@ func exec_recess(c config.Config, q *registry.Queue, mode string) error {
 		}
 
 		if err := utils.WriteFile(file.Dest, output); err != nil {
-			return err
+			return fmt.Errorf("write file failed: %s", err)
 		}
 
 		if *config.Verbose {
@@ -69,7 +68,7 @@ func lessFromConfig(c config.Config, mode string) ([]*LessFile, error) {
 	for dest, rawSrc := range c["recess"] {
 		src, ok := rawSrc.(string)
 		if !ok {
-			return nil, errors.Format("`recess` config should be a map[string]string")
+			return nil, fmt.Errorf("`recess` config should be a map[string]string")
 		}
 
 		src = filepath.Join("client", from, src)
