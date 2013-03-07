@@ -86,7 +86,7 @@ func check(config Config) error {
 
 func prepare(config Config) error {
 	if config["closure"] != nil {
-		ps := []string{"library", "templates", "stylesheets", "compile"}
+		ps := []string{"library", "templates", "stylesheets", "compiler"}
 		for _, p := range ps {
 			n := config["closure"][p]
 			if n == nil {

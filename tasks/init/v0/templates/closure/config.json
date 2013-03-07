@@ -17,6 +17,35 @@
     "closurejs": ["scripts/**/*.js"]
   },
   "closurejs": {
-    "inputs": ["scripts/main.js"]
+    "dest": "scripts.js",
+    "inputs": ["scripts/main.js"],
+    "defines": {
+      "goog.LOCALE": "es",
+      "goog.DEBUG": "true"
+    },
+    "compilationLevel": "ADVANCED_OPTIMIZATIONS",
+    "checks": {
+      "ambiguousFunctionDecl":  "error",
+      "checkRegExp":            "error",
+      "checkTypes":             "error",
+      "checkVars":              "error",
+      "constantProperty":       "error",
+      "deprecated":             "error",
+      "fileoverviewTags":       "error",
+      "internetExplorerChecks": "error",
+      "invalidCasts":           "error",
+      "missingProperties":      "error",
+      "nonStandardJsDocs":      "error",
+      "strictModuleDepCheck":   "error",
+      "typeInvalidation":       "error",
+      "undefinedNames":         "error",
+      "undefinedVars":          "error",
+      "unknownDefines":         "error",
+      "uselessCode":            "error",
+      "globalThis":             "error",
+      "duplicateMessage":       "error"
+    },
+    "externs": [],
+    "debug": false
   }
 }

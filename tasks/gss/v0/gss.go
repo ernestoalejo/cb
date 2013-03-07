@@ -43,7 +43,6 @@ func gss(c config.Config, q *registry.Queue) error {
 			"--output-file", file.Dest,
 			file.Src,
 		}
-
 		output, err := utils.Exec("java", args)
 		if err == utils.ErrExec {
 			fmt.Println(output)

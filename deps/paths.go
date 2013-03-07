@@ -37,6 +37,21 @@ func GetTemplatesRoot(c config.Config) (string, error) {
 	return s, nil
 }
 
+// Retrieve the template root folder from the configurations
+func GetCompilerRoot(c config.Config) (string, error) {
+	if c["closure"] == nil {
+		return "", errors.Format("`closure` config required")
+	}
+	if c["closure"]["compiler"] == nil {
+		return "", errors.Format("`closure.compiler` config required")
+	}
+	s, ok := c["closure"]["compiler"].(string)
+	if !ok {
+		return "", errors.Format("`closure.compiler` should be a string")
+	}
+	return s, nil
+}
+
 func BaseJSPaths(c config.Config) ([]string, error) {
 	library, err := GetLibraryRoot(c)
 	if err != nil {
