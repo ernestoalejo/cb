@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -44,11 +43,11 @@ func init_task(c config.Config, q *registry.Queue) error {
 	base := utils.PackagePath(path)
 	cur, err := os.Getwd()
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("getwd failed: %s", err)
 	}
 
 	if err := copyFiles(filepath.Base(cur), base, cur); err != nil {
-		return err
+		return fmt.Errorf("copy files failed: %s", err)
 	}
 
 	if *config.AngularMode {
@@ -62,7 +61,7 @@ func init_task(c config.Config, q *registry.Queue) error {
 func copyFiles(appname, src, dest string) error {
 	files, err := ioutil.ReadDir(src)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("read folder failed (%s): %s", src, err)
 	}
 
 	for _, entry := range files {
@@ -71,7 +70,7 @@ func copyFiles(appname, src, dest string) error {
 
 		rel, err := filepath.Rel(utils.PackagePath(SELF_PKG), fullsrc)
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("rel failed: %s", err)
 		}
 
 		if entry.IsDir() {
@@ -79,14 +78,14 @@ func copyFiles(appname, src, dest string) error {
 				log.Printf("create folder `%s`\n", rel)
 			}
 			if err := os.MkdirAll(fulldest, 0755); err != nil {
-				return errors.New(err)
+				return fmt.Errorf("create folder failed (%s): %s", fulldest, err)
 			}
 			if err := copyFiles(appname, fullsrc, fulldest); err != nil {
-				return err
+				return fmt.Errorf("recursive copy failed: %s", err)
 			}
 		} else {
 			if err := copyFile(appname, fullsrc, fulldest, rel); err != nil {
-				return err
+				return fmt.Errorf("copy file failed")
 			}
 		}
 	}
@@ -100,32 +99,32 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 	if needTemplates[rel] {
 		t, err := template.ParseFiles(srcPath)
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("parse template failed: %s", err)
 		}
 
 		buf := bytes.NewBuffer(nil)
 		data := map[string]interface{}{"AppName": appname}
 		if err := t.Execute(buf, data); err != nil {
-			return errors.New(err)
+			return fmt.Errorf("execute template failed: %s", err)
 		}
 		content = buf.Bytes()
 	} else {
 		src, err := os.Open(srcPath)
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("open source failed: %s", err)
 		}
 		defer src.Close()
 
 		content, err = ioutil.ReadAll(src)
 		if err != nil {
-			return errors.New(err)
+			return fmt.Errorf("read source failed: %s", err)
 		}
 	}
 
 	_, err := os.Stat(destPath)
 	if err == nil {
 		if equal, err := compareFiles(content, destPath); err != nil {
-			return err
+			return fmt.Errorf("compare files failed: %s", err)
 		} else if equal {
 			return nil
 		}
@@ -135,7 +134,7 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 			return nil
 		}
 	} else if !os.IsNotExist(err) {
-		return errors.New(err)
+		return fmt.Errorf("stat failed: %s", err)
 	}
 
 	if *config.Verbose {
@@ -143,7 +142,7 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 	}
 
 	if err := utils.WriteFile(destPath, string(content)); err != nil {
-		return err
+		return fmt.Errorf("write failed: %s", err)
 	}
 
 	return nil
@@ -152,13 +151,13 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 func compareFiles(src []byte, dest string) (bool, error) {
 	f, err := os.Open(dest)
 	if err != nil {
-		return false, errors.New(err)
+		return false, fmt.Errorf("open source failed: %s", err)
 	}
 	defer f.Close()
 
 	contents, err := ioutil.ReadAll(f)
 	if err != nil {
-		return false, errors.New(err)
+		return false, fmt.Errorf("read source failed: %s", err)
 	}
 
 	contentsHash := fmt.Sprintf("%x", crc32.ChecksumIEEE(contents))
