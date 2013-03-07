@@ -2,6 +2,7 @@ package v0
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -13,7 +14,6 @@ import (
 	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/deps"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 	"github.com/ernestokarim/cb/watcher"
@@ -28,7 +28,7 @@ func init() {
 
 func server_closure(c config.Config, q *registry.Queue) error {
 	if !*config.ClosureMode {
-		return errors.Format("closure mode only task")
+		return fmt.Errorf("closure mode only task")
 	}
 
 	configs = c
@@ -44,7 +44,7 @@ func server_closure(c config.Config, q *registry.Queue) error {
 	log.Printf("%sserving app at http://localhost:9810/...%s\n",
 		colors.YELLOW, colors.RESET)
 	if err := http.ListenAndServe(":9810", nil); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("server listener failed: %s", err)
 	}
 
 	return nil
@@ -58,12 +58,12 @@ func rootHandler(w http.ResponseWriter, r *http.Request) error {
 func inputHandler(w http.ResponseWriter, r *http.Request) error {
 	paths, err := deps.BaseJSPaths(configs)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get base js paths: %s", err)
 	}
 
 	name := r.URL.Path[len("/input/"):]
 	if name == "" {
-		return errors.Format("empty name")
+		return fmt.Errorf("empty name")
 	}
 
 	for _, p := range paths {
@@ -76,32 +76,32 @@ func inputHandler(w http.ResponseWriter, r *http.Request) error {
 			if os.IsNotExist(err) {
 				continue
 			}
-			return errors.New(err)
+			return fmt.Errorf("stat failed: %s", err)
 		}
 		http.ServeFile(w, r, p)
 		return nil
 	}
 
-	return errors.Format("file not found: `%s`", name)
+	return fmt.Errorf("file not found: `%s`", name)
 }
 
 func compileHandler(w http.ResponseWriter, r *http.Request) error {
 	targets := []string{"soy", "closurejs"}
 	for _, target := range targets {
 		if m, err := watcher.CheckModified(target); err != nil {
-			return err
+			return fmt.Errorf("check watched failed: %s", err)
 		} else if !m {
 			continue
 		}
 
 		if err := queue.ExecTasks(target, configs); err != nil {
-			return err
+			return fmt.Errorf("exec tasks failed: %s", err)
 		}
 	}
 
 	library, err := deps.GetLibraryRoot(configs)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot get library root: %s", err)
 	}
 
 	content := bytes.NewBuffer(nil)
@@ -111,21 +111,21 @@ func compileHandler(w http.ResponseWriter, r *http.Request) error {
 	}
 	for _, file := range files {
 		if err := addFile(content, file); err != nil {
-			return err
+			return fmt.Errorf("add file failed: %s", err)
 		}
 	}
 
 	closurePath := utils.PackagePath(filepath.Join(SELF_PKG, "closure.js"))
 	tmpl, err := template.ParseFiles(closurePath)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("parse template failed: %s", err)
 	}
 
 	if err := tmpl.Execute(w, content.String()); err != nil {
 		if strings.Contains(err.Error(), "broken pipe") {
 			return nil
 		}
-		return errors.New(err)
+		return fmt.Errorf("exec template failed: %s", err)
 	}
 
 	return nil
@@ -134,12 +134,12 @@ func compileHandler(w http.ResponseWriter, r *http.Request) error {
 func addFile(w io.Writer, path string) error {
 	f, err := os.Open(path)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("open file failed: %s", err)
 	}
 	defer f.Close()
 
 	if _, err := io.Copy(w, f); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("copy file failed: %s", err)
 	}
 	return nil
 }

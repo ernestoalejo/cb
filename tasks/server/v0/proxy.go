@@ -1,6 +1,7 @@
 package v0
 
 import (
+	"fmt"
 	"log"
 	"mime"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 )
 
@@ -23,12 +23,12 @@ func proxy(c config.Config, q *registry.Queue) error {
 	queue = q
 
 	if err := configureExts(); err != nil {
-		return err
+		return fmt.Errorf("configure exts failed")
 	}
 
 	u, err := url.Parse("http://localhost:8080")
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("parse proxied url failed: %s", err)
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(u)
@@ -61,7 +61,7 @@ func proxy(c config.Config, q *registry.Queue) error {
 	log.Printf("%sserving app at http://localhost:9810/...%s\n",
 		colors.YELLOW, colors.RESET)
 	if err := http.ListenAndServe(":9810", nil); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("server listener failed: %s", err)
 	}
 	return nil
 }
@@ -74,7 +74,7 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	}
 	resp, err = http.DefaultTransport.RoundTrip(r)
 	if err != nil {
-		err = errors.New(err)
+		err = fmt.Errorf("roundtrip failed: %s", err)
 		return
 	}
 	return
@@ -107,7 +107,7 @@ func configureExts() error {
 	}
 	for ext, t := range exts {
 		if err := mime.AddExtensionType(ext, t); err != nil {
-			return errors.New(err)
+			return fmt.Errorf("add extension failed: %s", err)
 		}
 	}
 	return nil
