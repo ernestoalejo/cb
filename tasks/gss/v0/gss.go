@@ -31,7 +31,7 @@ func gss(c config.Config, q *registry.Queue) error {
 	}
 
 	for _, file := range files {
-		if err := os.MkdirAll(filepath.Dir(file.Dest), 0755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(file.dest), 0755); err != nil {
 			return errors.New(err)
 		}
 
@@ -40,8 +40,8 @@ func gss(c config.Config, q *registry.Queue) error {
 			"--output-renaming-map-format", "CLOSURE_COMPILED",
 			"--rename", "CLOSURE",
 			"--output-renaming-map", filepath.Join("temp", "gssmap.js"),
-			"--output-file", file.Dest,
-			file.Src,
+			"--output-file", file.dest,
+			file.src,
 		}
 		output, err := utils.Exec("java", args)
 		if err == utils.ErrExec {
@@ -51,28 +51,28 @@ func gss(c config.Config, q *registry.Queue) error {
 			return err
 		}
 		if *config.Verbose {
-			log.Printf("created file %s\n", file.Dest)
+			log.Printf("created file %s\n", file.dest)
 		}
 	}
 
 	return nil
 }
 
-type GssFile struct {
-	Src, Dest string
+type gssFile struct {
+	src, dest string
 }
 
-func gssFromConfig(c config.Config) ([]*GssFile, error) {
-	files := []*GssFile{}
-	for dest, rawSrc := range c["gss"] {
-		src, ok := rawSrc.(string)
+func gssFromConfig(c config.Config) ([]*gssFile, error) {
+	files := []*gssFile{}
+	for dest, rawsrc := range c["gss"] {
+		src, ok := rawsrc.(string)
 		if !ok {
 			return nil, errors.Format("`gss` config should be a map[string]string")
 		}
 
 		src = filepath.Join("temp", "styles", src)
 		dest = filepath.Join("temp", "styles", dest)
-		files = append(files, &GssFile{src, dest})
+		files = append(files, &gssFile{src, dest})
 	}
 	return files, nil
 }
