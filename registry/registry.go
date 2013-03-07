@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
 
 type Task func(c config.Config, q *Queue) error
@@ -66,7 +65,7 @@ func PrintTasks() {
 func getTask(name string, version int) (Task, error) {
 	m := tasks[name]
 	if m == nil {
-		return nil, errors.Format("task not found: %s", name)
+		return nil, fmt.Errorf("task not found: %s", name)
 	}
 
 	if version == -1 {
@@ -79,7 +78,7 @@ func getTask(name string, version int) (Task, error) {
 
 	f := m[version]
 	if f == nil {
-		return nil, errors.Format("version not found: %d", version)
+		return nil, fmt.Errorf("version not found: %d", version)
 	}
 
 	return f, nil

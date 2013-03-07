@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 )
 
 type Queue struct {
@@ -43,13 +43,13 @@ func (q *Queue) Run(c config.Config) error {
 		if strings.Contains(t, ":") {
 			parts := strings.Split(t, ":")
 			if len(parts) != 2 {
-				return errors.Format("task should have the `name:version` "+
+				return fmt.Errorf("task should have the `name:version` "+
 					"format: %+v", parts)
 			}
 
 			v, err := strconv.ParseInt(parts[1], 10, 32)
 			if err != nil {
-				return errors.New(err)
+				return fmt.Errorf("parse version failed (%s): %s", parts[1], err)
 			}
 
 			task = parts[0]
