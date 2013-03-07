@@ -41,6 +41,12 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 	}
 
 	for i, origin := range from {
+		if _, err := os.Stat(origin); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return errors.New(err)
+		}
 		output, err := utils.Exec("cp", []string{"-r", origin, to[i]})
 		if err == utils.ErrExec {
 			fmt.Println(output)
