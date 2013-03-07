@@ -100,7 +100,7 @@ func prepare(config Config) error {
 			var err error
 			s, err = fixPath(s)
 			if err != nil {
-				return err
+				return fmt.Errorf("fix paths failed: %s", err)
 			}
 			config["closure"][p] = s
 		}

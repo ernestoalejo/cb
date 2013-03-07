@@ -26,7 +26,7 @@ func (q *Queue) AddTasks(tasks []string) {
 func (q *Queue) RunWithTimer(c config.Config) error {
 	start := time.Now()
 	if err := q.Run(c); err != nil {
-		return err
+		return fmt.Errorf("run queue failed: %s", err)
 	}
 	log.Printf("%sFinished in %.3f seconds%s", colors.GREEN,
 		time.Since(start).Seconds(), colors.RESET)
@@ -61,14 +61,14 @@ func (q *Queue) Run(c config.Config) error {
 
 		f, err := getTask(task, version)
 		if err != nil {
-			return err
+			return fmt.Errorf("get task failed: %s", err)
 		}
 
 		log.Printf("%s[%2d] Running `%s` task, version %d...%s\n",
 			colors.BLUE, len(q.tasks), task, version, colors.RESET)
 
 		if err := f(c, q); err != nil {
-			return err
+			return fmt.Errorf("task failed (%s): %s", t, err)
 		}
 	}
 	return nil
@@ -80,7 +80,7 @@ func (q *Queue) ExecTasks(tasks string, c config.Config) error {
 		q.AddTask(task)
 	}
 	if err := q.Run(c); err != nil {
-		return err
+		return fmt.Errorf("run task failed: %s", err)
 	}
 	return nil
 }

@@ -41,12 +41,12 @@ func stylesHandler(w http.ResponseWriter, r *http.Request) error {
 				continue
 			}
 			if m, err := watcher.CheckModified(dest); err != nil {
-				return err
+				return fmt.Errorf("cache check failed: %s", err)
 			} else if !m {
 				break
 			}
 			if err := queue.ExecTasks(dest, configs); err != nil {
-				return err
+				return fmt.Errorf("exec tasks failed: %s", err)
 			}
 			break
 		}
