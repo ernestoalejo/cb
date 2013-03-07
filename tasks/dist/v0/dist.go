@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -24,14 +23,14 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 	if *config.AngularMode {
 		dist := filepath.Join("client", "dist")
 		if err := os.MkdirAll(dist, 0755); err != nil {
-			return errors.New(err)
+			return fmt.Errorf("create dist folder failed: %s", err)
 		}
 		from = []string{filepath.Join("client", "app")}
 		to = []string{filepath.Join("client", "temp")}
 	}
 	if *config.ClosureMode {
 		if err := os.MkdirAll("temp", 0755); err != nil {
-			return errors.New(err)
+			return fmt.Errorf("create temp folder failed")
 		}
 		from = []string{"base.html", "images"}
 		to = []string{
@@ -45,7 +44,7 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 			if os.IsNotExist(err) {
 				continue
 			}
-			return errors.New(err)
+			return fmt.Errorf("stat failed: %s", err)
 		}
 		output, err := utils.Exec("cp", []string{"-r", origin, to[i]})
 		if err != nil {
@@ -60,7 +59,7 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 func copy_dist(c config.Config, q *registry.Queue) error {
 	dirs, err := readConfig(c["dist"])
 	if err != nil {
-		return err
+		return fmt.Errorf("read config failed: %s", err)
 	}
 	changes := utils.LoadChanges()
 	for i, dir := range dirs {
@@ -83,11 +82,12 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 			if os.IsNotExist(err) {
 				continue
 			}
-			return errors.New(err)
+			return fmt.Errorf("stat failed: %s", err)
 		}
 		if !info.IsDir() {
-			if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
-				return errors.New(err)
+			dir := filepath.Dir(dest)
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return fmt.Errorf("prepare dir failed (%s): %s", dir, err)
 			}
 		}
 
@@ -126,19 +126,19 @@ func deploy_dist(c config.Config, q *registry.Queue) error {
 func readConfig(m map[string]interface{}) ([]string, error) {
 	info, ok := m["files"]
 	if !ok {
-		return nil, errors.Format("dist files not present")
+		return nil, fmt.Errorf("dist files not present")
 	}
 
 	dirsLst, ok := info.([]interface{})
 	if !ok {
-		return nil, errors.Format("dist files is not a list of dirs")
+		return nil, fmt.Errorf("dist files is not a list of dirs")
 	}
 
 	dirs := []string{}
 	for _, item := range dirsLst {
 		s, ok := item.(string)
 		if !ok {
-			return nil, errors.Format("dist files are not strings")
+			return nil, fmt.Errorf("dist files are not strings")
 		}
 
 		dirs = append(dirs, s)
