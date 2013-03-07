@@ -20,6 +20,10 @@ func run() error {
 	flag.Parse()
 	log.SetFlags(log.Ltime)
 
+	if *config.NoColors {
+		colors.SetNoColors()
+	}
+
 	if *config.Help {
 		usage()
 		return nil
