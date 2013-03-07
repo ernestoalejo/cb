@@ -62,23 +62,23 @@ func getFile(c config.Config) (*file, error) {
 	}
 	inputs, err := getStringList("inputs", c["closurejs"]["inputs"])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get inputs failed: %s", err)
 	}
 	defines, err := getDefines(c["closurejs"]["defines"])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get defines failed: %s", err)
 	}
 	compilationLevel, err := getCompilationLevel(c["closurejs"]["compilationLevel"])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get compilation level failed: %s", err)
 	}
 	checks, err := getChecks(c["closurejs"]["checks"])
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get checks failed")
 	}
 	externs, err := getStringList("externs", c["closurejs"]["externs"])
 	if err != nil {
-		return nil, err
+		return nil, fmt.ErrorF("get externs failed")
 	}
 	debug, ok := c["closurejs"]["debug"].(bool)
 	if !ok {

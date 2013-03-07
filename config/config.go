@@ -16,13 +16,13 @@ func LoadConfig() (Config, error) {
 	// Try some paths
 	c, err := openConfig(filepath.Join("client", "config.json"))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("open config failed: %s", err)
 	}
 
 	if c == nil {
 		c, err = openConfig("config.json")
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("open config failed: %s", err)
 		}
 	}
 
@@ -32,10 +32,10 @@ func LoadConfig() (Config, error) {
 	}
 
 	if err := check(c); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("check config failed: %s", err)
 	}
 	if err := prepare(c); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("prepare config failed: %s", err)
 	}
 	return c, nil
 }
