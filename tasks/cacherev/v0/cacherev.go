@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -48,7 +47,7 @@ func cacherev(c config.Config, q *registry.Queue) error {
 	for _, dir := range dirs {
 		dir = filepath.Join(from, "temp", dir)
 		if err := filepath.Walk(dir, changeName); err != nil {
-			return errors.New(err)
+			return fmt.Errorf("change names walk failed (%s): %s", dir, err)
 		}
 	}
 
@@ -57,7 +56,7 @@ func cacherev(c config.Config, q *registry.Queue) error {
 		for _, dir := range dirs {
 			dir = filepath.Join("client", "temp", dir)
 			if err := filepath.Walk(dir, changeReferences); err != nil {
-				return errors.New(err)
+				return fmt.Errorf("change references walk failed (%s): %s", dir, err)
 			}
 		}
 	}
@@ -72,7 +71,7 @@ func changeName(path string, info os.FileInfo, err error) error {
 		if os.IsNotExist(err) {
 			return nil
 		}
-		return errors.New(err)
+		return fmt.Errorf("walk failed: %s", err)
 	}
 	if info.IsDir() {
 		return nil
@@ -87,24 +86,23 @@ func changeName(path string, info os.FileInfo, err error) error {
 	}
 	rel, err := filepath.Rel(filepath.Join(from, "temp"), path)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("cannot rel: %s", err)
 	}
 
 	newname, err := calcNewName(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("calc name failed: %s", err)
 	}
 	newpath := filepath.Join(filepath.Dir(rel), newname)
 
 	changes[rel] = newpath
-
 	if *config.Verbose {
 		log.Printf("`%s` converted to `%s`\n", filepath.Base(path), newname)
 	}
 
 	abspath := filepath.Join(from, "temp", newpath)
 	if err := os.Rename(path, abspath); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("rename failed: %s", err)
 	}
 	return nil
 }
@@ -112,18 +110,18 @@ func changeName(path string, info os.FileInfo, err error) error {
 func calcNewName(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return "", errors.New(err)
+		return "", fmt.Errorf("open failed: %s", err)
 	}
 	defer f.Close()
 
 	content, err := ioutil.ReadAll(f)
 	if err != nil {
-		return "", errors.New(err)
+		return "", fmt.Errorf("read failed: %s", err)
 	}
 
 	h := sha1.New()
 	if _, err := h.Write(content); err != nil {
-		return "", errors.New(err)
+		return "", fmt.Errorf("write failed: %s", err)
 	}
 
 	enc := fmt.Sprintf("%x", h.Sum(nil))
@@ -132,7 +130,7 @@ func calcNewName(path string) (string, error) {
 
 func changeReferences(path string, info os.FileInfo, err error) error {
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("walk failed: %s", err)
 	}
 	if info.IsDir() {
 		return nil
@@ -140,13 +138,13 @@ func changeReferences(path string, info os.FileInfo, err error) error {
 
 	f, err := os.Open(path)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("open failed: %s", err)
 	}
 	defer f.Close()
 
 	content, err := ioutil.ReadAll(f)
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("read failed: %s", err)
 	}
 
 	s := string(content)
@@ -155,7 +153,7 @@ func changeReferences(path string, info os.FileInfo, err error) error {
 	}
 
 	if err := utils.WriteFile(path, s); err != nil {
-		return err
+		return fmt.Errorf("write failed: %s", err)
 	}
 
 	return nil
