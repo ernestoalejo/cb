@@ -1,12 +1,12 @@
 package v0
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/ernestokarim/cb/config"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 )
 
@@ -24,7 +24,7 @@ func clean(c config.Config, q *registry.Queue) error {
 	}
 	for _, folder := range folders {
 		if err := os.RemoveAll(folder); err != nil {
-			return errors.New(err)
+			return fmt.Errorf("remove node failed: %s", err)
 		}
 		if *config.Verbose {
 			log.Printf("remove %s\n", folder)

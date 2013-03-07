@@ -8,7 +8,6 @@ import (
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/deps"
-	"github.com/ernestokarim/cb/errors"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
 )
@@ -21,7 +20,7 @@ func init() {
 func closurejs(c config.Config, q *registry.Queue) error {
 	tree, err := deps.NewTree(c)
 	if err != nil {
-		return err
+		return fmt.Errorf("depstree failed: %s", err)
 	}
 	if *config.Verbose {
 		tree.PrintStats()
@@ -29,23 +28,23 @@ func closurejs(c config.Config, q *registry.Queue) error {
 
 	inputs, err := getInputs(c)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot obtain inputs: %s", err)
 	}
 
 	namespaces := []string{}
 	for _, input := range inputs {
 		ns, err := tree.GetProvides(input)
 		if err != nil {
-			return err
+			return fmt.Errorf("provides failed: %s", err)
 		}
 		namespaces = append(namespaces, ns...)
 	}
 	if len(namespaces) == 0 {
-		return errors.Format("no namespaces provided in the input files")
+		return fmt.Errorf("no namespaces provided in the input files")
 	}
 
 	if err := tree.ResolveDependencies(namespaces); err != nil {
-		return err
+		return fmt.Errorf("resolve depstree failed: %s", err)
 	}
 	if *config.Verbose {
 		tree.PrintStats()
@@ -53,12 +52,12 @@ func closurejs(c config.Config, q *registry.Queue) error {
 
 	f, err := os.Create(filepath.Join("temp", "deps.js"))
 	if err != nil {
-		return errors.New(err)
+		return fmt.Errorf("create deps file failed: %s", err)
 	}
 	defer f.Close()
 
 	if err := tree.WriteDeps(f); err != nil {
-		return err
+		return fmt.Errorf("write deps failed: %s", err)
 	}
 	return nil
 }
@@ -66,19 +65,20 @@ func closurejs(c config.Config, q *registry.Queue) error {
 func build_closurejs(c config.Config, q *registry.Queue) error {
 	compiler, err := deps.GetCompilerRoot(c)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot obtain compiler root: %s", err)
 	}
 	library, err := deps.GetLibraryRoot(c)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot obtain library root: %s", err)
 	}
 
 	file, err := getFile(c)
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot obtain compile info: %s", err)
 	}
-	if err := os.MkdirAll(filepath.Dir(file.dest), 0755); err != nil {
-		return errors.New(err)
+	dir := filepath.Dir(file.dest)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("cannot prepare dest path (%s): %s", dir, err)
 	}
 
 	args := []string{
@@ -129,22 +129,22 @@ func build_closurejs(c config.Config, q *registry.Queue) error {
 
 func getInputs(c config.Config) ([]string, error) {
 	if c["closurejs"] == nil {
-		return nil, errors.Format("`closurejs` configurations required")
+		return nil, fmt.Errorf("`closurejs` configurations required")
 	}
 	if c["closurejs"]["inputs"] == nil {
-		return nil, errors.Format("`closurejs.inputs` configurations required")
+		return nil, fmt.Errorf("`closurejs.inputs` configurations required")
 	}
 
 	rawInputs, ok := c["closurejs"]["inputs"].([]interface{})
 	if !ok {
-		return nil, errors.Format("`closurejs.inputs` should be a list")
+		return nil, fmt.Errorf("`closurejs.inputs` should be a list")
 	}
 
 	inputs := []string{}
 	for _, input := range rawInputs {
 		s, ok := input.(string)
 		if !ok {
-			return nil, errors.Format("`closurejs.inputs` elements should be strings")
+			return nil, fmt.Errorf("`closurejs.inputs` elements should be strings")
 		}
 		inputs = append(inputs, s)
 	}
