@@ -30,18 +30,17 @@ func server_closure(c config.Config, q *registry.Queue) error {
 	if !*config.ClosureMode {
 		return fmt.Errorf("closure mode only task")
 	}
-
 	configs = c
 	queue = q
 
 	registerUrls(map[string]handler{
+		"/":          rootHandler,
 		"/compile":   compileHandler,
 		"/input/":    inputHandler,
 		"/styles/":   stylesHandler,
+		"/test/":     unitTestHandler,
 		"/test/list": testListHandler,
 	})
-	registerUrls(map[string]handler{"/": rootHandler})
-
 	log.Printf("%sserving app at http://localhost:9810/...%s\n",
 		colors.YELLOW, colors.RESET)
 	if err := http.ListenAndServe(":9810", nil); err != nil {
@@ -94,7 +93,6 @@ func compileHandler(w http.ResponseWriter, r *http.Request) error {
 		} else if !m {
 			continue
 		}
-
 		if err := queue.ExecTasks(target, configs); err != nil {
 			return fmt.Errorf("exec tasks failed: %s", err)
 		}
@@ -148,24 +146,6 @@ func addFile(w io.Writer, path string) error {
 	return nil
 }
 
-func testListHandler(w http.ResponseWriter, r *http.Request) error {
-	tests, err := walkTests()
-	if err != nil {
-		return fmt.Errorf("walk tests failed: %s", err)
-	}
-
-	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test-list.html"))
-	tmpl, err := template.ParseFiles(tmplPath)
-	if err != nil {
-		return fmt.Errorf("parse template failed: %s", err)
-	}
-	if err := tmpl.Execute(w, tests); err != nil {
-		return fmt.Errorf("exec template failed: %s", err)
-	}
-
-	return nil
-}
-
 func walkTests() ([]string, error) {
 	files := []string{}
 
@@ -184,4 +164,41 @@ func walkTests() ([]string, error) {
 	}
 
 	return files, nil
+}
+
+func testListHandler(w http.ResponseWriter, r *http.Request) error {
+	tests, err := walkTests()
+	if err != nil {
+		return fmt.Errorf("walk tests failed: %s", err)
+	}
+
+	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test-list.html"))
+	tmpl, err := template.ParseFiles(tmplPath)
+	if err != nil {
+		return fmt.Errorf("parse template failed: %s", err)
+	}
+	if err := tmpl.Execute(w, tests); err != nil {
+		return fmt.Errorf("exec template failed: %s", err)
+	}
+
+	return nil
+}
+
+func unitTestHandler(w http.ResponseWriter, r *http.Request) error {
+	name := r.URL.Path[6:]
+	if name == "" {
+		http.Redirect(w, r, "/test/list", http.StatusMovedPermanently)
+		return nil
+	}
+
+	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test.html"))
+	tmpl, err := template.ParseFiles(tmplPath)
+	if err != nil {
+		return fmt.Errorf("parse template failed: %s", err)
+	}
+	if err := tmpl.Execute(w, name); err != nil {
+		return fmt.Errorf("exec template failed: %s", err)
+	}
+
+	return nil
 }

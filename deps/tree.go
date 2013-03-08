@@ -154,7 +154,13 @@ func (t *Tree) GetProvides(path string) ([]string, error) {
 
 func (t *Tree) ResolveDependencies(namespaces []string) error {
 	t.namespaces = append(t.namespaces, namespaces...)
+	return t.ResolveDependenciesNotInput(namespaces)
+}
 
+// Resolve the depedencies of these namespaces but don't include them in
+// the list of files that should be loaded with the app. Used to add tests
+// files that will be loaded independently.
+func (t *Tree) ResolveDependenciesNotInput(namespaces []string) error {
 	for _, ns := range namespaces {
 		if err := t.resolve(ns); err != nil {
 			return fmt.Errorf("resolve failed: %s", err)

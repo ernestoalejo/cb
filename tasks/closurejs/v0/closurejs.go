@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/deps"
@@ -26,11 +27,12 @@ func closurejs(c config.Config, q *registry.Queue) error {
 		tree.PrintStats()
 	}
 
-	inputs, err := getInputs(c)
+	inputs, tests, err := getInputs(c)
 	if err != nil {
 		return fmt.Errorf("cannot obtain inputs: %s", err)
 	}
 
+	// Resolve the inputs dependencies
 	namespaces := []string{}
 	for _, input := range inputs {
 		ns, err := tree.GetProvides(input)
@@ -42,14 +44,30 @@ func closurejs(c config.Config, q *registry.Queue) error {
 	if len(namespaces) == 0 {
 		return fmt.Errorf("no namespaces provided in the input files")
 	}
-
 	if err := tree.ResolveDependencies(namespaces); err != nil {
 		return fmt.Errorf("resolve depstree failed: %s", err)
 	}
+
+	// Resolve the test dependencies
+	namespaces = []string{}
+	for _, test := range tests {
+		ns, err := tree.GetProvides(test)
+		if err != nil {
+			return fmt.Errorf("provides failed: %s", err)
+		}
+		namespaces = append(namespaces, ns...)
+	}
+	if len(namespaces) > 0 {
+		if err := tree.ResolveDependenciesNotInput(namespaces); err != nil {
+			return fmt.Errorf("resolve depstree failed: %s", err)
+		}
+	}
+
 	if *config.Verbose {
 		tree.PrintStats()
 	}
 
+	// Write them to a file
 	f, err := os.Create(filepath.Join("temp", "deps.js"))
 	if err != nil {
 		return fmt.Errorf("create deps file failed: %s", err)
@@ -127,26 +145,30 @@ func build_closurejs(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func getInputs(c config.Config) ([]string, error) {
+func getInputs(c config.Config) ([]string, []string, error) {
 	if c["closurejs"] == nil {
-		return nil, fmt.Errorf("`closurejs` configurations required")
+		return nil, nil, fmt.Errorf("`closurejs` configurations required")
 	}
 	if c["closurejs"]["inputs"] == nil {
-		return nil, fmt.Errorf("`closurejs.inputs` configurations required")
+		return nil, nil, fmt.Errorf("`closurejs.inputs` configurations required")
+	}
+	inputs, err := getStringList("inputs", c["closurejs"]["inputs"])
+	if err != nil {
+		return nil, nil, fmt.Errorf("get inputs failed: %s", err)
 	}
 
-	rawInputs, ok := c["closurejs"]["inputs"].([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("`closurejs.inputs` should be a list")
-	}
-
-	inputs := []string{}
-	for _, input := range rawInputs {
-		s, ok := input.(string)
-		if !ok {
-			return nil, fmt.Errorf("`closurejs.inputs` elements should be strings")
+	tests := []string{}
+	fn := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("walk error: %s", err)
 		}
-		inputs = append(inputs, s)
+		if strings.HasSuffix(path, "_test.js") {
+			tests = append(tests, path)
+		}
+		return nil
 	}
-	return inputs, nil
+	if err := filepath.Walk("scripts", fn); err != nil {
+		return nil, nil, fmt.Errorf("walk test scripts failed: %s", err)
+	}
+	return inputs, tests, nil
 }
