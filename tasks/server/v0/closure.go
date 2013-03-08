@@ -35,9 +35,10 @@ func server_closure(c config.Config, q *registry.Queue) error {
 	queue = q
 
 	registerUrls(map[string]handler{
-		"/compile": compileHandler,
-		"/input/":  inputHandler,
-		"/styles/": stylesHandler,
+		"/compile":   compileHandler,
+		"/input/":    inputHandler,
+		"/styles/":   stylesHandler,
+		"/test/list": testListHandler,
 	})
 	registerUrls(map[string]handler{"/": rootHandler})
 
@@ -115,13 +116,16 @@ func compileHandler(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	closurePath := utils.PackagePath(filepath.Join(SELF_PKG, "closure.js"))
-	tmpl, err := template.ParseFiles(closurePath)
+	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "closure.js"))
+	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)
 	}
 
 	if err := tmpl.Execute(w, content.String()); err != nil {
+		// As this handler takes more time to respond, the probabilities of
+		// founding this error is higher as the user has more time
+		// to refresh the page
 		if strings.Contains(err.Error(), "broken pipe") {
 			return nil
 		}
@@ -142,4 +146,42 @@ func addFile(w io.Writer, path string) error {
 		return fmt.Errorf("copy file failed: %s", err)
 	}
 	return nil
+}
+
+func testListHandler(w http.ResponseWriter, r *http.Request) error {
+	tests, err := walkTests()
+	if err != nil {
+		return fmt.Errorf("walk tests failed: %s", err)
+	}
+
+	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test-list.html"))
+	tmpl, err := template.ParseFiles(tmplPath)
+	if err != nil {
+		return fmt.Errorf("parse template failed: %s", err)
+	}
+	if err := tmpl.Execute(w, tests); err != nil {
+		return fmt.Errorf("exec template failed: %s", err)
+	}
+
+	return nil
+}
+
+func walkTests() ([]string, error) {
+	files := []string{}
+
+	fn := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return fmt.Errorf("walk failed: %s", err)
+		}
+		if strings.HasSuffix(path, "_test.js") {
+			// Remove the "scripts/"" prefix from the path
+			files = append(files, path[8:])
+		}
+		return nil
+	}
+	if err := filepath.Walk("scripts", fn); err != nil {
+		return nil, fmt.Errorf("walk tests failed: %s", err)
+	}
+
+	return files, nil
 }

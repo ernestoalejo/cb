@@ -1,0 +1,36 @@
+<html>
+<head>
+
+  <meta charset="utf-8">
+  <title>Unit Tests List</title>
+
+  <style>
+
+    body {
+      font: 14px Monospace;
+      padding: 20px;
+    }
+
+    a, a:visited {
+      text-decoration: none;
+      font-weight: bold;
+      color: blue;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+
+</head>
+<body>
+
+  <h1 style="font-size: 40px;">All JsUnit Tests</h1>
+
+  {{range .}}
+    <div style="padding-bottom: 15px;"><a href="/test/{{.}}">{{.}}</a></div>
+  {{end}}
+
+</body>
+</html>

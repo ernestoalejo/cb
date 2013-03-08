@@ -69,6 +69,14 @@ func scanSrc() ([]string, []string, map[string]bool, error) {
 	modifiedDest := []string{}
 	destIndexed := map[string]bool{}
 
+	root := "templates"
+	if _, err := os.Stat(root); err != nil {
+		if os.IsNotExist(err) {
+			return modifiedSrc, modifiedDest, destIndexed, nil
+		}
+		return nil, nil, nil, fmt.Errorf("stat failed: %s", err)
+	}
+
 	fn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("walk failed: %s", err)
@@ -80,11 +88,11 @@ func scanSrc() ([]string, []string, map[string]bool, error) {
 			return nil
 		}
 
-		destPath, err := filepath.Rel("templates", path)
+		destPath, err := filepath.Rel(root, path)
 		if err != nil {
 			return fmt.Errorf("rel failed: %s", err)
 		}
-		destPath = filepath.Join("temp", "templates", destPath+".js")
+		destPath = filepath.Join("temp", root, destPath+".js")
 		destInfo, err := os.Stat(destPath)
 		if err != nil && !os.IsNotExist(err) {
 			return fmt.Errorf("stat failed: %s", err)
@@ -99,7 +107,7 @@ func scanSrc() ([]string, []string, map[string]bool, error) {
 		}
 		return nil
 	}
-	if err := filepath.Walk("templates", fn); err != nil {
+	if err := filepath.Walk(root, fn); err != nil {
 		return nil, nil, nil, fmt.Errorf("walk templates failed: %s", err)
 	}
 
@@ -109,6 +117,14 @@ func scanSrc() ([]string, []string, map[string]bool, error) {
 // Walk the dest directory removing old compiled files that have
 // no linked source file
 func purgeDest(destIndexed map[string]bool) error {
+	root := filepath.Join("temp", "templates")
+	if _, err := os.Stat(root); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("stat failed: %s", err)
+	}
+
 	fn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("walk failed: %s", err)
@@ -129,8 +145,7 @@ func purgeDest(destIndexed map[string]bool) error {
 
 		return nil
 	}
-	destPath := filepath.Join("temp", "templates")
-	if err := filepath.Walk(destPath, fn); err != nil {
+	if err := filepath.Walk(root, fn); err != nil {
 		return fmt.Errorf("walk templates failed: %s", err)
 	}
 	return nil

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -55,6 +56,12 @@ func NewTree(c config.Config) (*Tree, error) {
 		return nil, fmt.Errorf("cannot get base paths: %s", err)
 	}
 	for _, root := range roots {
+		if _, err := os.Stat(root); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return nil, fmt.Errorf("stat failed: %s", err)
+		}
 		if err := filepath.Walk(root, buildWalkFn(t)); err != nil {
 			return nil, fmt.Errorf("roots walk failed: %s", err)
 		}

@@ -81,6 +81,13 @@ func CheckModified(key string) (bool, error) {
 }
 
 func checkWatcher(key string, w *watcher) (bool, error) {
+	if _, err := os.Stat(w.path); err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, fmt.Errorf("stat failed: %s", err)
+	}
+
 	modified := false
 	fn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
