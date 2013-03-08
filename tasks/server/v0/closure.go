@@ -3,6 +3,7 @@ package v0
 import (
 	"bytes"
 	"fmt"
+	htmltmpl "html/template"
 	"io"
 	"log"
 	"net/http"
@@ -39,6 +40,7 @@ func server_closure(c config.Config, q *registry.Queue) error {
 		"/input/":    inputHandler,
 		"/styles/":   stylesHandler,
 		"/test/":     unitTestHandler,
+		"/test/all":  testAllHandler,
 		"/test/list": testListHandler,
 	})
 	log.Printf("%sserving app at http://localhost:9810/...%s\n",
@@ -173,7 +175,25 @@ func testListHandler(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test-list.html"))
-	tmpl, err := template.ParseFiles(tmplPath)
+	tmpl, err := htmltmpl.ParseFiles(tmplPath)
+	if err != nil {
+		return fmt.Errorf("parse template failed: %s", err)
+	}
+	if err := tmpl.Execute(w, tests); err != nil {
+		return fmt.Errorf("exec template failed: %s", err)
+	}
+
+	return nil
+}
+
+func testAllHandler(w http.ResponseWriter, r *http.Request) error {
+	tests, err := walkTests()
+	if err != nil {
+		return fmt.Errorf("walk tests failed: %s", err)
+	}
+
+	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test-all.html"))
+	tmpl, err := htmltmpl.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)
 	}
@@ -192,7 +212,7 @@ func unitTestHandler(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test.html"))
-	tmpl, err := template.ParseFiles(tmplPath)
+	tmpl, err := htmltmpl.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)
 	}
