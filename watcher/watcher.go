@@ -88,7 +88,7 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 		return false, fmt.Errorf("stat failed: %s", err)
 	}
 
-	modified := false
+	m := false
 	fn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("walk failed: %s", err)
@@ -109,13 +109,14 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 
 		// Check if it has been modified
 		if check {
-			modified, err = cache.Modified(cache.KEY_WATCH, path)
+			modified, err := cache.Modified(cache.KEY_WATCH, path)
 			if err != nil {
 				return fmt.Errorf("modified check failed: %s", err)
 			}
 			if modified && *config.Verbose {
 				log.Printf("modified `%s` [%s]\n", path, key)
 			}
+			m = m || modified
 		}
 
 		// Recursive scanning ?
@@ -127,5 +128,5 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 	if err := filepath.Walk(w.path, fn); err != nil {
 		return false, fmt.Errorf("watcher walk failed: %s", err)
 	}
-	return modified, nil
+	return m, nil
 }
