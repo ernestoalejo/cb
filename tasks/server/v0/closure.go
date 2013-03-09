@@ -88,6 +88,8 @@ func inputHandler(w http.ResponseWriter, r *http.Request) error {
 }
 
 func compileHandler(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "text/javascript")
+
 	targets := []string{"soy", "closurejs"}
 	for _, target := range targets {
 		if m, err := watcher.CheckModified(target); err != nil {
