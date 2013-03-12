@@ -4,58 +4,25 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"sync"
 
 	"github.com/ernestokarim/cb/cache"
 	"github.com/ernestokarim/cb/config"
+	"github.com/ernestokarim/cb/utils"
 )
 
 var (
-	watchers      = map[string][]*watcher{}
-	watchersMutex = &sync.Mutex{}
+	walkers      = map[string][]*utils.Walker{}
+	walkersMutex = &sync.Mutex{}
 )
 
-// Represents a list of watched nodes. It can match the
-// path, the name or the ext. If any of them is '*' it will
-// be matched against anything. Recursive is enabled when a '**'
-// appears as the last element of the path.
-//
-// Examples of paths:
-//   /path/**/*.*
-//   /path/*         -> short for -> /path/*.*
-//   /path/*.jpg
-//   /path/config.*
-//   /path/**        -> short for -> /path/**/*.*
-//
-type watcher struct {
-	path, name, ext string
-	recursive       bool
-}
-
 func Dirs(dirs []string, key string) error {
-	watchersMutex.Lock()
-	defer watchersMutex.Unlock()
+	walkersMutex.Lock()
+	defer walkersMutex.Unlock()
 
 	for _, dir := range dirs {
-		w := &watcher{}
-
-		w.ext = filepath.Ext(dir)
-		if w.ext == "" || w.ext == ".*" {
-			w.ext = "*"
-		}
-
-		w.name = filepath.Base(dir)
-		w.name = w.name[:len(w.name)-len(w.ext)]
-
-		w.path = filepath.Dir(dir)
-		if d, f := filepath.Split(w.path); f == "**" {
-			w.path = d
-			w.recursive = true
-		}
-
-		watchers[key] = append(watchers[key], w)
-
+		w := utils.NewWalker(dir)
+		walkers[key] = append(walkers[key], w)
 		if *config.Verbose {
 			log.Printf("watching `%s`\n", dir)
 		}
@@ -70,9 +37,9 @@ func Dirs(dirs []string, key string) error {
 }
 
 func CheckModified(key string) (bool, error) {
-	for _, w := range watchers[key] {
+	for _, w := range walkers[key] {
 		if m, err := checkWatcher(key, w); err != nil {
-			return false, fmt.Errorf("check watcher failed: %s", err)
+			return false, fmt.Errorf("check walker failed: %s", err)
 		} else if m {
 			return true, nil
 		}
@@ -80,8 +47,8 @@ func CheckModified(key string) (bool, error) {
 	return false, nil
 }
 
-func checkWatcher(key string, w *watcher) (bool, error) {
-	if _, err := os.Stat(w.path); err != nil {
+func checkWatcher(key string, w *utils.Walker) (bool, error) {
+	if _, err := os.Stat(w.Path); err != nil {
 		if os.IsNotExist(err) {
 			return false, nil
 		}
@@ -89,44 +56,19 @@ func checkWatcher(key string, w *watcher) (bool, error) {
 	}
 
 	m := false
-	fn := func(path string, info os.FileInfo, err error) error {
+	fn := func(path string, info os.FileInfo) error {
+		modified, err := cache.Modified(cache.KEY_WATCH, path)
 		if err != nil {
-			return fmt.Errorf("walk failed: %s", err)
+			return fmt.Errorf("modified check failed: %s", err)
 		}
-
-		ext := filepath.Ext(path)
-		name := filepath.Base(path)
-		name = name[:len(name)-len(ext)]
-
-		// Check the path & extension
-		check := true
-		if w.name != "*" {
-			check = (name == w.name)
+		if modified && *config.Verbose {
+			log.Printf("modified `%s` [%s]\n", path, key)
 		}
-		if check && w.ext != "*" {
-			check = (ext == w.ext)
-		}
-
-		// Check if it has been modified
-		if check {
-			modified, err := cache.Modified(cache.KEY_WATCH, path)
-			if err != nil {
-				return fmt.Errorf("modified check failed: %s", err)
-			}
-			if modified && *config.Verbose {
-				log.Printf("modified `%s` [%s]\n", path, key)
-			}
-			m = m || modified
-		}
-
-		// Recursive scanning ?
-		if !w.recursive && info.IsDir() && w.path != path {
-			return filepath.SkipDir
-		}
+		m = m || modified
 		return nil
 	}
-	if err := filepath.Walk(w.path, fn); err != nil {
-		return false, fmt.Errorf("watcher walk failed: %s", err)
+	if err := w.Walk(fn); err != nil {
+		return false, fmt.Errorf("walker execution failed: %s", err)
 	}
 	return m, nil
 }
