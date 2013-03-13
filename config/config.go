@@ -12,32 +12,34 @@ type TaskSettings map[string]interface{}
 
 type Config map[string]TaskSettings
 
-func LoadConfig() (Config, error) {
+func LoadConfig() (Config, bool, error) {
 	// Try some paths
 	c, err := openConfig(filepath.Join("client", "config.json"))
 	if err != nil {
-		return nil, fmt.Errorf("open config failed: %s", err)
+		return nil, false, fmt.Errorf("open config failed: %s", err)
 	}
 
 	if c == nil {
 		c, err = openConfig("config.json")
 		if err != nil {
-			return nil, fmt.Errorf("open config failed: %s", err)
+			return nil, false, fmt.Errorf("open config failed: %s", err)
 		}
 	}
 
 	// Not found anywhere, use a default
+	found := true
 	if c == nil {
 		c = Config{}
+		found = false
 	}
 
 	if err := check(c); err != nil {
-		return nil, fmt.Errorf("check config failed: %s", err)
+		return nil, false, fmt.Errorf("check config failed: %s", err)
 	}
 	if err := prepare(c); err != nil {
-		return nil, fmt.Errorf("prepare config failed: %s", err)
+		return nil, false, fmt.Errorf("prepare config failed: %s", err)
 	}
-	return c, nil
+	return c, found, nil
 }
 
 func openConfig(path string) (Config, error) {

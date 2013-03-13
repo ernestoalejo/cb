@@ -34,10 +34,14 @@ func run() error {
 		return nil
 	}
 
-	c, err := config.LoadConfig()
+	c, found, err := config.LoadConfig()
 	if err != nil {
-		return err
+		return fmt.Errorf("config loading failed: %s", err)
 	}
+	if !found && (len(args) != 1 || args[0] != "init") {
+		return fmt.Errorf("config file not found")
+	}
+
 	q := &registry.Queue{}
 	for _, task := range args {
 		q.AddTask(task)
