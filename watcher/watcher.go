@@ -37,14 +37,15 @@ func Dirs(dirs []string, key string) error {
 }
 
 func CheckModified(key string) (bool, error) {
+	modified := false
 	for _, w := range walkers[key] {
-		if m, err := checkWatcher(key, w); err != nil {
+		m, err := checkWatcher(key, w)
+		if err != nil {
 			return false, fmt.Errorf("check walker failed: %s", err)
-		} else if m {
-			return true, nil
 		}
+		modified = modified || m
 	}
-	return false, nil
+	return modified, nil
 }
 
 func checkWatcher(key string, w *utils.Walker) (bool, error) {
