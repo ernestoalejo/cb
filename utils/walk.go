@@ -34,7 +34,12 @@ func NewWalker(dir string) *Walker {
 	}
 
 	w.Name = filepath.Base(dir)
-	w.Name = w.Name[:len(w.Name)-len(w.Ext)]
+	if w.Name == "**" {
+		w.Name = "*"
+		w.Recursive = true
+	} else {
+		w.Name = w.Name[:len(w.Name)-len(w.Ext)]
+	}
 
 	w.Path = filepath.Dir(dir)
 	if d, f := filepath.Split(w.Path); f == "**" {

@@ -23,5 +23,8 @@
       "styles/{{.AppName}}.css",
       "views"
     ]
+  },
+  "ngtemplates": {
+    "files": ["views/**"]
   }
 }
