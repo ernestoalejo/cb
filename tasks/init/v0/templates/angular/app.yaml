@@ -37,10 +37,12 @@ handlers:
   upload: static/styles/(.*)
   expiration: "20d"
 
-- url: /views/(.*)
-  static_files: static/views/\1
-  upload: static/views/(.*)
-  expiration: "20s"
+# Commented out because the templates are compiled
+# to the JS file. Uncomment if needed.
+# - url: /views/(.*)
+#   static_files: static/views/\1
+#   upload: static/views/(.*)
+#   expiration: "20s"
 
 - url: /favicon.ico
   static_files: static/favicon.ico

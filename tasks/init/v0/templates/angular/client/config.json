@@ -18,13 +18,13 @@
       "images",
       "robots.txt",
       "scripts/ie.js",
-      "scripts/{{.AppName}}.js",
+      "scripts/{{ .AppName }}.js",
       "scripts/test.js",
-      "styles/{{.AppName}}.css",
-      "views"
+      "styles/{{ .AppName }}.css",
     ]
   },
   "ngtemplates": {
+    "appendto": "scripts/{{ .AppName }}.js",
     "files": ["views/**"]
   }
 }

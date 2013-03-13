@@ -22,8 +22,9 @@ func build(c config.Config, q *registry.Queue) error {
 			"ngmin:0",
 			"compilejs:0",
 			"concat:0",
-			"cacherev:0",
 			"htmlmin:0",
+			"ngtemplates:0",
+			"cacherev:0",
 			"copy_dist:0",
 			"deploy_dist:0",
 		})
