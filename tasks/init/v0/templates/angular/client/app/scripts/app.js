@@ -28,7 +28,7 @@ m.config(function($routeProvider, $locationProvider) {
       })*/
 
       .otherwise({
-        templateUrl: '/home/global/404.html',
+        templateUrl: '/views/404.html',
         controller: 'NotFoundCtrl'
       });
 });

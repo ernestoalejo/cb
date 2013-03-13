@@ -7,14 +7,12 @@ var m = angular.module('controllers.global', [
 
 
 m.controller('GlobalCtrl', function($rootScope, $location, Selector) {
-  // Change the sidebar and navbar when navigating
   $rootScope.$on('$routeChangeStart', function() {
     Selector.setDirty();
   });
   $rootScope.$on('$routeChangeSuccess', function(e) {
     Selector.clearDirty();
 
-    // Google Analytics (if present)
     if (window._gaq)
       window._gaq.push(['_trackPageview', $location.url()]);
   });
