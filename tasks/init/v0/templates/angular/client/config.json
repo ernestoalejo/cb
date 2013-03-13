@@ -20,7 +20,7 @@
       "scripts/ie.js",
       "scripts/{{ .AppName }}.js",
       "scripts/test.js",
-      "styles/{{ .AppName }}.css",
+      "styles/{{ .AppName }}.css"
     ]
   },
   "ngtemplates": {
