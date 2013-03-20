@@ -6,13 +6,8 @@ var m = angular.module('controllers.global', [
 ]);
 
 
-m.controller('GlobalCtrl', function($rootScope, $location, Selector) {
-  $rootScope.$on('$routeChangeStart', function() {
-    Selector.setDirty();
-  });
+m.controller('AppCtrl', function($rootScope, $location) {
   $rootScope.$on('$routeChangeSuccess', function(e) {
-    Selector.clearDirty();
-
     if (window._gaq)
       window._gaq.push(['_trackPageview', $location.url()]);
   });

@@ -11,11 +11,13 @@ m.factory('$exceptionHandler', function($injector, $log) {
     // Log errors to the console too
     $log.error.apply($log, arguments);
 
-    // Protect agains recursive errors
+    alert("log");
+
+    // Protect against recursive errors
     if (insideErr)
       return;
 
-    // Development mode should trigger errors ot the server
+    // Development mode shouldn't trigger errors to the server
     if (location.hostname && location.hostname == 'localhost')
       return;
 
@@ -23,14 +25,25 @@ m.factory('$exceptionHandler', function($injector, $log) {
     if (limitErr <= 3) {
       insideErr = true;
 
-      // Retrieve the info of the exception
       var message = (ex && ex.message) ? ex.message : '~message~';
       var name = (ex && ex.name) ? ex.name : '~name~';
       var stack = (ex && ex.stack) ? ex.stack : '~stack~';
 
-      // Send the info to the server
-      var http = $injector.get('$http');
-      http.post('/_/reporter', {
+      // Filter some common errors and ignore others
+      if (message.indexOf('missing hash prefix') != -1) {
+        insideErr = false;
+        return;
+      }
+      if (message.indexOf('Circular dependency') != -1) {
+        insideErr = false;
+        return;
+      }
+      if (message.indexOf('$digest') != -1) {
+        message += 'browser:||' + $injector.get('$browser').url() + '||  ';
+        message += 'location:||' + $injector.get('$location').absUrl() + '||';
+      }
+
+      $injector.get('$http').post('/_/reporter', {
         error: ex,
         message: message,
         name: name,
@@ -38,7 +51,6 @@ m.factory('$exceptionHandler', function($injector, $log) {
       });
     }
 
-    // Show some feedback to the user
     $('#http-error').modal();
 
     insideErr = false;

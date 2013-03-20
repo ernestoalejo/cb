@@ -16,15 +16,13 @@ m.factory('httpInterceptor', function($q, GlobalMsg) {
 
     return promise.then(function(response) {
       total--;
-      if (total == 0)
-        GlobalMsg.cas('loading', '');
-
+      if (total == 0 && GlobalMsg.get() == 'loading')
+        GlobalMsg.set('');
       return response;
     }, function(response) {
       total--;
       GlobalMsg.set('');
       $('#http-error').modal();
-
       return $q.reject(response);
     });
   }

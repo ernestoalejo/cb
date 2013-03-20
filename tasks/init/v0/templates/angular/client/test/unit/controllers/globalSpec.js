@@ -27,7 +27,7 @@ describe('Controller: GlobalMsgCtrl', function() {
 });
 
 
-describe('Controller: GlobalMsgCtrl', function() {
+describe('Controller: AppCtrl', function() {
   beforeEach(module('controllers.global'));
 
   var scope, Selector, $rootScope, $location;
@@ -39,7 +39,7 @@ describe('Controller: GlobalMsgCtrl', function() {
     var $controller = $injector.get('$controller');
 
     scope = $rootScope.$new();
-    $controller('GlobalCtrl', {$scope: scope});
+    $controller('AppCtrl', {$scope: scope});
   }));
 
   it('should dirty & clean the selector on navigation', function() {

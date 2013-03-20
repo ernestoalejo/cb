@@ -36,44 +36,7 @@ m.factory('GlobalMsg', function($timeout) {
 
     getClass: function() {
       return 'label-' + type_;
-    },
-
-    cas: function(before, after) {
-      if (msg_ == before)
-        this.set(after);
     }
   };
 });
 
-
-m.factory('Selector', function() {
-  var navbar_ = '';
-  var dirtyNavbar_ = false;
-
-  return {
-    getNavbar: function() {
-      return navbar_;
-    },
-    setNavbar: function(navbar) {
-      navbar_ = navbar;
-      dirtyNavbar_ = false;
-    },
-
-    setDirty: function() {
-      dirtyNavbar_ = true;
-    },
-    clearDirty: function() {
-      if (dirtyNavbar_)
-        navbar_ = '';
-
-      dirtyNavbar_ = false;
-    },
-
-    isDirty: function() {
-      return dirtyNavbar_;
-    },
-    isNavbarDirty: function() {
-      return dirtyNavbar_;
-    }
-  };
-});

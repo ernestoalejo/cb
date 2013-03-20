@@ -15,15 +15,6 @@ describe('GlobalMsg tests', function() {
     expect(GlobalMsg.get()).toBe('testing');
   });
 
-  it('should respect the CAS semantics', function() {
-    GlobalMsg.set('foo');
-    GlobalMsg.cas('foo', 'bar');
-    expect(GlobalMsg.get()).toBe('bar');
-
-    GlobalMsg.cas('foo', 'baz');
-    expect(GlobalMsg.get()).toBe('bar');
-  });
-
   it('should hide temp messages', function() {
     GlobalMsg.setTemp('foo');
     $timeout.flush();
@@ -55,35 +46,5 @@ describe('GlobalMsg tests', function() {
     expect(GlobalMsg.getClass()).toBe('label-error');
     GlobalMsg.setTemp('foo');
     expect(GlobalMsg.getClass()).toBe('label-success');
-  });
-});
-
-describe('Selector tests', function() {
-  beforeEach(module('services.global'));
-
-  var Selector;
-  beforeEach(inject(function($injector) {
-    Selector = $injector.get('Selector');
-  }));
-
-  it('should save the navbar and sidebar correctly', function() {
-    expect(Selector.getNavbar()).toBe('');
-    Selector.setNavbar('example-navbar')
-    expect(Selector.getNavbar()).toBe('example-navbar');
-  });
-
-  it('should save the dirty flags correctly', function() {
-    expect(Selector.isDirty()).toBeFalsy();
-
-    Selector.setDirty();
-    expect(Selector.isDirty()).toBeTruthy();
-
-    Selector.setNavbar('test');
-    expect(Selector.isDirty()).toBeFalsy();
-    expect(Selector.isNavbarDirty()).toBeFalsy();
-
-    Selector.setDirty();
-    expect(Selector.isDirty()).toBeTruthy();
-    expect(Selector.isNavbarDirty()).toBeTruthy();
   });
 });
