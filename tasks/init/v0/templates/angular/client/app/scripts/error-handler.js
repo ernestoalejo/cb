@@ -11,8 +11,6 @@ m.factory('$exceptionHandler', function($injector, $log) {
     // Log errors to the console too
     $log.error.apply($log, arguments);
 
-    alert("log");
-
     // Protect against recursive errors
     if (insideErr)
       return;
