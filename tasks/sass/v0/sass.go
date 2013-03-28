@@ -27,7 +27,7 @@ func exec_sass(c config.Config, q *registry.Queue, mode string) error {
 
 	var cache string
 	if *config.AngularMode {
-		cache = filepath.Join("client", "temp", "sass-cache")
+		cache = filepath.Join("temp", "sass-cache")
 	} else {
 		cache = filepath.Join("temp", "sass-cache")
 	}
@@ -62,13 +62,12 @@ type SassFile struct {
 }
 
 func sassFromConfig(c config.Config, mode string) ([]*SassFile, error) {
-	var from, to string
+	var from string
 	if *config.AngularMode {
-		to = "client"
 		if mode == "dev" {
-			from = filepath.Join("client", "app")
+			from = filepath.Join("app")
 		} else if mode == "prod" {
-			from = filepath.Join("client", "temp")
+			from = filepath.Join("temp")
 		}
 	}
 
@@ -80,7 +79,7 @@ func sassFromConfig(c config.Config, mode string) ([]*SassFile, error) {
 		}
 
 		src = filepath.Join(from, src)
-		dest = filepath.Join(to, "temp", "styles", dest)
+		dest = filepath.Join("temp", "styles", dest)
 		files = append(files, &SassFile{src, dest})
 	}
 	return files, nil

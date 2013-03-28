@@ -21,12 +21,12 @@ func init() {
 func prepare_dist(c config.Config, q *registry.Queue) error {
 	var from, to []string
 	if *config.AngularMode {
-		dist := filepath.Join("client", "dist")
+		dist := filepath.Join("dist")
 		if err := os.MkdirAll(dist, 0755); err != nil {
 			return fmt.Errorf("create dist folder failed: %s", err)
 		}
-		from = []string{filepath.Join("client", "app")}
-		to = []string{filepath.Join("client", "temp")}
+		from = []string{"app"}
+		to = []string{"temp"}
 	}
 	if *config.ClosureMode {
 		if err := os.MkdirAll("temp", 0755); err != nil {
@@ -69,13 +69,9 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 		dirs[i] = dir
 	}
 
-	var from string
-	if *config.AngularMode {
-		from = "client"
-	}
 	for _, dir := range dirs {
-		origin := filepath.Join(from, "temp", dir)
-		dest := filepath.Join(from, "dist", dir)
+		origin := filepath.Join("temp", dir)
+		dest := filepath.Join("dist", dir)
 
 		info, err := os.Stat(origin)
 		if err != nil {
@@ -108,7 +104,7 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 func deploy_dist(c config.Config, q *registry.Queue) error {
 	commands := []string{
 		"rm -rf static",
-		"cp -r client/dist static",
+		"cp -r dist static",
 		"rm -f templates/base.html",
 		"mv static/base.html templates/base.html",
 	}

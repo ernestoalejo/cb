@@ -24,16 +24,15 @@ func ngtemplates(c config.Config, q *registry.Queue) error {
 	if err != nil {
 		return fmt.Errorf("get paths failed: %s", err)
 	}
-	root := filepath.Join("client", "temp")
 	for _, path := range paths {
-		path = filepath.Join("client", "temp", path)
+		path = filepath.Join("temp", path)
 		w := utils.NewWalker(path)
-		if err := w.Walk(templateWalk(root)); err != nil {
+		if err := w.Walk(templateWalk("temp")); err != nil {
 			return fmt.Errorf("walk path `%s` failed: %s", path, err)
 		}
 	}
 
-	dest = filepath.Join("client", "temp", dest)
+	dest = filepath.Join("temp", dest)
 	f, err := os.OpenFile(dest, os.O_RDWR|os.O_APPEND, 0)
 	if err != nil {
 		return fmt.Errorf("open templates dest failed: %s", err)

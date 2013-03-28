@@ -14,7 +14,7 @@ func init() {
 }
 
 func lint(c config.Config, q *registry.Queue) error {
-	args := []string{"--strict", "-r", "client/app/scripts"}
+	args := []string{"--strict", "-r", "app/scripts"}
 	output, err := utils.Exec("gjslint", args)
 	if err != nil {
 		fmt.Println(output)
@@ -25,7 +25,7 @@ func lint(c config.Config, q *registry.Queue) error {
 }
 
 func fixlint(c config.Config, q *registry.Queue) error {
-	args := []string{"--strict", "-r", "client/app/scripts"}
+	args := []string{"--strict", "-r", "app/scripts"}
 	output, err := utils.Exec("fixjsstyle", args)
 	if err != nil {
 		fmt.Println(output)

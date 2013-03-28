@@ -53,13 +53,6 @@ func stylesHandler(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	var path string
-	if *config.AngularMode {
-		path = filepath.Join("client", "temp", r.URL.Path)
-	} else if *config.ClosureMode {
-		path = filepath.Join("temp", r.URL.Path)
-	}
-
-	http.ServeFile(w, r, path)
+	http.ServeFile(w, r, filepath.Join("temp", r.URL.Path))
 	return nil
 }

@@ -20,12 +20,6 @@ func watch(c config.Config, q *registry.Queue) error {
 			return fmt.Errorf("read config failed: %s", err)
 		}
 
-		if *config.AngularMode {
-			for i, dir := range dirs {
-				dirs[i] = filepath.Join("client", dir)
-			}
-		}
-
 		if err := watcher.Dirs(dirs, key); err != nil {
 			return fmt.Errorf("watch dirs failed: %s", err)
 		}

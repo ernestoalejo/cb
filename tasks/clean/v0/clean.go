@@ -16,12 +16,7 @@ func init() {
 }
 
 func clean(c config.Config, q *registry.Queue) error {
-	folders := []string{
-		filepath.Join("client", "temp"),
-		filepath.Join("client", "dist"),
-		"temp",
-		"dist",
-	}
+	folders := []string{"temp", "dist"}
 	for _, folder := range folders {
 		if err := os.RemoveAll(folder); err != nil {
 			return fmt.Errorf("remove node failed: %s", err)

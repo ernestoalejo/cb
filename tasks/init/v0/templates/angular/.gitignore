@@ -3,6 +3,3 @@ datastore
 conf/conf.go
 static
 templates/base.html
-client/app/components
-client/temp
-client/dist

@@ -23,7 +23,7 @@ func init() {
 }
 
 func compilejs(c config.Config, q *registry.Queue) error {
-	base := filepath.Join("client", "temp", "base.html")
+	base := filepath.Join("temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {
 		return fmt.Errorf("read base html failed: %s", err)
@@ -70,7 +70,7 @@ func compilejs(c config.Config, q *registry.Queue) error {
 }
 
 func compileJs(dest string, srcs []string) error {
-	destPath := filepath.Join("client", "temp", dest)
+	destPath := filepath.Join("temp", dest)
 	dir := filepath.Dir(destPath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return fmt.Errorf("prepare dest dir failed (%s): %s", dir, err)
@@ -78,7 +78,7 @@ func compileJs(dest string, srcs []string) error {
 
 	args := []string{}
 	for _, src := range srcs {
-		args = append(args, filepath.Join("client", "temp", src))
+		args = append(args, filepath.Join("temp", src))
 	}
 	args = append(args, "-o", destPath, "-c", "-m")
 

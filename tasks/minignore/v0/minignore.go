@@ -20,7 +20,7 @@ func init() {
 }
 
 func minignore(c config.Config, q *registry.Queue) error {
-	base := filepath.Join("client", "temp", "base.html")
+	base := filepath.Join("temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {
 		return fmt.Errorf("read base html failed: %s", err)

@@ -71,8 +71,8 @@ func lessFromConfig(c config.Config, mode string) ([]*LessFile, error) {
 			return nil, fmt.Errorf("`recess` config should be a map[string]string")
 		}
 
-		src = filepath.Join("client", from, src)
-		dest = filepath.Join("client", "temp", "styles", dest)
+		src = filepath.Join(from, src)
+		dest = filepath.Join("temp", "styles", dest)
 		files = append(files, &LessFile{src, dest})
 	}
 	return files, nil

@@ -16,13 +16,13 @@ func init() {
 }
 
 func htmlmin(c config.Config, q *registry.Queue) error {
-	base := filepath.Join("client", "temp", "base.html")
+	base := filepath.Join("temp", "base.html")
 	if err := htmlcompressor(base, base); err != nil {
 		return fmt.Errorf("compress base failed: %s", err)
 	}
 
-	from := filepath.Join("client", "app", "views")
-	to := filepath.Join("client", "temp", "views")
+	from := filepath.Join("app", "views")
+	to := filepath.Join("temp", "views")
 	if err := htmlcompressor(from, to); err != nil {
 		return fmt.Errorf("compress views failed: %s", err)
 	}

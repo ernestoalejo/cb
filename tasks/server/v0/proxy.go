@@ -81,22 +81,22 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, filepath.Join("client", "app", r.URL.Path))
+	http.ServeFile(w, r, filepath.Join("app", r.URL.Path))
 	return nil
 }
 
 func testHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, filepath.Join("client", "test", "e2e", "runner.html"))
+	http.ServeFile(w, r, filepath.Join("test", "e2e", "runner.html"))
 	return nil
 }
 
 func scenariosHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, filepath.Join("client", "test", "e2e", r.URL.Path))
+	http.ServeFile(w, r, filepath.Join("test", "e2e", r.URL.Path))
 	return nil
 }
 
 func angularScenarioHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, filepath.Join("client", "app", "components",
+	http.ServeFile(w, r, filepath.Join("app", "components",
 		"bower-angular", r.URL.Path))
 	return nil
 }

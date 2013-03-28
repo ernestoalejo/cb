@@ -38,14 +38,9 @@ func init() {
 }
 
 func cacherev(c config.Config, q *registry.Queue) error {
-	var from string
-	if *config.AngularMode {
-		from = "client"
-	}
-
 	dirs := []string{"images", "styles", "scripts", "fonts", "components"}
 	for _, dir := range dirs {
-		dir = filepath.Join(from, "temp", dir)
+		dir = filepath.Join("temp", dir)
 		if err := filepath.Walk(dir, changeName); err != nil {
 			return fmt.Errorf("change names walk failed (%s): %s", dir, err)
 		}
@@ -54,7 +49,7 @@ func cacherev(c config.Config, q *registry.Queue) error {
 	if *config.AngularMode {
 		dirs = []string{"styles", "views", "base.html"}
 		for _, dir := range dirs {
-			dir = filepath.Join("client", "temp", dir)
+			dir = filepath.Join("temp", dir)
 			if err := filepath.Walk(dir, changeReferences); err != nil {
 				return fmt.Errorf("change references walk failed (%s): %s", dir, err)
 			}
@@ -80,11 +75,7 @@ func changeName(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	var from string
-	if *config.AngularMode {
-		from = "client"
-	}
-	rel, err := filepath.Rel(filepath.Join(from, "temp"), path)
+	rel, err := filepath.Rel("temp", path)
 	if err != nil {
 		return fmt.Errorf("cannot rel: %s", err)
 	}

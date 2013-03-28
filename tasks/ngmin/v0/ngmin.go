@@ -23,7 +23,7 @@ func init() {
 }
 
 func ngmin(c config.Config, q *registry.Queue) error {
-	scripts := filepath.Join("client", "temp", "scripts")
+	scripts := filepath.Join("temp", "scripts")
 	if err := filepath.Walk(scripts, walkFn); err != nil {
 		return fmt.Errorf("scripts walk failed: %s", err)
 	}

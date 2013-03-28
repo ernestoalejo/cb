@@ -154,14 +154,14 @@ type ServiceData struct {
 func writeServiceFile(data *ServiceData) error {
 	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + ".js"
-	p := filepath.Join("client", "app", "scripts", "services", filename)
+	p := filepath.Join("app", "scripts", "services", filename)
 	return writeFile(p, "service.js", data)
 }
 
 func writeServiceTestFile(data *ServiceData) error {
 	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + "Spec.js"
-	p := filepath.Join("client", "test", "unit", "services", filename)
+	p := filepath.Join("test", "unit", "services", filename)
 	return writeFile(p, "serviceSpec.js", data)
 }
 
@@ -174,14 +174,14 @@ type ControllerData struct {
 func writeControllerFile(data *ControllerData) error {
 	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + ".js"
-	p := filepath.Join("client", "app", "scripts", "controllers", filename)
+	p := filepath.Join("app", "scripts", "controllers", filename)
 	return writeFile(p, "controller.js", data)
 }
 
 func writeControllerTestFile(data *ControllerData) error {
 	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + "Spec.js"
-	p := filepath.Join("client", "test", "unit", "controllers", filename)
+	p := filepath.Join("test", "unit", "controllers", filename)
 	return writeFile(p, "controllerSpec.js", data)
 }
 
@@ -189,12 +189,12 @@ func writeControllerViewFile(data *ControllerData) error {
 	parts := strings.Split(data.Module, ".")
 	name := parts[len(parts)-1]
 	filename := strings.ToLower(data.Name) + ".html"
-	p := filepath.Join("client", "app", "views", name, filename)
+	p := filepath.Join("app", "views", name, filename)
 	return writeFile(p, "view.html", data)
 }
 
 func writeControllerRouteFile(data *ControllerData) error {
-	path := filepath.Join("client", "app", "scripts", "app.js")
+	path := filepath.Join("app", "scripts", "app.js")
 	lines, err := utils.ReadLines(path)
 	if err != nil {
 		return fmt.Errorf("read lines failed: %s", err)

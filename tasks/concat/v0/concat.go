@@ -25,7 +25,7 @@ func init() {
 }
 
 func concat(c config.Config, q *registry.Queue) error {
-	base := filepath.Join("client", "temp", "base.html")
+	base := filepath.Join("temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {
 		return fmt.Errorf("read base html failed: %s", err)
@@ -114,7 +114,7 @@ func concat(c config.Config, q *registry.Queue) error {
 func concatFiles(dest string, srcs []string) error {
 	files := make([]string, len(srcs))
 	for i, src := range srcs {
-		raw, err := ioutil.ReadFile(filepath.Join("client", "temp", src))
+		raw, err := ioutil.ReadFile(filepath.Join("temp", src))
 		if err != nil {
 			return fmt.Errorf("read source file failed (%s): %s", src, err)
 		}
@@ -122,7 +122,7 @@ func concatFiles(dest string, srcs []string) error {
 	}
 
 	content := strings.Join(files, "")
-	dest = filepath.Join("client", "temp", dest)
+	dest = filepath.Join("temp", dest)
 	if err := utils.WriteFile(dest, content); err != nil {
 		return fmt.Errorf("write dest file failed: %s", err)
 	}

@@ -13,17 +13,9 @@ type TaskSettings map[string]interface{}
 type Config map[string]TaskSettings
 
 func LoadConfig() (Config, bool, error) {
-	// Try some paths
-	c, err := openConfig(filepath.Join("client", "config.json"))
+	c, err := openConfig("config.json")
 	if err != nil {
 		return nil, false, fmt.Errorf("open config failed: %s", err)
-	}
-
-	if c == nil {
-		c, err = openConfig("config.json")
-		if err != nil {
-			return nil, false, fmt.Errorf("open config failed: %s", err)
-		}
 	}
 
 	// Not found anywhere, use a default
