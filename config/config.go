@@ -82,6 +82,10 @@ func check(config Config) error {
 		return fmt.Errorf("mode not needed in commnad line, it's in config")
 	}
 
+	if *ClientOnly && !*AngularMode {
+		return fmt.Errorf("client only flag is for angular")
+	}
+
 	return nil
 }
 

@@ -36,7 +36,11 @@ func init() {
 func init_task(c config.Config, q *registry.Queue) error {
 	var path string
 	if *config.AngularMode {
-		path = filepath.Join(SELF_PKG, "angular")
+		if *config.ClientOnly {
+			path = filepath.Join(SELF_PKG, "angular", "client")
+		} else {
+			path = filepath.Join(SELF_PKG, "angular")
+		}
 	} else if *config.ClosureMode {
 		path = filepath.Join(SELF_PKG, "closure")
 	}
@@ -45,6 +49,10 @@ func init_task(c config.Config, q *registry.Queue) error {
 	cur, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("getwd failed: %s", err)
+	}
+
+	if *config.ClientOnly {
+		cur = filepath.Join(cur, "client")
 	}
 
 	if err := copyFiles(filepath.Base(cur), base, cur); err != nil {
