@@ -52,6 +52,10 @@ serve:
 	$(DEV_APPSERVER) ./ 2>&1 | grep --line-buffered -v $(EXCLUDE_PATHS) 2>&1 | egrep --color=always '^|WARNING.*|ERROR.*'
 
 
+# Alias for the serve target
+server: serve
+
+
 # Serve the app in localhost:8080. When an email is sent,
 # it's logged to the console.
 serve_mail:
