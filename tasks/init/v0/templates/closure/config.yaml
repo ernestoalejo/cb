@@ -1,0 +1,64 @@
+
+closure:
+  library: ~/projects/closure/closure-library
+  compiler: ~/projects/closure/closure-compiler
+  stylesheets: ~/projects/closure/closure-stylesheets
+  templates: ~/projects/closure/closure-templates
+
+sass:
+- source: styles/app.scss
+  dest: app.css
+
+gss:
+- source: styles/app.css
+  dest: styles.css
+
+watch:
+- task: sass
+  paths:
+  - styles/*.scss
+- task: soy
+  paths:
+  - templates/**/*.soy
+- task: closurejs
+  paths:
+  - scripts/**/*.js
+
+closurejs:
+  dest: scripts.js
+  inputs:
+  - scripts/main.js
+  defines:
+  - name: goog.LOCALE
+    value: es
+  - name: goog.DEBUG
+    value: false
+  compilationLevel: ADVANCED_OPTIMIZATIONS
+  checks:
+    - ambiguousFunctionDecl
+    - checkRegExp
+    - checkTypes
+    - checkVars
+    - constantProperty
+    - deprecated
+    - fileoverviewTags
+    - internetExplorerChecks
+    - invalidCasts
+    - missingProperties
+    - nonStandardJsDocs
+    - strictModuleDepCheck
+    - typeInvalidation
+    - undefinedNames
+    - undefinedVars
+    - unknownDefines
+    - uselessCode
+    - globalThis
+    - duplicateMessage
+  externs:
+  debug: false
+
+dist:
+  files:
+  - scripts/scripts.js
+  - styles/styles.css
+  - base.html

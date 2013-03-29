@@ -1,11 +1,11 @@
 
 recess:
-- source: bootstrap.css
-  dest: styles/bootstrap/main.less
+- source: styles/bootstrap/main.less
+  dest: bootstrap.css
 
 sass:
-- source: app.css
-  dest: styles/app.scss
+- source: styles/app.scss
+  dest: app.css
 
 watch:
 - task: recess
