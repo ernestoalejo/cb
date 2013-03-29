@@ -27,7 +27,7 @@ func init() {
 	registry.NewTask("closure_server", 0, server_closure)
 }
 
-func server_closure(c config.Config, q *registry.Queue) error {
+func server_closure(c *config.Config, q *registry.Queue) error {
 	if !*config.ClosureMode {
 		return fmt.Errorf("closure mode only task")
 	}

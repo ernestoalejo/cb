@@ -15,7 +15,7 @@ func init() {
 	registry.NewTask("htmlmin", 0, htmlmin)
 }
 
-func htmlmin(c config.Config, q *registry.Queue) error {
+func htmlmin(c *config.Config, q *registry.Queue) error {
 	base := filepath.Join("temp", "base.html")
 	if err := htmlcompressor(base, base); err != nil {
 		return fmt.Errorf("compress base failed: %s", err)

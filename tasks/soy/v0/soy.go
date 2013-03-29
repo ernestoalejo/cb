@@ -15,7 +15,7 @@ func init() {
 	registry.NewTask("soy", 0, soy)
 }
 
-func soy(c config.Config, q *registry.Queue) error {
+func soy(c *config.Config, q *registry.Queue) error {
 	srcs, dests, destIndexed, err := scanSrc()
 	if err != nil {
 		return fmt.Errorf("scan source failed: %s", err)
@@ -152,7 +152,7 @@ func purgeDest(destIndexed map[string]bool) error {
 }
 
 // Compute the compiler path from the config settings and return it
-func getCompilerPath(c config.Config) (string, error) {
+func getCompilerPath(c *config.Config) (string, error) {
 	if c["closure"] == nil {
 		return "", fmt.Errorf("`closure` config required")
 	}

@@ -18,7 +18,7 @@ func init() {
 	registry.NewTask("build_closurejs", 0, build_closurejs)
 }
 
-func closurejs(c config.Config, q *registry.Queue) error {
+func closurejs(c *config.Config, q *registry.Queue) error {
 	tree, err := deps.NewTree(c)
 	if err != nil {
 		return fmt.Errorf("depstree failed: %s", err)
@@ -80,7 +80,7 @@ func closurejs(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func build_closurejs(c config.Config, q *registry.Queue) error {
+func build_closurejs(c *config.Config, q *registry.Queue) error {
 	compiler, err := deps.GetCompilerRoot(c)
 	if err != nil {
 		return fmt.Errorf("cannot obtain compiler root: %s", err)
@@ -145,7 +145,7 @@ func build_closurejs(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func getInputs(c config.Config) ([]string, []string, error) {
+func getInputs(c *config.Config) ([]string, []string, error) {
 	if c["closurejs"] == nil {
 		return nil, nil, fmt.Errorf("`closurejs` configurations required")
 	}

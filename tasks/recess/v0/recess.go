@@ -11,15 +11,15 @@ import (
 )
 
 func init() {
-	registry.NewTask("recess", 0, func(c config.Config, q *registry.Queue) error {
+	registry.NewTask("recess", 0, func(c *config.Config, q *registry.Queue) error {
 		return exec_recess(c, q, "dev")
 	})
-	registry.NewTask("build_recess", 0, func(c config.Config, q *registry.Queue) error {
+	registry.NewTask("build_recess", 0, func(c *config.Config, q *registry.Queue) error {
 		return exec_recess(c, q, "prod")
 	})
 }
 
-func exec_recess(c config.Config, q *registry.Queue, mode string) error {
+func exec_recess(c *config.Config, q *registry.Queue, mode string) error {
 	files, err := lessFromConfig(c, mode)
 	if err != nil {
 		return fmt.Errorf("read config failed: %s", err)
@@ -56,7 +56,7 @@ type LessFile struct {
 	Src, Dest string
 }
 
-func lessFromConfig(c config.Config, mode string) ([]*LessFile, error) {
+func lessFromConfig(c *config.Config, mode string) ([]*LessFile, error) {
 	var from string
 	if mode == "dev" {
 		from = "app"

@@ -24,7 +24,7 @@ func init() {
 	registry.NewTask("concat", 0, concat)
 }
 
-func concat(c config.Config, q *registry.Queue) error {
+func concat(c *config.Config, q *registry.Queue) error {
 	base := filepath.Join("temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {

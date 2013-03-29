@@ -27,7 +27,7 @@ type Tree struct {
 	namespaces []string
 
 	// Used temporary to build the tree
-	c config.Config
+	c *config.Config
 
 	// Used temporary to build the list of namespaced
 	// when resolving dependencies and detect circular references.
@@ -43,7 +43,7 @@ type Tree struct {
 
 // Creates a new dependencies tree based on the files inside several hard-coded
 // root folders.
-func NewTree(c config.Config) (*Tree, error) {
+func NewTree(c *config.Config) (*Tree, error) {
 	t := &Tree{
 		sources:  map[string]*Source{},
 		provides: map[string]*Source{},

@@ -11,15 +11,15 @@ import (
 )
 
 func init() {
-	registry.NewTask("sass", 0, func(c config.Config, q *registry.Queue) error {
+	registry.NewTask("sass", 0, func(c *config.Config, q *registry.Queue) error {
 		return exec_sass(c, q, "dev")
 	})
-	registry.NewTask("build_sass", 0, func(c config.Config, q *registry.Queue) error {
+	registry.NewTask("build_sass", 0, func(c *config.Config, q *registry.Queue) error {
 		return exec_sass(c, q, "prod")
 	})
 }
 
-func exec_sass(c config.Config, q *registry.Queue, mode string) error {
+func exec_sass(c *config.Config, q *registry.Queue, mode string) error {
 	files, err := sassFromConfig(c, mode)
 	if err != nil {
 		return fmt.Errorf("read config failed")
@@ -61,7 +61,7 @@ type SassFile struct {
 	Src, Dest string
 }
 
-func sassFromConfig(c config.Config, mode string) ([]*SassFile, error) {
+func sassFromConfig(c *config.Config, mode string) ([]*SassFile, error) {
 	var from string
 	if *config.AngularMode {
 		if mode == "dev" {

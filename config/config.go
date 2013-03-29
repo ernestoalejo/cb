@@ -1,13 +1,47 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
+
+	"github.com/kylelemons/go-gypsy/yaml"
 )
 
+type Config struct {
+	Exists bool
+
+	f *yaml.File
+}
+
+func (c *Config) Load() error {
+	if _, err := os.Stat("config.yaml"); err != nil {
+		if os.IsNotExist(err) {
+			c.Exists = false
+			return nil
+		}
+		return fmt.Errorf("stat config failed: %s", err)
+	}
+
+	f, err := yaml.ReadFile("config.yaml")
+	if err != nil {
+		return fmt.Errorf("read config failed: %s", err)
+	}
+
+	c.f = f
+	c.Exists = true
+	return nil
+}
+
+func (c *Config) GetString(path string) (string, error) {
+	return c.f.Get(path)
+}
+
+/*config, err := yaml.ReadFile(*file)
+if err != nil {
+	log.Fatalf("readfile(%q): %s", *file, err)
+}*/
+
+/*
 type TaskSettings map[string]interface{}
 
 type Config map[string]TaskSettings
@@ -124,3 +158,4 @@ func fixPath(p string) (string, error) {
 	home := filepath.Join("/home", user)
 	return strings.Replace(p, "~", home, -1), nil
 }
+*/

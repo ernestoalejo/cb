@@ -22,7 +22,7 @@ func init() {
 	registry.NewTask("compilejs", 0, compilejs)
 }
 
-func compilejs(c config.Config, q *registry.Queue) error {
+func compilejs(c *config.Config, q *registry.Queue) error {
 	base := filepath.Join("temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {

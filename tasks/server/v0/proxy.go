@@ -18,7 +18,7 @@ func init() {
 	registry.NewTask("proxy", 0, proxy)
 }
 
-func proxy(c config.Config, q *registry.Queue) error {
+func proxy(c *config.Config, q *registry.Queue) error {
 	configs = c
 	queue = q
 

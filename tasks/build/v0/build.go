@@ -10,7 +10,7 @@ func init() {
 	registry.NewTask("compile", 0, build)
 }
 
-func build(c config.Config, q *registry.Queue) error {
+func build(c *config.Config, q *registry.Queue) error {
 	if *config.AngularMode {
 		q.AddTasks([]string{
 			"clean:0",

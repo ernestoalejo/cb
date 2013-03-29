@@ -19,7 +19,7 @@ func init() {
 	registry.NewTask("minignore", 0, minignore)
 }
 
-func minignore(c config.Config, q *registry.Queue) error {
+func minignore(c *config.Config, q *registry.Queue) error {
 	base := filepath.Join("temp", "base.html")
 	lines, err := utils.ReadLines(base)
 	if err != nil {

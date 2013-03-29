@@ -23,7 +23,7 @@ func (q *Queue) AddTasks(tasks []string) {
 	q.tasks = append(q.tasks, tasks...)
 }
 
-func (q *Queue) RunWithTimer(c config.Config) error {
+func (q *Queue) RunWithTimer(c *config.Config) error {
 	start := time.Now()
 	if err := q.Run(c); err != nil {
 		return fmt.Errorf("run queue failed: %s", err)
@@ -33,7 +33,7 @@ func (q *Queue) RunWithTimer(c config.Config) error {
 	return nil
 }
 
-func (q *Queue) Run(c config.Config) error {
+func (q *Queue) Run(c *config.Config) error {
 	for len(q.tasks) > 0 {
 		var t string
 		t, q.tasks = q.tasks[0], q.tasks[1:]
@@ -74,7 +74,7 @@ func (q *Queue) Run(c config.Config) error {
 	return nil
 }
 
-func (q *Queue) ExecTasks(tasks string, c config.Config) error {
+func (q *Queue) ExecTasks(tasks string, c *config.Config) error {
 	lst := strings.Split(tasks, " ")
 	for _, task := range lst {
 		q.AddTask(task)

@@ -22,7 +22,7 @@ func init() {
 	registry.NewTask("ngmin", 0, ngmin)
 }
 
-func ngmin(c config.Config, q *registry.Queue) error {
+func ngmin(c *config.Config, q *registry.Queue) error {
 	scripts := filepath.Join("temp", "scripts")
 	if err := filepath.Walk(scripts, walkFn); err != nil {
 		return fmt.Errorf("scripts walk failed: %s", err)

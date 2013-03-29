@@ -19,7 +19,7 @@ func init() {
 	registry.NewTask("ngtemplates", 0, ngtemplates)
 }
 
-func ngtemplates(c config.Config, q *registry.Queue) error {
+func ngtemplates(c *config.Config, q *registry.Queue) error {
 	paths, dest, err := getPaths(c)
 	if err != nil {
 		return fmt.Errorf("get paths failed: %s", err)
@@ -54,7 +54,7 @@ func ngtemplates(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func getPaths(c config.Config) ([]string, string, error) {
+func getPaths(c *config.Config) ([]string, string, error) {
 	if c["ngtemplates"] == nil {
 		return nil, "", nil
 	}

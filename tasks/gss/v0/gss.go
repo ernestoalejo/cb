@@ -15,7 +15,7 @@ func init() {
 	registry.NewTask("gss", 0, gss)
 }
 
-func gss(c config.Config, q *registry.Queue) error {
+func gss(c *config.Config, q *registry.Queue) error {
 	if !*config.ClosureMode {
 		return fmt.Errorf("closure mode only task")
 	}
@@ -60,7 +60,7 @@ type gssFile struct {
 	src, dest string
 }
 
-func gssFromConfig(c config.Config) ([]*gssFile, error) {
+func gssFromConfig(c *config.Config) ([]*gssFile, error) {
 	files := []*gssFile{}
 	for dest, rawsrc := range c["gss"] {
 		src, ok := rawsrc.(string)
@@ -76,7 +76,7 @@ func gssFromConfig(c config.Config) ([]*gssFile, error) {
 }
 
 // Compute the compiler path from the config settings and return it
-func getCompilerPath(c config.Config) (string, error) {
+func getCompilerPath(c *config.Config) (string, error) {
 	if c["closure"] == nil {
 		return "", fmt.Errorf("`closure` config required")
 	}

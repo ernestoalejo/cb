@@ -13,7 +13,7 @@ func init() {
 	registry.NewTask("fixlint", 0, fixlint)
 }
 
-func lint(c config.Config, q *registry.Queue) error {
+func lint(c *config.Config, q *registry.Queue) error {
 	args := []string{"--strict", "-r", "app/scripts"}
 	output, err := utils.Exec("gjslint", args)
 	if err != nil {
@@ -24,7 +24,7 @@ func lint(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func fixlint(c config.Config, q *registry.Queue) error {
+func fixlint(c *config.Config, q *registry.Queue) error {
 	args := []string{"--strict", "-r", "app/scripts"}
 	output, err := utils.Exec("fixjsstyle", args)
 	if err != nil {

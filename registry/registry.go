@@ -8,7 +8,7 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
-type Task func(c config.Config, q *Queue) error
+type Task func(c *config.Config, q *Queue) error
 
 var tasks = map[string]map[int]Task{}
 

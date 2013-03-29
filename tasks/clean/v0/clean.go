@@ -14,7 +14,7 @@ func init() {
 	registry.NewTask("clean", 0, clean)
 }
 
-func clean(c config.Config, q *registry.Queue) error {
+func clean(c *config.Config, q *registry.Queue) error {
 	folders := []string{"temp", "dist"}
 	for _, folder := range folders {
 		if err := os.RemoveAll(folder); err != nil {

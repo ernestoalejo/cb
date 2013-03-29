@@ -25,7 +25,7 @@ func init() {
 	registry.NewTask("controller", 0, controller)
 }
 
-func service(c config.Config, q *registry.Queue) error {
+func service(c *config.Config, q *registry.Queue) error {
 	fmt.Printf(" - Name of the service: ")
 	name, err := getLine()
 	if err != nil {
@@ -49,7 +49,7 @@ func service(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func controller(c config.Config, q *registry.Queue) error {
+func controller(c *config.Config, q *registry.Queue) error {
 	fmt.Printf(" - Name of the controller: ")
 	name, err := getLine()
 	if err != nil {

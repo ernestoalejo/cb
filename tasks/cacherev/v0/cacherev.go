@@ -37,7 +37,7 @@ func init() {
 	registry.NewTask("cacherev", 0, cacherev)
 }
 
-func cacherev(c config.Config, q *registry.Queue) error {
+func cacherev(c *config.Config, q *registry.Queue) error {
 	dirs := []string{"images", "styles", "scripts", "fonts", "components"}
 	for _, dir := range dirs {
 		dir = filepath.Join("temp", dir)

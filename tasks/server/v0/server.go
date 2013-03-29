@@ -10,7 +10,7 @@ func init() {
 	registry.NewTask("serve", 0, server)
 }
 
-func server(c config.Config, q *registry.Queue) error {
+func server(c *config.Config, q *registry.Queue) error {
 	if *config.AngularMode {
 		q.AddTasks([]string{
 			"clean:0",

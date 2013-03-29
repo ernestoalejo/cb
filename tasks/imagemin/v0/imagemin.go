@@ -17,7 +17,7 @@ func init() {
 
 // Compress & optimize images. It does not run if the folder images does not
 // exists inside the temp directory.
-func imagemin(c config.Config, q *registry.Queue) error {
+func imagemin(c *config.Config, q *registry.Queue) error {
 	root := filepath.Join("temp", "images")
 	if _, err := os.Stat(root); err != nil {
 		if os.IsNotExist(err) {

@@ -40,7 +40,7 @@ type Source struct {
 	Cached bool
 }
 
-func newSource(c config.Config, path string) (*Source, error) {
+func newSource(c *config.Config, path string) (*Source, error) {
 	sourcesMutex.Lock()
 	defer sourcesMutex.Unlock()
 
@@ -115,7 +115,7 @@ func newSource(c config.Config, path string) (*Source, error) {
 	return src, nil
 }
 
-func isBase(c config.Config, path string) (bool, error) {
+func isBase(c *config.Config, path string) (bool, error) {
 	library, err := GetLibraryRoot(c)
 	if err != nil {
 		return false, fmt.Errorf("cannot get library root: %s", err)

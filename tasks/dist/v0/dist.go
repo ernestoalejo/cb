@@ -18,7 +18,7 @@ func init() {
 	registry.NewTask("deploy_dist", 0, deploy_dist)
 }
 
-func prepare_dist(c config.Config, q *registry.Queue) error {
+func prepare_dist(c *config.Config, q *registry.Queue) error {
 	var from, to []string
 	if *config.AngularMode {
 		dist := filepath.Join("dist")
@@ -56,7 +56,7 @@ func prepare_dist(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func copy_dist(c config.Config, q *registry.Queue) error {
+func copy_dist(c *config.Config, q *registry.Queue) error {
 	dirs, err := readConfig(c["dist"])
 	if err != nil {
 		return fmt.Errorf("read config failed: %s", err)
@@ -101,7 +101,7 @@ func copy_dist(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func deploy_dist(c config.Config, q *registry.Queue) error {
+func deploy_dist(c *config.Config, q *registry.Queue) error {
 	commands := []string{
 		"rm -rf static",
 		"cp -r dist static",

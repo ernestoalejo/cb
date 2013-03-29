@@ -12,7 +12,7 @@ func init() {
 	registry.NewTask("watch", 0, watch)
 }
 
-func watch(c config.Config, q *registry.Queue) error {
+func watch(c *config.Config, q *registry.Queue) error {
 	for key, info := range c["watch"] {
 		dirs, err := readConfig(key, info)
 		if err != nil {

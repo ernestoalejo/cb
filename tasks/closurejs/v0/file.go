@@ -37,7 +37,7 @@ type file struct {
 	debug   bool
 }
 
-func getFile(c config.Config) (*file, error) {
+func getFile(c *config.Config) (*file, error) {
 	if c["closurejs"] == nil {
 		return nil, fmt.Errorf("`closurejs` config required")
 	}

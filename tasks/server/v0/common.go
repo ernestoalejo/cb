@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	configs config.Config
+	configs *config.Config
 	queue   *registry.Queue
 )
 

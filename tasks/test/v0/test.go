@@ -14,7 +14,7 @@ func init() {
 	registry.NewTask("e2e", 0, e2e)
 }
 
-func test(c config.Config, q *registry.Queue) error {
+func test(c *config.Config, q *registry.Queue) error {
 	var configFile string
 	if *config.Compiled {
 		configFile = "client/config/testacular-compiled.conf.js"
@@ -33,7 +33,7 @@ func test(c config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func e2e(c config.Config, q *registry.Queue) error {
+func e2e(c *config.Config, q *registry.Queue) error {
 	if *config.Compiled {
 		q.AddTask("proxy")
 	} else {
