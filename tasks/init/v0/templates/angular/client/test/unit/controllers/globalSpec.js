@@ -30,9 +30,8 @@ describe('Controller: GlobalMsgCtrl', function() {
 describe('Controller: AppCtrl', function() {
   beforeEach(module('controllers.global'));
 
-  var scope, Selector, $rootScope, $location;
+  var scope, $rootScope, $location;
   beforeEach(inject(function($injector) {
-    Selector = $injector.get('Selector');
     $rootScope = $injector.get('$rootScope');
     $location = $injector.get('$location');
 
@@ -41,14 +40,6 @@ describe('Controller: AppCtrl', function() {
     scope = $rootScope.$new();
     $controller('AppCtrl', {$scope: scope});
   }));
-
-  it('should dirty & clean the selector on navigation', function() {
-    Selector.clearDirty();
-    $rootScope.$broadcast('$routeChangeStart');
-    expect(Selector.isDirty()).toBeTruthy();
-    $rootScope.$broadcast('$routeChangeSuccess');
-    expect(Selector.isDirty()).toBeFalsy();
-  });
 
   it('should notify analytics of page changes if present', function() {
     $rootScope.$broadcast('$routeChangeSuccess');

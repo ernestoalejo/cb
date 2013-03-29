@@ -17,9 +17,9 @@ func init() {
 func test(c *config.Config, q *registry.Queue) error {
 	var configFile string
 	if *config.Compiled {
-		configFile = "client/config/testacular-compiled.conf.js"
+		configFile = "config/testacular-compiled.conf.js"
 	} else {
-		configFile = "client/config/testacular.conf.js"
+		configFile = "config/testacular.conf.js"
 	}
 
 	if *config.Verbose {

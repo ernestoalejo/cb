@@ -29,7 +29,8 @@ func Exec(app string, args []string) (string, error) {
 
 func ExecCopyOutput(app string, args []string) error {
 	if *config.Verbose {
-		log.Printf("EXEC: %s %+v\n", app, args)
+		log.Printf("%sEXEC %s %s %+v\n", colors.YELLOW, colors.RESET,
+			app, args)
 	}
 
 	cmd := exec.Command(app, args...)
