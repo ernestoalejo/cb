@@ -37,10 +37,20 @@ func stylesHandler(w http.ResponseWriter, r *http.Request) error {
 	name := r.URL.Path[8:]
 	dests := []string{"sass", "recess"}
 	for _, dest := range dests {
-		for style, _ := range configs[dest] {
+		size, err := configs.Count(dest)
+		if err != nil {
+			return fmt.Errorf("get length failed: %s", err)
+		}
+
+		for i := 0; i < size; i++ {
+			style, err := configs.GetString(fmt.Sprintf("%s[%d].dest", dest, i))
+			if err != nil {
+				return fmt.Errorf("get dest failed: %s", err)
+			}
 			if style != name {
 				continue
 			}
+
 			if m, err := watcher.CheckModified(dest); err != nil {
 				return fmt.Errorf("cache check failed: %s", err)
 			} else if !m {

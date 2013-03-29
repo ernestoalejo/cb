@@ -32,59 +32,15 @@ func (c *Config) Load() error {
 	return nil
 }
 
-func (c *Config) GetString(path string) (string, error) {
-	return c.f.Get(path)
+func (c *Config) GetString(spec string) (string, error) {
+	return c.f.Get(spec)
 }
 
-/*config, err := yaml.ReadFile(*file)
-if err != nil {
-	log.Fatalf("readfile(%q): %s", *file, err)
-}*/
+func (c *Config) Count(spec string) (int, error) {
+	return c.f.Count(spec)
+}
 
 /*
-type TaskSettings map[string]interface{}
-
-type Config map[string]TaskSettings
-
-func LoadConfig() (Config, bool, error) {
-	c, err := openConfig("config.json")
-	if err != nil {
-		return nil, false, fmt.Errorf("open config failed: %s", err)
-	}
-
-	// Not found anywhere, use a default
-	found := true
-	if c == nil {
-		c = Config{}
-		found = false
-	}
-
-	if err := check(c); err != nil {
-		return nil, false, fmt.Errorf("check config failed: %s", err)
-	}
-	if err := prepare(c); err != nil {
-		return nil, false, fmt.Errorf("prepare config failed: %s", err)
-	}
-	return c, found, nil
-}
-
-func openConfig(path string) (Config, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, nil
-		}
-		return nil, fmt.Errorf("open config file failed: %s", err)
-	}
-	defer f.Close()
-
-	config := make(Config)
-	if err := json.NewDecoder(f).Decode(&config); err != nil {
-		return nil, fmt.Errorf("decode config file failed: %s", err)
-	}
-
-	return config, nil
-}
 
 func check(config Config) error {
 	// Both modes activated, error
