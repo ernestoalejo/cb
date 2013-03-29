@@ -1,6 +1,9 @@
 package v0
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
 )
@@ -26,8 +29,13 @@ func build(c *config.Config, q *registry.Queue) error {
 			"ngtemplates:0",
 			"cacherev:0",
 			"copy_dist:0",
-			"deploy_dist:0",
 		})
+
+		if _, err := os.Stat("../app.yaml"); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("stat app.yaml failed: %s", err)
+		} else if err == nil {
+			q.AddTask("deploy_gae")
+		}
 	}
 	if *config.ClosureMode {
 		q.AddTasks([]string{

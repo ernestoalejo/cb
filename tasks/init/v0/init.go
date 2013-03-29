@@ -37,7 +37,7 @@ func init() {
 func init_task(c *config.Config, q *registry.Queue) error {
 	var path string
 	if *config.AngularMode {
-		path = filepath.Join(SELF_PKG, "angular", "client")
+		path = filepath.Join(SELF_PKG, "angular")
 	}
 	if *config.ClosureMode {
 		path = filepath.Join(SELF_PKG, "closure")

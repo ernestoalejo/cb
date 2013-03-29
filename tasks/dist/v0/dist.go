@@ -15,7 +15,7 @@ import (
 func init() {
 	registry.NewTask("prepare_dist", 0, prepare_dist)
 	registry.NewTask("copy_dist", 0, copy_dist)
-	registry.NewTask("deploy_dist", 0, deploy_dist)
+	registry.NewTask("deploy_gae", 0, deploy_gae)
 }
 
 func prepare_dist(c *config.Config, q *registry.Queue) error {
@@ -102,7 +102,7 @@ func copy_dist(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func deploy_dist(c *config.Config, q *registry.Queue) error {
+func deploy_gae(c *config.Config, q *registry.Queue) error {
 	commands := []string{
 		"rm -rf ../static",
 		"cp -r dist ../static",
