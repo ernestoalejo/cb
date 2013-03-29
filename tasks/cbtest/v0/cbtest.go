@@ -13,6 +13,6 @@ func init() {
 
 func cbtest(c *config.Config, q *registry.Queue) error {
 	fmt.Println("Hello World!")
-	fmt.Println(c)
+	c.Render()
 	return nil
 }

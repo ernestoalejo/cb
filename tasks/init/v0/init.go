@@ -34,6 +34,7 @@ func init() {
 }
 
 func init_task(c *config.Config, q *registry.Queue) error {
+	fmt.Println(*config.AngularMode, *config.ClientOnly, *config.ClosureMode)
 	var path string
 	if *config.AngularMode {
 		if *config.ClientOnly {

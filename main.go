@@ -34,11 +34,11 @@ func run() error {
 		return nil
 	}
 
-	c, found, err := config.LoadConfig()
+	c, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("config loading failed: %s", err)
 	}
-	if !found && (len(args) != 1 || args[0] != "init") {
+	if c == nil && (len(args) != 1 || args[0] != "init") {
 		return fmt.Errorf("config file not found")
 	}
 

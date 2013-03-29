@@ -7,7 +7,10 @@ import (
 )
 
 func PackagePath(import_path string) string {
-	req := filepath.FromSlash(filepath.Clean(import_path))
+	req := filepath.Clean(import_path)
+	if req == "." {
+		panic("bad source path")
+	}
 	plist := strings.Split(os.Getenv("GOPATH"), ":")
 	for _, p := range plist {
 		abs := filepath.Join(p, "src", req)

@@ -3,37 +3,47 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/kylelemons/go-gypsy/yaml"
 )
 
 type Config struct {
-	Exists bool
-
 	f *yaml.File
 }
 
-func (c *Config) Load() error {
+func Load() (*Config, error) {
 	if _, err := os.Stat("config.yaml"); err != nil {
 		if os.IsNotExist(err) {
-			c.Exists = false
-			return nil
+			if err := checkFlags(nil); err != nil {
+				return nil, err
+			}
+			return nil, nil
 		}
-		return fmt.Errorf("stat config failed: %s", err)
+		return nil, fmt.Errorf("stat config failed: %s", err)
 	}
-
 	f, err := yaml.ReadFile("config.yaml")
 	if err != nil {
-		return fmt.Errorf("read config failed: %s", err)
+		return nil, fmt.Errorf("read config failed: %s", err)
 	}
 
-	c.f = f
-	c.Exists = true
-	return nil
+	c := &Config{f}
+	if err := checkFlags(c); err != nil {
+		return nil, err
+	}
+	if err := c.prepare(); err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
 func (c *Config) GetString(spec string) (string, error) {
 	return c.f.Get(spec)
+}
+
+func (c *Config) GetBool(spec string) (bool, error) {
+	return c.f.GetBool(spec)
 }
 
 func (c *Config) Count(spec string) (int, error) {
@@ -64,57 +74,70 @@ func (c *Config) GetStringList(spec string) ([]string, error) {
 	return items, nil
 }
 
-/*
+func (c *Config) GetStringListf(format string, a ...interface{}) ([]string, error) {
+	return c.GetStringList(fmt.Sprintf(format, a...))
+}
 
-func check(config Config) error {
+func checkFlags(c *Config) error {
 	// Both modes activated, error
 	if *AngularMode && *ClosureMode {
 		return fmt.Errorf("cannot activate angular & closure at the same time")
 	}
 
 	// No options, take it from the config file
-	_, ok := config["closure"]
-	if !*AngularMode && !*ClosureMode {
-		if ok {
-			*ClosureMode = true
-		} else {
-			*AngularMode = true
+	if c != nil && c.f.Root != nil && c.f.Root.(yaml.Map).Key("closurejs") != nil {
+		if *ClosureMode {
+			return fmt.Errorf("redundant mode in command line flags")
 		}
-		return nil
+		*ClosureMode = true
+	} else {
+		if *AngularMode {
+			return fmt.Errorf("redundant mode in command line flags")
+		}
+		*AngularMode = true
 	}
 
-	// Redundant options detected
-	if ok {
-		return fmt.Errorf("mode not needed in commnad line, it's in config")
+	// Additional checks
+	if !*ClosureMode && !*AngularMode {
+		return fmt.Errorf("no mode detected")
 	}
-
 	if *ClientOnly && !*AngularMode {
-		return fmt.Errorf("client only flag is for angular")
+		return fmt.Errorf("client-only flag is for angular exclusively")
 	}
 
 	return nil
 }
 
-func prepare(config Config) error {
-	if config["closure"] != nil {
-		ps := []string{"library", "templates", "stylesheets", "compiler"}
-		for _, p := range ps {
-			n := config["closure"][p]
-			if n == nil {
-				continue
-			}
+func (c *Config) Render() {
+	if c.f.Root == nil {
+		fmt.Println(nil)
+		return
+	}
+	fmt.Println(yaml.Render(c.f.Root))
+}
 
-			s, ok := n.(string)
-			if !ok {
-				return fmt.Errorf("closure.`%p` is not a valid string")
-			}
-
-			var err error
-			s, err = fixPath(s)
+func (c *Config) prepare() error {
+	if *ClosureMode {
+		items := []string{"library", "templates", "stylesheets", "compiler"}
+		for _, item := range items {
+			path, err := c.GetStringf("closurejs.%s", item)
 			if err != nil {
-				return fmt.Errorf("fix paths failed: %s", err)
+				return fmt.Errorf("get path failed: %s", err)
 			}
-			config["closure"][p] = s
+			path, err = fixPath(path)
+			if err != nil {
+				return fmt.Errorf("fix path faled: %s", err)
+			}
+
+			node, err := yaml.Child(c.f.Root, "closurejs")
+			if err != nil {
+				return fmt.Errorf("get closurejs failed: %s", err)
+			}
+			dict, ok := node.(yaml.Map)
+			if !ok {
+				return fmt.Errorf("closurejs is not a map")
+			}
+			dict[item] = yaml.Scalar(path)
 		}
 	}
 	return nil
@@ -138,4 +161,3 @@ func fixPath(p string) (string, error) {
 	home := filepath.Join("/home", user)
 	return strings.Replace(p, "~", home, -1), nil
 }
-*/

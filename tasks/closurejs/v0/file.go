@@ -38,123 +38,65 @@ type file struct {
 }
 
 func getFile(c *config.Config) (*file, error) {
-	if c["closurejs"] == nil {
-		return nil, fmt.Errorf("`closurejs` config required")
-	}
-	required := []string{
-		"dest",
-		"inputs",
-		"defines",
-		"compilationLevel",
-		"checks",
-		"externs",
-		"debug",
-	}
-	for _, r := range required {
-		if c["closurejs"][r] == nil {
-			return nil, fmt.Errorf("`closurejs.%s` config required", r)
-		}
-	}
+	f := &file{}
+	var err error
 
-	dest, ok := c["closurejs"]["dest"].(string)
-	if !ok {
-		return nil, fmt.Errorf("`closurejs.dest` should be a string")
+	f.dest, err = c.GetString("closurejs.dest")
+	if err != nil {
+		return nil, fmt.Errorf("get dest failed: %s", err)
 	}
-	inputs, err := getStringList("inputs", c["closurejs"]["inputs"])
+	f.inputs, err = c.GetStringList("closurejs.inputs")
 	if err != nil {
 		return nil, fmt.Errorf("get inputs failed: %s", err)
 	}
-	defines, err := getDefines(c["closurejs"]["defines"])
+	f.defines, err = getDefines(c)
 	if err != nil {
 		return nil, fmt.Errorf("get defines failed: %s", err)
 	}
-	compilationLevel, err := getCompilationLevel(c["closurejs"]["compilationLevel"])
+	f.compilationLevel, err = getCompilationLevel(c)
 	if err != nil {
 		return nil, fmt.Errorf("get compilation level failed: %s", err)
 	}
-	checks, err := getChecks(c["closurejs"]["checks"])
+	f.checks, err = getChecks(c)
 	if err != nil {
-		return nil, fmt.Errorf("get checks failed")
+		return nil, fmt.Errorf("get checks failed: %s", err)
 	}
-	externs, err := getStringList("externs", c["closurejs"]["externs"])
+	f.externs, err = c.GetStringList("closurejs.externs")
 	if err != nil {
-		return nil, fmt.Errorf("get externs failed")
+		return nil, fmt.Errorf("get externs failed: %s", err)
 	}
-	debug, ok := c["closurejs"]["debug"].(bool)
-	if !ok {
-		return nil, fmt.Errorf("`closurejs.debug` should be a boolean")
+	f.debug, err = c.GetBool("closurejs.debug")
+	if err != nil {
+		return nil, fmt.Errorf("get debug failed: %s", err)
 	}
 
-	return &file{
-		dest:             filepath.Join("temp", "scripts", dest),
-		inputs:           inputs,
-		defines:          defines,
-		compilationLevel: compilationLevel,
-		checks:           checks,
-		externs:          externs,
-		debug:            debug,
-	}, nil
+	f.dest = filepath.Join("temp", "scripts", f.dest)
+	return f, nil
 }
 
-func getStringList(name string, raw interface{}) ([]string, error) {
-	lst, ok := raw.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("`closurejs.%s` should be a list", name)
-	}
-	strs := []string{}
-	for _, item := range lst {
-		s, ok := item.(string)
-		if !ok {
-			return nil, fmt.Errorf("`closurejs.%s` items should be strings", name)
-		}
-		strs = append(strs, s)
-	}
-	return strs, nil
-}
-
-func getDefines(raw interface{}) ([]*define, error) {
-	m, ok := raw.(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("`closurejs.defines` should be an object")
+func getDefines(c *config.Config) ([]*define, error) {
+	size, err := c.Count("closurejs.defines")
+	if err != nil {
+		return nil, fmt.Errorf("count defines failed: %s", err)
 	}
 	defines := []*define{}
-	for k, v := range m {
-		s, ok := v.(string)
-		if !ok {
-			return nil, fmt.Errorf("`closurejs.defines` items should be strings")
+	for i := 0; i < size; i++ {
+		name, err := c.GetStringf("closurejs.defines[%d].name", i)
+		if err != nil {
+			return nil, fmt.Errorf("get define name failed: %s", err)
 		}
-		defines = append(defines, &define{k, s})
+		value, err := c.GetStringf("closurejs.defines[%d].value", i)
+		if err != nil {
+			return nil, fmt.Errorf("get define value failed: %s", err)
+		}
+
+		defines = append(defines, &define{name, value})
 	}
 	return defines, nil
 }
 
-func getChecks(raw interface{}) ([]*check, error) {
-	m, ok := raw.(map[string]interface{})
-	if !ok {
-		return nil, fmt.Errorf("`closurejs.checks` should be an object")
-	}
-	checks := []*check{}
-	for k, v := range m {
-		s, ok := v.(string)
-		if !ok {
-			return nil, fmt.Errorf("`closurejs.checks` items should be strings")
-		}
-
-		if !isDefine(k) {
-			return nil, fmt.Errorf("`closure.defines.%s` is not a valid define", k)
-		}
-		if s != "off" && s != "warning" && s != "error" {
-			return nil, fmt.Errorf("`closure.checks.%s` should be one of "+
-				"{off, warning, errror}", k)
-		}
-
-		checks = append(checks, &check{s, k})
-	}
-	return checks, nil
-}
-
-func isDefine(s string) bool {
-	m := map[string]bool{
+func getChecks(c *config.Config) ([]*check, error) {
+	validChecks := map[string]bool{
 		"ambiguousFunctionDecl":  true,
 		"checkRegExp":            true,
 		"checkTypes":             true,
@@ -175,22 +117,37 @@ func isDefine(s string) bool {
 		"globalThis":             true,
 		"duplicateMessage":       true,
 	}
-	return m[s]
+
+	checks := []*check{}
+	items := []string{"off", "warning", "error"}
+	for _, item := range items {
+		names, err := c.GetStringListf("closurejs.checks.%s", item)
+		if err != nil {
+			return nil, fmt.Errorf("get check list failed: %s", err)
+		}
+		for _, name := range names {
+			if !validChecks[name] {
+				return nil, fmt.Errorf("%s is not a valid check", name)
+			}
+			checks = append(checks, &check{name, item})
+		}
+	}
+	return checks, nil
 }
 
-func getCompilationLevel(raw interface{}) (string, error) {
-	s, ok := raw.(string)
-	if !ok {
-		return "", fmt.Errorf("`closurejs.compilationLevel` should be a string")
+func getCompilationLevel(c *config.Config) (string, error) {
+	level, err := c.GetString("closurejs.compilationLevel")
+	if err != nil {
+		return "", fmt.Errorf("get compilation level failed: %s", err)
 	}
 	m := map[string]bool{
 		"ADVANCED_OPTIMIZATIONS": true,
 		"SIMPLE_OPTIMIZATIONS":   true,
 		"WHITESPACE_ONLY":        true,
 	}
-	if !m[s] {
-		return "", fmt.Errorf("`closurejs.compilationLevel` should be one of " +
+	if !m[level] {
+		return "", fmt.Errorf("compilation level should be one of " +
 			"{ADVANCED_OPTIMIZATIONS, SIMPLE_OPTIMIZATIONS, WHITESPACE_ONLY}")
 	}
-	return s, nil
+	return level, nil
 }

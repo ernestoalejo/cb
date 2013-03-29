@@ -1,34 +1,35 @@
 
 recess:
-- source: styles/bootstrap/main.less
-  dest: bootstrap.css
+  - source: styles/bootstrap/main.less
+    dest:   bootstrap.css
 
 sass:
-- source: styles/app.scss
-  dest: app.css
+  - source: styles/app.scss
+    dest:   app.css
 
 watch:
-- task: recess
-  paths:
-  - app/components/bootstrap/less/*.less
-  - app/styles/bootstrap/*.less
-- task: sass
-  paths:
-  - app/styles/*.scss
+  - task: recess
+    paths:
+      - app/components/bootstrap/less/*.less
+      - app/styles/bootstrap/*.less
+
+  - task: sass
+    paths:
+      - app/styles/*.scss
 
 dist:
-- base.html
-- components/jquery/jquery.min.js
-- favicon.ico
-- fonts
-- images
-- robots.txt
-- scripts/ie.js
-- scripts/test.js
-- scripts/{{ .AppName }}.js
-- styles/{{ .AppName }}.css
+  - base.html
+  - components/jquery/jquery.min.js
+  - favicon.ico
+  - fonts
+  - images
+  - robots.txt
+  - scripts/ie.js
+  - scripts/test.js
+  - scripts/{{ .AppName }}.js
+  - styles/{{ .AppName }}.css
 
 ngtemplates:
   appendto: scripts/{{ .AppName }}.js
   files:
-  - views/**
+    - views/**

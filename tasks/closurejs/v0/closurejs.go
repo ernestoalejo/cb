@@ -146,13 +146,7 @@ func build_closurejs(c *config.Config, q *registry.Queue) error {
 }
 
 func getInputs(c *config.Config) ([]string, []string, error) {
-	if c["closurejs"] == nil {
-		return nil, nil, fmt.Errorf("`closurejs` configurations required")
-	}
-	if c["closurejs"]["inputs"] == nil {
-		return nil, nil, fmt.Errorf("`closurejs.inputs` configurations required")
-	}
-	inputs, err := getStringList("inputs", c["closurejs"]["inputs"])
+	inputs, err := c.GetStringList("closurejs.inputs")
 	if err != nil {
 		return nil, nil, fmt.Errorf("get inputs failed: %s", err)
 	}
