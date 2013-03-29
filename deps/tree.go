@@ -107,7 +107,7 @@ func (t *Tree) addSource(path string) error {
 	// Scan all the previous sources searching for repeated
 	// namespaces. We ignore closure library files because they're
 	// supposed to be correct and tested by other methods
-	library, err := GetLibraryRoot(t.c)
+	library, err := t.c.Get("closure.library")
 	if err != nil {
 		return fmt.Errorf("cannot get library root: %s", err)
 	}

@@ -7,27 +7,12 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
-// Retrieve the library root folder from the configurations
-func GetLibraryRoot(c *config.Config) (string, error) {
-	return c.Get("closure.library")
-}
-
-// Retrieve the template root folder from the configurations
-func GetTemplatesRoot(c *config.Config) (string, error) {
-	return c.Get("closure.templates")
-}
-
-// Retrieve the template root folder from the configurations
-func GetCompilerRoot(c *config.Config) (string, error) {
-	return c.Get("closure.compiler")
-}
-
 func BaseJSPaths(c *config.Config) ([]string, error) {
-	library, err := GetLibraryRoot(c)
+	library, err := c.Get("closure.library")
 	if err != nil {
 		return nil, fmt.Errorf("cannot get library root: %s", err)
 	}
-	templates, err := GetTemplatesRoot(c)
+	templates, err := c.Get("closure.templates")
 	if err != nil {
 		return nil, fmt.Errorf("cannot get templates root: %s", err)
 	}

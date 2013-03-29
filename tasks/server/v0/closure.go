@@ -102,7 +102,7 @@ func compileHandler(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	library, err := deps.GetLibraryRoot(configs)
+	library, err := configs.Get("closure.library")
 	if err != nil {
 		return fmt.Errorf("cannot get library root: %s", err)
 	}

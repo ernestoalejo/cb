@@ -116,7 +116,7 @@ func newSource(c *config.Config, path string) (*Source, error) {
 }
 
 func isBase(c *config.Config, path string) (bool, error) {
-	library, err := GetLibraryRoot(c)
+	library, err := c.Get("closure.library")
 	if err != nil {
 		return false, fmt.Errorf("cannot get library root: %s", err)
 	}
