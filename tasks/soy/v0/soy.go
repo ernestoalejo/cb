@@ -21,7 +21,7 @@ func soy(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("scan source failed: %s", err)
 	}
 
-	compilerPath, err := getCompilerPath(c)
+	compilerPath, err := c.Get("closure.compiler")
 	if err != nil {
 		return fmt.Errorf("obtain compiler path failed: %s", err)
 	}
@@ -149,20 +149,4 @@ func purgeDest(destIndexed map[string]bool) error {
 		return fmt.Errorf("walk templates failed: %s", err)
 	}
 	return nil
-}
-
-// Compute the compiler path from the config settings and return it
-func getCompilerPath(c *config.Config) (string, error) {
-	if c["closure"] == nil {
-		return "", fmt.Errorf("`closure` config required")
-	}
-	if c["closure"]["templates"] == nil {
-		return "", fmt.Errorf("`closure.templates` config required")
-	}
-	s, ok := c["closure"]["templates"].(string)
-	if !ok {
-		return "", fmt.Errorf("`closure.templates` should be a string")
-	}
-	s = filepath.Join(s, "build", "SoyToJsSrcCompiler.jar")
-	return s, nil
 }
