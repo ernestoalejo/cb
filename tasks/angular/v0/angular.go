@@ -188,7 +188,7 @@ func writeControllerTestFile(data *ControllerData) error {
 func writeControllerViewFile(data *ControllerData) error {
 	parts := strings.Split(data.Module, ".")
 	name := parts[len(parts)-1]
-	filename := strings.ToLower(data.Name) + ".html"
+	filename := strings.ToLower(data.Name[:len(data.Name)-4]) + ".html"
 	p := filepath.Join("app", "views", name, filename)
 	return writeFile(p, "view.html", data)
 }
