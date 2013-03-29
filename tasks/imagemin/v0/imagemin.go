@@ -45,7 +45,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		return fmt.Errorf("rel failed: %s", err)
 	}
-	dest = filepath.Join(from, "temp", "images", dest)
+	dest = filepath.Join("temp", "images", dest)
 
 	dir := filepath.Dir(dest)
 	if err := os.MkdirAll(dir, 0755); err != nil {
