@@ -64,19 +64,19 @@ func lessFromConfig(c *config.Config, mode string) ([]*LessFile, error) {
 		from = "temp"
 	}
 
-	size, err := c.Count("less")
+	size, err := c.Count("recess")
 	if err != nil {
-		return nil, fmt.Errorf("get less files failed: %s", err)
+		return nil, fmt.Errorf("get recess files failed: %s", err)
 	}
 	files := []*LessFile{}
 	for i := 0; i < size; i++ {
-		src, err := c.GetStringf("less[%d].source", i)
+		src, err := c.GetStringf("recess[%d].source", i)
 		if err != nil {
-			return nil, fmt.Errorf("get less source failed: %s", err)
+			return nil, fmt.Errorf("get recess source failed: %s", err)
 		}
-		dest, err := c.GetStringf("less[%d].dest", i)
+		dest, err := c.GetStringf("recess[%d].dest", i)
 		if err != nil {
-			return nil, fmt.Errorf("get less dest failed: %s", err)
+			return nil, fmt.Errorf("get recess dest failed: %s", err)
 		}
 
 		src = filepath.Join(from, src)
