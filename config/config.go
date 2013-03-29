@@ -65,7 +65,7 @@ func (c *Config) GetStringList(spec string) ([]string, error) {
 	}
 	items := []string{}
 	for i := 0; i < size; i++ {
-		item, err := c.GetStringf("spec[%d]", spec, i)
+		item, err := c.GetStringf("%s[%d]", spec, i)
 		if err != nil {
 			return nil, fmt.Errorf("get item failed: %s", err)
 		}

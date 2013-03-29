@@ -104,10 +104,10 @@ func copy_dist(c *config.Config, q *registry.Queue) error {
 
 func deploy_dist(c *config.Config, q *registry.Queue) error {
 	commands := []string{
-		"rm -rf static",
-		"cp -r dist static",
-		"rm -f templates/base.html",
-		"mv static/base.html templates/base.html",
+		"rm -rf ../static",
+		"cp -r dist ../static",
+		"rm -f ../templates/base.html",
+		"mv ../static/base.html ../templates/base.html",
 	}
 	for _, c := range commands {
 		cmd := strings.Split(c, " ")
