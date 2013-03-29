@@ -58,7 +58,6 @@ closurejs:
   debug: false
 
 dist:
-  files:
-  - scripts/scripts.js
-  - styles/styles.css
-  - base.html
+- scripts/scripts.js
+- styles/styles.css
+- base.html

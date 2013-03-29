@@ -48,6 +48,22 @@ func (c *Config) Countf(format string, a ...interface{}) (int, error) {
 	return c.f.Count(fmt.Sprintf(format, a...))
 }
 
+func (c *Config) GetStringList(spec string) ([]string, error) {
+	size, err := c.Count(spec)
+	if err != nil {
+		return nil, fmt.Errorf("count failed: %s", err)
+	}
+	items := []string{}
+	for i := 0; i < size; i++ {
+		item, err := c.GetStringf("spec[%d]", spec, i)
+		if err != nil {
+			return nil, fmt.Errorf("get item failed: %s", err)
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
+
 /*
 
 func check(config Config) error {

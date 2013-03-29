@@ -57,10 +57,11 @@ func prepare_dist(c *config.Config, q *registry.Queue) error {
 }
 
 func copy_dist(c *config.Config, q *registry.Queue) error {
-	dirs, err := readConfig(c["dist"])
+	dirs, err := c.GetStringList("dist")
 	if err != nil {
-		return fmt.Errorf("read config failed: %s", err)
+		return fmt.Errorf("get dist files failed: %s", err)
 	}
+
 	changes := utils.LoadChanges()
 	for i, dir := range dirs {
 		if name, ok := changes[dir]; ok {
@@ -117,28 +118,4 @@ func deploy_dist(c *config.Config, q *registry.Queue) error {
 		}
 	}
 	return nil
-}
-
-func readConfig(m map[string]interface{}) ([]string, error) {
-	info, ok := m["files"]
-	if !ok {
-		return nil, fmt.Errorf("dist files not present")
-	}
-
-	dirsLst, ok := info.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("dist files is not a list of dirs")
-	}
-
-	dirs := []string{}
-	for _, item := range dirsLst {
-		s, ok := item.(string)
-		if !ok {
-			return nil, fmt.Errorf("dist files are not strings")
-		}
-
-		dirs = append(dirs, s)
-	}
-
-	return dirs, nil
 }

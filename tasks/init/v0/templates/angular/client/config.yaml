@@ -17,17 +17,16 @@ watch:
   - app/styles/*.scss
 
 dist:
-  files:
-  - base.html
-  - components/jquery/jquery.min.js
-  - favicon.ico
-  - fonts
-  - images
-  - robots.txt
-  - scripts/ie.js
-  - scripts/test.js
-  - scripts/{{ .AppName }}.js
-  - styles/{{ .AppName }}.css
+- base.html
+- components/jquery/jquery.min.js
+- favicon.ico
+- fonts
+- images
+- robots.txt
+- scripts/ie.js
+- scripts/test.js
+- scripts/{{ .AppName }}.js
+- styles/{{ .AppName }}.css
 
 ngtemplates:
   appendto: scripts/{{ .AppName }}.js
