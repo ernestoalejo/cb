@@ -20,7 +20,7 @@ func gss(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("closure mode only task")
 	}
 
-	compilerPath, err := c.GetString("closure.stylesheets")
+	compilerPath, err := c.Get("closure.stylesheets")
 	if err != nil {
 		return fmt.Errorf("cannot get compiler path: %s", err)
 	}

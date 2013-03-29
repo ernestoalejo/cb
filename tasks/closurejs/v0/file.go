@@ -41,7 +41,7 @@ func getFile(c *config.Config) (*file, error) {
 	f := &file{}
 	var err error
 
-	f.dest, err = c.GetString("closurejs.dest")
+	f.dest, err = c.Get("closurejs.dest")
 	if err != nil {
 		return nil, fmt.Errorf("get dest failed: %s", err)
 	}
@@ -136,7 +136,7 @@ func getChecks(c *config.Config) ([]*check, error) {
 }
 
 func getCompilationLevel(c *config.Config) (string, error) {
-	level, err := c.GetString("closurejs.compilationLevel")
+	level, err := c.Get("closurejs.compilationLevel")
 	if err != nil {
 		return "", fmt.Errorf("get compilation level failed: %s", err)
 	}

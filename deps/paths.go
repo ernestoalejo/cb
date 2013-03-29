@@ -9,17 +9,17 @@ import (
 
 // Retrieve the library root folder from the configurations
 func GetLibraryRoot(c *config.Config) (string, error) {
-	return c.GetString("closure.library")
+	return c.Get("closure.library")
 }
 
 // Retrieve the template root folder from the configurations
 func GetTemplatesRoot(c *config.Config) (string, error) {
-	return c.GetString("closure.templates")
+	return c.Get("closure.templates")
 }
 
 // Retrieve the template root folder from the configurations
 func GetCompilerRoot(c *config.Config) (string, error) {
-	return c.GetString("closure.compiler")
+	return c.Get("closure.compiler")
 }
 
 func BaseJSPaths(c *config.Config) ([]string, error) {

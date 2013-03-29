@@ -21,7 +21,7 @@ func soy(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("scan source failed: %s", err)
 	}
 
-	compilerPath, err := c.GetString("closure.compiler")
+	compilerPath, err := c.Get("closure.compiler")
 	if err != nil {
 		return fmt.Errorf("obtain compiler path failed: %s", err)
 	}

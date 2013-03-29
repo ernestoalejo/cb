@@ -55,7 +55,7 @@ func ngtemplates(c *config.Config, q *registry.Queue) error {
 }
 
 func getPaths(c *config.Config) ([]string, string, error) {
-	appendto, err := c.GetString("ngtemplates.appendto")
+	appendto, err := c.Get("ngtemplates.appendto")
 	if err != nil {
 		return nil, "", fmt.Errorf("get appendto failed: %s", err)
 	}

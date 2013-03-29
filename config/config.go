@@ -38,7 +38,7 @@ func Load() (*Config, error) {
 	return c, nil
 }
 
-func (c *Config) GetString(spec string) (string, error) {
+func (c *Config) Get(spec string) (string, error) {
 	return c.f.Get(spec)
 }
 
