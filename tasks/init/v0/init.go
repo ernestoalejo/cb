@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
@@ -36,31 +37,40 @@ func init() {
 func init_task(c *config.Config, q *registry.Queue) error {
 	var path string
 	if *config.AngularMode {
-		if *config.ClientOnly {
-			path = filepath.Join(SELF_PKG, "angular", "client")
-		} else {
-			path = filepath.Join(SELF_PKG, "angular")
-		}
-	} else if *config.ClosureMode {
+		path = filepath.Join(SELF_PKG, "angular", "client")
+	}
+	if *config.ClosureMode {
 		path = filepath.Join(SELF_PKG, "closure")
 	}
+	// Mutually exclusive with closure mode, no problems here
+	if *config.ClientOnly {
+		path = filepath.Join(path, "client")
+	}
 
-	base := utils.PackagePath(path)
 	cur, err := os.Getwd()
 	if err != nil {
 		return fmt.Errorf("getwd failed: %s", err)
 	}
-
+	base := utils.PackagePath(path)
+	dest := cur
+	appname := filepath.Base(dest)
 	if *config.ClientOnly {
-		cur = filepath.Join(cur, "client")
+		// Client source folder is already selected, now the dest
+		// should be a client folder too
+		dest = filepath.Join(dest, "client")
+	} else if filepath.Base(dest) == "client" && c != nil {
+		// We're calling the app inside the client folder, go back one level
+		// to copy the files correctly. Fix also the appname
+		dest = filepath.Dir(dest)
+		appname = filepath.Base(dest)
 	}
 
-	if err := copyFiles(c, filepath.Base(cur), base, cur, cur); err != nil {
+	if err := copyFiles(c, appname, base, dest, cur); err != nil {
 		return fmt.Errorf("copy files failed: %s", err)
 	}
-
 	if *config.AngularMode {
-		fmt.Println("Don't forget to run `bower install` inside the client folder")
+		fmt.Printf("Don't forget to run %s`bower install`%s inside the client folder\n",
+			colors.RED, colors.RESET)
 	}
 	return nil
 }
