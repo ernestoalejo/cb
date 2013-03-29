@@ -79,7 +79,7 @@ func lessFromConfig(c *config.Config, mode string) ([]*LessFile, error) {
 			return nil, fmt.Errorf("get recess dest failed: %s", err)
 		}
 
-		src = filepath.Join(from, src)
+		src = filepath.Join(from, "styles", src)
 		dest = filepath.Join("temp", "styles", dest)
 		files = append(files, &LessFile{src, dest})
 	}

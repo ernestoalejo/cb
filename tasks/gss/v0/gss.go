@@ -50,7 +50,7 @@ func gss(c *config.Config, q *registry.Queue) error {
 			"--rename", "CLOSURE",
 			"--output-renaming-map", filepath.Join("temp", "gssmap.js"),
 			"--output-file", dest,
-			filepath.Join("temp", src),
+			filepath.Join("temp", "styles", src),
 		}
 		output, err := utils.Exec("java", args)
 		if err != nil {

@@ -6,11 +6,11 @@ closure:
   templates:   ~/projects/closure/closure-templates
 
 sass:
-  - source: styles/app.scss
+  - source: app.scss
     dest:   app.css
 
 gss:
-  - source: styles/app.css
+  - source: app.css
     dest:   styles.css
 
 watch:
