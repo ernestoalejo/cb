@@ -13,34 +13,36 @@ func init() {
 }
 
 func watch(c *config.Config, q *registry.Queue) error {
-	for key, info := range c["watch"] {
-		dirs, err := readConfig(key, info)
+	size, err := c.Count("watch")
+	if err != nil {
+		return fmt.Errorf("count watch failed: %s", err)
+	}
+	for i := 0; i < size; i++ {
+		// Extract the task name
+		task, err := c.GetStringf("watch[%d].task", i)
 		if err != nil {
-			return fmt.Errorf("read config failed: %s", err)
+			return fmt.Errorf("get watch task failed: %s", err)
 		}
 
-		if err := watcher.Dirs(dirs, key); err != nil {
+		// Extract the paths
+		pathsSize, err := c.Countf("watch[%d].paths", i)
+		if err != nil {
+			return fmt.Errorf("count watch paths failed: %s", err)
+		}
+		paths := []string{}
+		for j := 0; j < pathsSize; j++ {
+			p, err := c.GetStringf("watch[%d].paths[%d]", i, j)
+			if err != nil {
+				return fmt.Errorf("get watch path failed: %s", err)
+			}
+			paths = append(paths, p)
+		}
+
+		// Init the watcher
+		if err := watcher.Dirs(paths, task); err != nil {
 			return fmt.Errorf("watch dirs failed: %s", err)
 		}
+
 	}
 	return nil
-}
-
-func readConfig(key string, info interface{}) ([]string, error) {
-	dirsLst, ok := info.([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("`%s` watch dest is not a list of dirs", key)
-	}
-
-	dirs := []string{}
-	for _, item := range dirsLst {
-		s, ok := item.(string)
-		if !ok {
-			return nil, fmt.Errorf("`%s` watch dest dirs are not strings", key)
-		}
-
-		dirs = append(dirs, s)
-	}
-
-	return dirs, nil
 }

@@ -40,6 +40,14 @@ func (c *Config) Count(spec string) (int, error) {
 	return c.f.Count(spec)
 }
 
+func (c *Config) GetStringf(format string, a ...interface{}) (string, error) {
+	return c.f.Get(fmt.Sprintf(format, a...))
+}
+
+func (c *Config) Countf(format string, a ...interface{}) (int, error) {
+	return c.f.Count(fmt.Sprintf(format, a...))
+}
+
 /*
 
 func check(config Config) error {

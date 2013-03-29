@@ -8,11 +8,11 @@ sass:
   dest: styles/app.scss
 
 watch:
-- tasks: recess
+- task: recess
   paths:
   - app/components/bootstrap/less/*.less
   - app/styles/bootstrap/*.less
-- tasks: sass
+- task: sass
   paths:
   - app/styles/*.scss
 
