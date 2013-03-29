@@ -64,11 +64,19 @@ func lessFromConfig(c *config.Config, mode string) ([]*LessFile, error) {
 		from = "temp"
 	}
 
+	size, err := c.Count("sass")
+	if err != nil {
+		return nil, fmt.Errorf("get sass files failed: %s", err)
+	}
 	files := []*LessFile{}
-	for dest, rawSrc := range c["recess"] {
-		src, ok := rawSrc.(string)
-		if !ok {
-			return nil, fmt.Errorf("`recess` config should be a map[string]string")
+	for i := 0; i < size; i++ {
+		src, err := c.GetStringf("sass[%d].source", i)
+		if err != nil {
+			return nil, fmt.Errorf("get sass source failed: %s", err)
+		}
+		dest, err := c.GetStringf("sass[%d].dest", i)
+		if err != nil {
+			return nil, fmt.Errorf("get sass dest failed: %s", err)
 		}
 
 		src = filepath.Join(from, src)
