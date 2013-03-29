@@ -9,6 +9,8 @@ import (
 	"github.com/kylelemons/go-gypsy/yaml"
 )
 
+var ErrNotFound = fmt.Errorf("not found")
+
 type Config struct {
 	f *yaml.File
 }
@@ -61,6 +63,9 @@ func (c *Config) Countf(format string, a ...interface{}) (int, error) {
 func (c *Config) GetStringList(spec string) ([]string, error) {
 	size, err := c.Count(spec)
 	if err != nil {
+		if _, ok := err.(*yaml.NodeNotFound); ok {
+			return nil, ErrNotFound
+		}
 		return nil, fmt.Errorf("count failed: %s", err)
 	}
 	items := []string{}
@@ -90,7 +95,7 @@ func checkFlags(c *Config) error {
 			return fmt.Errorf("redundant mode in command line flags")
 		}
 		*ClosureMode = true
-	} else {
+	} else if !*ClosureMode {
 		if *AngularMode {
 			return fmt.Errorf("redundant mode in command line flags")
 		}
@@ -120,7 +125,7 @@ func (c *Config) prepare() error {
 	if *ClosureMode {
 		items := []string{"library", "templates", "stylesheets", "compiler"}
 		for _, item := range items {
-			path, err := c.GetStringf("closurejs.%s", item)
+			path, err := c.GetStringf("closure.%s", item)
 			if err != nil {
 				return fmt.Errorf("get path failed: %s", err)
 			}
@@ -129,13 +134,13 @@ func (c *Config) prepare() error {
 				return fmt.Errorf("fix path faled: %s", err)
 			}
 
-			node, err := yaml.Child(c.f.Root, "closurejs")
+			node, err := yaml.Child(c.f.Root, "closure")
 			if err != nil {
-				return fmt.Errorf("get closurejs failed: %s", err)
+				return fmt.Errorf("get closure failed: %s", err)
 			}
 			dict, ok := node.(yaml.Map)
 			if !ok {
-				return fmt.Errorf("closurejs is not a map")
+				return fmt.Errorf("closure is not a map")
 			}
 			dict[item] = yaml.Scalar(path)
 		}

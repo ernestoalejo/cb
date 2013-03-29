@@ -28,6 +28,8 @@ watch:
 
 closurejs:
   dest: scripts.js
+  debug: false
+  compilationLevel: ADVANCED_OPTIMIZATIONS
   inputs:
     - scripts/main.js
 
@@ -37,8 +39,9 @@ closurejs:
     - name:  goog.DEBUG
       value: false
 
-  compilationLevel: ADVANCED_OPTIMIZATIONS
   checks:
+    # off:
+    # warning:
     error:
       - ambiguousFunctionDecl
       - checkRegExp
@@ -59,11 +62,8 @@ closurejs:
       - uselessCode
       - globalThis
       - duplicateMessage
-    warning:
-    off:
 
-  externs:
-  debug: false
+  # externs:
 
 dist:
   - scripts/scripts.js

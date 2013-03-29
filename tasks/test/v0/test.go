@@ -15,6 +15,10 @@ func init() {
 }
 
 func test(c *config.Config, q *registry.Queue) error {
+	if !*config.AngularMode {
+		return fmt.Errorf("angular task only")
+	}
+
 	var configFile string
 	if *config.Compiled {
 		configFile = "config/testacular-compiled.conf.js"

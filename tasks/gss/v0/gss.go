@@ -24,6 +24,8 @@ func gss(c *config.Config, q *registry.Queue) error {
 	if err != nil {
 		return fmt.Errorf("cannot get compiler path: %s", err)
 	}
+	compilerPath = filepath.Join(compilerPath, "build", "closure-stylesheets.jar")
+
 	size, err := c.Count("gss")
 	if err != nil {
 		return fmt.Errorf("count gss files failed: %s", err)
@@ -48,7 +50,7 @@ func gss(c *config.Config, q *registry.Queue) error {
 			"--rename", "CLOSURE",
 			"--output-renaming-map", filepath.Join("temp", "gssmap.js"),
 			"--output-file", dest,
-			src,
+			filepath.Join("temp", src),
 		}
 		output, err := utils.Exec("java", args)
 		if err != nil {
