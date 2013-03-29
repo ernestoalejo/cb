@@ -55,7 +55,7 @@ func init_task(c *config.Config, q *registry.Queue) error {
 		cur = filepath.Join(cur, "client")
 	}
 
-	if err := copyFiles(filepath.Base(cur), base, cur); err != nil {
+	if err := copyFiles(filepath.Base(cur), base, cur, cur); err != nil {
 		return fmt.Errorf("copy files failed: %s", err)
 	}
 
@@ -67,7 +67,7 @@ func init_task(c *config.Config, q *registry.Queue) error {
 
 // Copy recursively all the files in src to the dest folder. Appname will
 // be the name of the root folder, that gives the codename to the project.
-func copyFiles(appname, src, dest string) error {
+func copyFiles(appname, src, dest, root string) error {
 	files, err := ioutil.ReadDir(src)
 	if err != nil {
 		return fmt.Errorf("read folder failed (%s): %s", src, err)
@@ -83,17 +83,25 @@ func copyFiles(appname, src, dest string) error {
 		}
 
 		if entry.IsDir() {
-			if *config.Verbose {
-				log.Printf("create folder `%s`\n", rel)
+			info, err := os.Stat(fulldest)
+			if err != nil {
+				if !os.IsNotExist(err) {
+					return fmt.Errorf("stat dest failed: %s", err)
+				}
+				if *config.Verbose {
+					log.Printf("create folder `%s`\n", rel)
+				}
+				if err := os.MkdirAll(fulldest, 0755); err != nil {
+					return fmt.Errorf("create folder failed (%s): %s", fulldest, err)
+				}
+			} else if !info.IsDir() {
+				return fmt.Errorf("dest is present and is not a folders: %s", fulldest)
 			}
-			if err := os.MkdirAll(fulldest, 0755); err != nil {
-				return fmt.Errorf("create folder failed (%s): %s", fulldest, err)
-			}
-			if err := copyFiles(appname, fullsrc, fulldest); err != nil {
+			if err := copyFiles(appname, fullsrc, fulldest, root); err != nil {
 				return fmt.Errorf("recursive copy failed: %s", err)
 			}
 		} else {
-			if err := copyFile(appname, fullsrc, fulldest, rel); err != nil {
+			if err := copyFile(appname, fullsrc, fulldest, rel, root); err != nil {
 				return fmt.Errorf("copy file failed")
 			}
 		}
@@ -103,7 +111,7 @@ func copyFiles(appname, src, dest string) error {
 
 // Copy a file, using templates if needed, from srcPath to destPath.
 // Rel is the relative-to-root-dest path.
-func copyFile(appname, srcPath, destPath, rel string) error {
+func copyFile(appname, srcPath, destPath, rel, root string) error {
 	var content []byte
 	if needTemplates[rel] {
 		t, err := template.ParseFiles(srcPath)
@@ -130,15 +138,18 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 		}
 	}
 
-	_, err := os.Stat(destPath)
-	if err == nil {
+	relDest, err := filepath.Rel(root, destPath)
+	if err != nil {
+		return fmt.Errorf("cannot relativize dest path: %s", err)
+	}
+
+	if _, err := os.Stat(destPath); err == nil {
 		if equal, err := compareFiles(content, destPath); err != nil {
 			return fmt.Errorf("compare files failed: %s", err)
 		} else if equal {
 			return nil
 		}
-
-		q := fmt.Sprintf("Do you want to overwrite `%s`?", rel)
+		q := fmt.Sprintf("Do you want to overwrite `%s`?", relDest)
 		if !utils.Ask(q) {
 			return nil
 		}
@@ -147,9 +158,8 @@ func copyFile(appname, srcPath, destPath, rel string) error {
 	}
 
 	if *config.Verbose {
-		log.Printf("copy file `%s`\n", rel)
+		log.Printf("copy file `%s`\n", relDest)
 	}
-
 	if err := utils.WriteFile(destPath, string(content)); err != nil {
 		return fmt.Errorf("write failed: %s", err)
 	}
