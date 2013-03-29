@@ -1,4 +1,6 @@
 
+{{ if .ClientOnly }}clientonly: true
+{{end}}
 recess:
   - source: bootstrap/main.less
     dest:   bootstrap.css

@@ -92,14 +92,20 @@ func checkFlags(c *Config) error {
 	// No options, take it from the config file
 	if c != nil && c.f.Root != nil && c.f.Root.(yaml.Map).Key("closurejs") != nil {
 		if *ClosureMode {
-			return fmt.Errorf("redundant mode in command line flags")
+			return fmt.Errorf("redundant mode in command line flags: closure")
 		}
 		*ClosureMode = true
 	} else if !*ClosureMode {
 		if *AngularMode {
-			return fmt.Errorf("redundant mode in command line flags")
+			return fmt.Errorf("redundant mode in command line flags: angular")
 		}
 		*AngularMode = true
+	}
+	if c != nil && c.f.Root != nil && c.f.Root.(yaml.Map).Key("clientonly") != nil {
+		if *ClientOnly {
+			return fmt.Errorf("redundant mode in command line flags: client-only")
+		}
+		*ClientOnly = true
 	}
 
 	// Additional checks

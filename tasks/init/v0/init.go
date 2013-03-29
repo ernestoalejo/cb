@@ -54,15 +54,16 @@ func init_task(c *config.Config, q *registry.Queue) error {
 	base := utils.PackagePath(path)
 	dest := cur
 	appname := filepath.Base(dest)
-	if *config.ClientOnly {
-		// Client source folder is already selected, now the dest
-		// should be a client folder too
-		dest = filepath.Join(dest, "client")
-	} else if filepath.Base(dest) == "client" && c != nil {
+	if filepath.Base(dest) == "client" && c != nil {
 		// We're calling the app inside the client folder, go back one level
 		// to copy the files correctly. Fix also the appname
 		dest = filepath.Dir(dest)
 		appname = filepath.Base(dest)
+	}
+	if *config.ClientOnly {
+		// Client source folder is already selected, now the dest
+		// should be a client folder too
+		dest = filepath.Join(dest, "client")
 	}
 
 	if err := copyFiles(c, appname, base, dest, cur); err != nil {
@@ -130,7 +131,10 @@ func copyFile(c *config.Config, appname, srcPath, destPath, rel, root string) er
 		}
 
 		buf := bytes.NewBuffer(nil)
-		data := map[string]interface{}{"AppName": appname}
+		data := map[string]interface{}{
+			"AppName":    appname,
+			"ClientOnly": *config.ClientOnly,
+		}
 		if err := t.Execute(buf, data); err != nil {
 			return fmt.Errorf("execute template failed: %s", err)
 		}
