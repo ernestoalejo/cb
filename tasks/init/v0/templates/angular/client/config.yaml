@@ -17,7 +17,7 @@ watch:
   - app/styles/*.scss
 
 dist:
-- files:
+  files:
   - base.html
   - components/jquery/jquery.min.js
   - favicon.ico
@@ -30,6 +30,6 @@ dist:
   - styles/{{ .AppName }}.css
 
 ngtemplates:
-- appendto: scripts/{{ .AppName }}.js
+  appendto: scripts/{{ .AppName }}.js
   files:
   - views/**

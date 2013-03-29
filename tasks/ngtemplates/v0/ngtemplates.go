@@ -55,36 +55,25 @@ func ngtemplates(c *config.Config, q *registry.Queue) error {
 }
 
 func getPaths(c *config.Config) ([]string, string, error) {
-	if c["ngtemplates"] == nil {
-		return nil, "", nil
-	}
-	if c["ngtemplates"]["files"] == nil {
-		return nil, "", fmt.Errorf("`ngtemplates.files` not present in config file")
+	appendto, err := c.GetString("ngtemplates.appendto")
+	if err != nil {
+		return nil, "", fmt.Errorf("get appendto failed: %s", err)
 	}
 
-	lst, ok := c["ngtemplates"]["files"].([]interface{})
-	if !ok {
-		return nil, "", fmt.Errorf("`ngtemplates.files` should be a list")
+	size, err := c.Count("ngtemplates.files")
+	if err != nil {
+		return nil, "", fmt.Errorf("count files failed: %s", err)
 	}
-	strs := []string{}
-	for _, item := range lst {
-		s, ok := item.(string)
-		if !ok {
-			return nil, "", fmt.Errorf("`ngtemplates.files` elements should be strings")
+	paths := []string{}
+	for i := 0; i < size; i++ {
+		file, err := c.GetStringf("ngtemplates.files[%d]", i)
+		if err != nil {
+			return nil, "", fmt.Errorf("get file failed: %s", err)
 		}
-		strs = append(strs, s)
+		paths = append(paths, file)
 	}
 
-	dest, ok := c["ngtemplates"]["appendto"]
-	if !ok {
-		return nil, "", fmt.Errorf("`ngtemplates.appendto` not present in config file")
-	}
-	appendto, ok := dest.(string)
-	if !ok {
-		return nil, "", fmt.Errorf("`ngtemplates.appendto` should be a string")
-	}
-
-	return strs, appendto, nil
+	return paths, appendto, nil
 }
 
 func templateWalk(root string) utils.WalkFunc {
