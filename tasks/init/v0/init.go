@@ -22,7 +22,7 @@ const SELF_PKG = "github.com/ernestokarim/cb/tasks/init/v0/templates"
 var needTemplates = map[string]bool{
 	"angular/app.yaml":              true,
 	"angular/client/app/base.html":  true,
-	"angular/client/config.json":    true,
+	"angular/client/config.yaml":    true,
 	"angular/client/component.json": true,
 	"angular/component.json":        true,
 	"angular/conf/sample-conf.go":   true,
