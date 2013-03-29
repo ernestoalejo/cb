@@ -55,7 +55,7 @@ func init_task(c *config.Config, q *registry.Queue) error {
 		cur = filepath.Join(cur, "client")
 	}
 
-	if err := copyFiles(filepath.Base(cur), base, cur, cur); err != nil {
+	if err := copyFiles(c, filepath.Base(cur), base, cur, cur); err != nil {
 		return fmt.Errorf("copy files failed: %s", err)
 	}
 
@@ -67,7 +67,7 @@ func init_task(c *config.Config, q *registry.Queue) error {
 
 // Copy recursively all the files in src to the dest folder. Appname will
 // be the name of the root folder, that gives the codename to the project.
-func copyFiles(appname, src, dest, root string) error {
+func copyFiles(c *config.Config, appname, src, dest, root string) error {
 	files, err := ioutil.ReadDir(src)
 	if err != nil {
 		return fmt.Errorf("read folder failed (%s): %s", src, err)
@@ -97,12 +97,12 @@ func copyFiles(appname, src, dest, root string) error {
 			} else if !info.IsDir() {
 				return fmt.Errorf("dest is present and is not a folders: %s", fulldest)
 			}
-			if err := copyFiles(appname, fullsrc, fulldest, root); err != nil {
+			if err := copyFiles(c, appname, fullsrc, fulldest, root); err != nil {
 				return fmt.Errorf("recursive copy failed: %s", err)
 			}
 		} else {
-			if err := copyFile(appname, fullsrc, fulldest, rel, root); err != nil {
-				return fmt.Errorf("copy file failed")
+			if err := copyFile(c, appname, fullsrc, fulldest, rel, root); err != nil {
+				return fmt.Errorf("copy file failed: %s", err)
 			}
 		}
 	}
@@ -111,7 +111,7 @@ func copyFiles(appname, src, dest, root string) error {
 
 // Copy a file, using templates if needed, from srcPath to destPath.
 // Rel is the relative-to-root-dest path.
-func copyFile(appname, srcPath, destPath, rel, root string) error {
+func copyFile(c *config.Config, appname, srcPath, destPath, rel, root string) error {
 	var content []byte
 	if needTemplates[rel] {
 		t, err := template.ParseFiles(srcPath)
@@ -137,24 +137,38 @@ func copyFile(appname, srcPath, destPath, rel, root string) error {
 			return fmt.Errorf("read source failed: %s", err)
 		}
 	}
-
 	relDest, err := filepath.Rel(root, destPath)
 	if err != nil {
 		return fmt.Errorf("cannot relativize dest path: %s", err)
 	}
 
-	if _, err := os.Stat(destPath); err == nil {
+	if _, err := os.Stat(destPath); err != nil {
+		// Stat failed
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("stat failed: %s", err)
+		}
+
+		// If it doesn't exists, but the config file is present, we're updating
+		// the contents, ask for creation perms
+		if c != nil {
+			q := fmt.Sprintf("Do you want to create `%s`?", relDest)
+			if !utils.Ask(q) {
+				return nil
+			}
+		}
+	} else {
+		// If it exists, but they're equal, ignore the copy of this file
 		if equal, err := compareFiles(content, destPath); err != nil {
 			return fmt.Errorf("compare files failed: %s", err)
 		} else if equal {
 			return nil
 		}
+
+		// Otherwise ask the user to overwrite the file
 		q := fmt.Sprintf("Do you want to overwrite `%s`?", relDest)
 		if !utils.Ask(q) {
 			return nil
 		}
-	} else if !os.IsNotExist(err) {
-		return fmt.Errorf("stat failed: %s", err)
 	}
 
 	if *config.Verbose {
@@ -173,14 +187,11 @@ func compareFiles(src []byte, dest string) (bool, error) {
 		return false, fmt.Errorf("open source failed: %s", err)
 	}
 	defer f.Close()
-
 	contents, err := ioutil.ReadAll(f)
 	if err != nil {
 		return false, fmt.Errorf("read source failed: %s", err)
 	}
-
 	contentsHash := fmt.Sprintf("%x", crc32.ChecksumIEEE(contents))
 	srcHash := fmt.Sprintf("%x", crc32.ChecksumIEEE(src))
-
 	return srcHash == contentsHash, nil
 }
