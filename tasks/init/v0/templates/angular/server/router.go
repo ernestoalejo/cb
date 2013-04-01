@@ -20,6 +20,7 @@ func init() {
 		"::/_/reporter":               stuff.ErrorReporter,
 		"::/e2e":                      stuff.TestBase,
 		"::/google{id:[^/]{16}}.html": stuff.GoogleVerification,
+		"::/BingSiteAuth.xml":         stuff.BingVerification,
 
 		"::/tasks/error-mail":    tasks.ErrorMail,
 		"::/tasks/feedback-mail": tasks.FeedbackMail,
