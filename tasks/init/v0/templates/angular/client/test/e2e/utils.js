@@ -1,8 +1,10 @@
+'use strict';
+
 
 // Return a references to the tested app frame.
 function app(obj) {
   if (angular.isUndefined(obj))
-    throw "null application object";
+    throw 'null application object';
 
   return obj.application.getWindow_();
 }

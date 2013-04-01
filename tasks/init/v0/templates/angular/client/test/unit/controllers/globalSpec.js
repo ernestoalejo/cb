@@ -91,6 +91,21 @@ describe('Controller: FeedbackCtrl', function() {
     $controller('FeedbackCtrl', {$scope: scope});
   }));
 
+  it('should open/close the dialog', function() {
+    expect(scope.dlgOpened).toBeFalsy();
+    scope.open();
+    expect(scope.dlgOpened).toBeTruthy();
+    scope.close();
+    expect(scope.dlgOpened).toBeFalsy();
+  });
+
+  it('should have the correct options', function() {
+    expect(scope.opts).toEqualData({
+      backdropFade: true,
+      dialogFade: true
+    });
+  });
+
   it('should reset the form & show a message on success', function() {
     $httpBackend.expectPOST('/_/feedback').respond({});
 
