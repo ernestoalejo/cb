@@ -56,10 +56,15 @@
     <div id="push"></div>
   </div>
 
-  <footer id="footer">
-    <div class="container">
-      <p class="muted credit">Copyright &copy; 2013.</p>
-    </div>
+  <footer>
+    <div class="container"><div class="row">
+      <div class="span4">
+        <h5>Contacto</h5>
+        <hr>
+        <i class="icon-envelope-alt"></i>
+        <a href="mailto:example@example.com">example@example.com</a>
+      </div>
+    </div></div>
   </footer>
 
   <div id="http-error" class="modal hide fade" tabindex="-1">
@@ -94,11 +99,6 @@
     </div>
   </div>
 
-  <div ng-controller="FeedbackCtrl">
-    <div id="feedback">
-      <button class="feedback-btn" ng-click="showFeedback()">Ayuda / Contacto</button>
-    </div>
-
     <div id="feedback-dlg" class="modal hide fade" tabindex="-1">
       <div class="modal-header">
         <button class="close" data-dismiss="modal">&times;</button>
@@ -115,7 +115,6 @@
         <button class="btn" data-dismiss="modal">Cancelar</button>
       </div>
     </div>
-  </div>
 
   <!-- concat:js scripts/ie.js -->
     <!--[if lt IE 9]>

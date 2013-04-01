@@ -7,7 +7,7 @@ EMAIL = `cat ~/.email`
 PASSWORD = `cat ~/.psw`
 
 # Path that will not show up in the console when requested
-EXCLUDE_PATHS = -e 'GET /static' -e 'GET /favicon.ico' -e 'GET /_ah/img'
+EXCLUDE_PATHS = -e 'GET /static' -e 'GET /favicon.ico' -e 'GET /_ah/img' -e '/_ah/stats'
 
 # The file containing a copy of the production data.
 # See the backup action.
@@ -23,7 +23,7 @@ PROJECT_PATH = `pwd`
 PYTHON = python
 GAE_PATH = ~/google_appengine
 APPCFG = @echo $(PASSWORD) | $(PYTHON) $(GAE_PATH)/appcfg.py --email=$(EMAIL) --passin
-DEV_APPSERVER = @$(PYTHON) $(GAE_PATH)/dev_appserver.py --datastore_path=datastore --high_replication --disable_static_caching --use_sqlite
+DEV_APPSERVER = @$(PYTHON) $(GAE_PATH)/dev_appserver.py --datastore_path=datastore
 
 # The URLs to access the remote app.
 REMOTE_API_URL = http://python.$(PROJECT).appspot.com/_ah/remote_api

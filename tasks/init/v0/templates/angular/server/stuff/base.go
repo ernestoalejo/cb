@@ -33,11 +33,11 @@ type TestData struct {
 
 func emitBase(r *app.Request, test bool) error {
 	globalData := []*ModuleData{}
-	globalData = append(globalData, &ModuleData{
+	/*globalData = append(globalData, &ModuleData{
 		Module: "services.testing",
 		Name:   "configs",
 		Value:  &TestData{Example: 5},
-	})
+	})*/
 
 	data := &BaseData{
 		Test:      test,
