@@ -10,6 +10,9 @@ var (
 	// Google Webmasters Tools verification codes.
 	GOOGLE_VERIFICATION = []string{}
 
+	// Bin Webmasters Tools verification code
+	BING_VERIFICATION = ""
+
 	// Google Analytics account code.
 	ANALYTICS = ""
 
