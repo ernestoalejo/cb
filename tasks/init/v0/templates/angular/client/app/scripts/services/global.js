@@ -6,6 +6,7 @@ var m = angular.module('services.global', []);
 
 m.factory('GlobalMsg', function($timeout) {
   var msg_ = '', tm = null, type_ = 'success';
+  
   return {
     set: function(msg, type) {
       msg_ = msg;

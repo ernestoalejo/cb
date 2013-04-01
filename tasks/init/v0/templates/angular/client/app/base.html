@@ -71,20 +71,7 @@
   </footer>
 
   {% template "httperror" . %}
-
-  <div class="global-msg" id="throbber" ng-controller="GlobalMsgCtrl"
-      ng-show="gm.get() != '';" style="display: none;">
-    <div class="inline-block label label-warning" ng-show="gm.get() == 'loading'">
-      <i class="icon-spinner icon-spin pull-left"></i>&nbsp;&nbsp;
-      Cargando datos...
-    </div>
-    <div class="inline-block label" ng-class="gm.getClass()" ng-show="gm.get() != 'loading'">
-      <table><tr>
-        <td ng-bind-html-unsafe="gm.get();"></td>
-        <td><button class="close msg-close" ng-click="close()">&times;</button></td>
-      </tr></table>
-    </div>
-  </div>
+  {% template "globalmsg" . %}
 
   <!-- concat:js scripts/ie.js -->
     <!--[if lt IE 9]>
@@ -176,6 +163,22 @@
     <div class="modal-footer">
       <button class="btn btn-primary" ng-click="close()">Cerrar</button>
     </div>
+  </div>
+</div>
+{% end %}
+
+{% define "globalmsg" %}
+<div class="global-msg" id="throbber" ng-controller="GlobalMsgCtrl"
+    ng-show="gm.get() != '';" style="display: none;">
+  <div class="inline-block label label-warning" ng-show="gm.get() == 'loading'">
+    <i class="icon-spinner icon-spin pull-left"></i>&nbsp;&nbsp;
+    Cargando datos...
+  </div>
+  <div class="inline-block label" ng-class="gm.getClass()" ng-show="gm.get() != 'loading'">
+    <table><tr>
+      <td ng-bind-html-unsafe="gm.get();"></td>
+      <td><button class="close msg-close" ng-click="close()">&times;</button></td>
+    </tr></table>
   </div>
 </div>
 {% end %}
