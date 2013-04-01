@@ -76,6 +76,27 @@ describe('Controller: AppCtrl', function() {
 });
 
 
+describe('Controller: NotFoundCtrl', function() {
+  beforeEach(module('controllers.global'));
+
+  var scope, $httpBackend;
+  beforeEach(inject(function($injector) {
+    $httpBackend = $injector.get('$httpBackend');
+
+    var $controller = $injector.get('$controller');
+    var $rootScope = $injector.get('$rootScope');
+
+    scope = $rootScope.$new();
+    $controller('NotFoundCtrl', {$scope: scope});
+  }));
+
+  it('should reset the form & show a message on success', function() {
+    $httpBackend.expectPOST('/_/not-found').respond({});
+    $httpBackend.flush();
+  });
+});
+
+
 describe('Controller: FeedbackCtrl', function() {
   beforeEach(module('controllers.global'));
 
