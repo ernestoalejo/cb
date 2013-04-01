@@ -8,7 +8,8 @@ var m = angular.module('app', [
   'errorHandler',
   'httpInterceptor',
   'ngSanitize',
-  'services.global'
+  'services.global',
+  'ui.bootstrap.modal'
 ]);
 
 

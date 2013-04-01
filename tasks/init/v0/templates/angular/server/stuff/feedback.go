@@ -16,7 +16,7 @@ func Feedback(r *app.Request) error {
 	if err := r.LoadJsonData(data); err != nil {
 		return err
 	}
-	if data.Message == "" {
+	if len(data.Message) < 5 {
 		return app.Forbidden()
 	}
 

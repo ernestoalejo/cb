@@ -41,18 +41,23 @@ m.controller('GlobalMsgCtrl', function($scope, GlobalMsg) {
 
 
 m.controller('FeedbackCtrl', function($scope, $http, GlobalMsg) {
-  var $msg = $('#message');
-  var $dlg = $('#feedback-dlg');
+  $scope.open = function() {
+    $scope.dlgOpened = true;
+  };
 
-  $dlg.on('shown', function() {
-    $msg.focus();
-  });
+  $scope.close = function() {
+    $scope.dlgOpened = false;
+  };
 
-  $scope.showFeedback = function() {
-    $dlg.modal();
+  $scope.dlgOpened = false;
+  $scope.opts = {
+    backdropFade: true,
+    dialogFade: true
   };
 
   $scope.send = function() {
+    $scope.dlgOpened = false;
+
     var msg = $scope.message;
     $scope.message = '';
 
@@ -61,6 +66,5 @@ m.controller('FeedbackCtrl', function($scope, $http, GlobalMsg) {
     }).error(function() {
       $scope.message = msg;
     });
-    $dlg.modal('hide');
   };
 });
