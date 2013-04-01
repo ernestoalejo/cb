@@ -31,6 +31,27 @@ func ErrorReporter(r *app.Request) error {
 
 // ========================================================
 
+type ErrNotFoundData struct {
+	Path string `json:"path"`
+}
+
+func ErrNotFound(r *app.Request) error {
+	data := new(ErrNotFoundData)
+	if err := r.LoadJsonData(data); err != nil {
+		return err
+	}
+	if data.Path == "" {
+		return nil
+	}
+
+	err := errors.Format("CLIENT 404:\n * Path: %s", data.Path)
+	r.LogError(err)
+
+	return nil
+}
+
+// ========================================================
+
 func ErrorHandler(r *app.Request) error {
 	r.W.WriteHeader(500)
 	return r.Template([]string{"errors/500"}, nil)

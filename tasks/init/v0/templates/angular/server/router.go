@@ -16,12 +16,13 @@ func init() {
 
 		"::/":                         stuff.Base,
 		"::/_/feedback":               stuff.Feedback,
+		"::/_/not-found":              stuff.ErrNotFound,
 		"::/_/reporter":               stuff.ErrorReporter,
 		"::/e2e":                      stuff.TestBase,
 		"::/google{id:[^/]{16}}.html": stuff.GoogleVerification,
 
 		"::/tasks/error-mail":    tasks.ErrorMail,
-		"::/tasks/mail":          tasks.Mail,
 		"::/tasks/feedback-mail": tasks.FeedbackMail,
+		"::/tasks/mail":          tasks.Mail,
 	})
 }

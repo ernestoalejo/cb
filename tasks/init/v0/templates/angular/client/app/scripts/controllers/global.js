@@ -26,8 +26,8 @@ m.controller('AppCtrl', function($rootScope, $location) {
 });
 
 
-m.controller('NotFoundCtrl', function() {
-  // empty
+m.controller('NotFoundCtrl', function($http, $location) {
+  $http.post('/_/not-found', {path: $location.path()});
 });
 
 
