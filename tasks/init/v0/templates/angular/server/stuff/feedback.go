@@ -1,6 +1,8 @@
 package stuff
 
 import (
+	"fmt"
+
 	"appengine"
 	"appengine/taskqueue"
 
@@ -14,7 +16,7 @@ type FeedbackData struct {
 func Feedback(r *app.Request) error {
 	data := new(FeedbackData)
 	if err := r.LoadJsonData(data); err != nil {
-		return err
+		return fmt.Errorf("load json failed: %s", err)
 	}
 	if len(data.Message) < 5 {
 		return app.Forbidden()
@@ -29,7 +31,7 @@ func Feedback(r *app.Request) error {
 		"Message": data.Message,
 	})
 	if _, err := taskqueue.Add(r.C, t, "admin-mails"); err != nil {
-		return err
+		return fmt.Errorf("enqueue mail failed: %s", err)
 	}
 	return nil
 }

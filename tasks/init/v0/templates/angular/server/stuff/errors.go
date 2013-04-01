@@ -1,8 +1,9 @@
 package stuff
 
 import (
+	"fmt"
+
 	"github.com/ernestokarim/gaelib/v1/app"
-	"github.com/ernestokarim/gaelib/v1/errors"
 )
 
 type ErrorReporterData struct {
@@ -15,13 +16,13 @@ type ErrorReporterData struct {
 func ErrorReporter(r *app.Request) error {
 	data := new(ErrorReporterData)
 	if err := r.LoadJsonData(data); err != nil {
-		return err
+		return fmt.Errorf("load json failed: %s", err)
 	}
 	if data.Name == "" && data.Message == "" && data.Stack == "" && data.Error == "" {
 		return nil
 	}
 
-	err := errors.Format("CLIENT ERROR:\n * Name: %s\n * Message: %s\n "+
+	err := fmt.Errorf("CLIENT ERROR:\n * Name: %s\n * Message: %s\n "+
 		"* Stack: %s\n * Error:\n%+v\n\n",
 		data.Name, data.Message, data.Stack, data.Error)
 	r.LogError(err)
@@ -38,13 +39,13 @@ type ErrNotFoundData struct {
 func ErrNotFound(r *app.Request) error {
 	data := new(ErrNotFoundData)
 	if err := r.LoadJsonData(data); err != nil {
-		return err
+		return fmt.Errorf("load json failed: %s", err)
 	}
 	if data.Path == "" {
 		return nil
 	}
 
-	err := errors.Format("CLIENT 404:\n * Path: %s", data.Path)
+	err := fmt.Errorf("CLIENT 404:\n * Path: %s", data.Path)
 	r.LogError(err)
 
 	return nil

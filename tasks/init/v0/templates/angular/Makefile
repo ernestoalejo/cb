@@ -6,9 +6,6 @@
 EMAIL = `cat ~/.email`
 PASSWORD = `cat ~/.psw`
 
-# Path that will not show up in the console when requested
-EXCLUDE_PATHS = -e 'GET /static' -e 'GET /favicon.ico' -e 'GET /_ah/img' -e '/_ah/stats'
-
 # The file containing a copy of the production data.
 # See the backup action.
 BACKUP = ~/Backup/
@@ -49,7 +46,7 @@ help:
 
 # Serve the app in localhost:8080.
 serve:
-	$(DEV_APPSERVER) ./ 2>&1 | grep --line-buffered -v $(EXCLUDE_PATHS) 2>&1 | egrep --color=always '^|WARNING.*|ERROR.*'
+	$(DEV_APPSERVER) ./ 2>&1 | egrep --color=always '^|WARNING.*|ERROR.*'
 
 
 # Alias for the serve target

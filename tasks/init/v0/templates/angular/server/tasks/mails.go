@@ -10,7 +10,6 @@ import (
 	"appengine"
 
 	"github.com/ernestokarim/gaelib/v1/app"
-	"github.com/ernestokarim/gaelib/v1/errors"
 	"github.com/ernestokarim/gaelib/v1/mail"
 )
 
@@ -21,7 +20,7 @@ type ErrorMailData struct {
 func ErrorMail(r *app.Request) error {
 	data := new(ErrorMailData)
 	if err := r.LoadData(data); err != nil {
-		return err
+		return fmt.Errorf("load data failed: %s", err)
 	}
 
 	appid := appengine.AppID(r.C)
@@ -36,7 +35,7 @@ func ErrorMail(r *app.Request) error {
 			Data:      data,
 		}
 		if err := mail.SendGrid(r, m); err != nil {
-			return err
+			return fmt.Errorf("send grid failed: %s", err)
 		}
 	}
 	return nil
@@ -51,17 +50,17 @@ type MailData struct {
 func Mail(r *app.Request) error {
 	data := new(MailData)
 	if err := r.LoadData(data); err != nil {
-		return err
+		return fmt.Errorf("load data failed: %s", err)
 	}
 
 	buf := strings.NewReader(data.Mail)
 	m := new(mail.Mail)
 	if err := json.NewDecoder(buf).Decode(m); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("decode json failed: %s", err)
 	}
 
 	if err := mail.SendGrid(r, m); err != nil {
-		return errors.New(err)
+		return fmt.Errorf("send grid failed: %s", err)
 	}
 	return nil
 }
@@ -75,7 +74,7 @@ type FeedbackMailData struct {
 func FeedbackMail(r *app.Request) error {
 	data := new(FeedbackMailData)
 	if err := r.LoadData(data); err != nil {
-		return err
+		return fmt.Errorf("load data failed: %s", err)
 	}
 
 	appid := appengine.AppID(r.C)
@@ -90,7 +89,7 @@ func FeedbackMail(r *app.Request) error {
 			Data:      data,
 		}
 		if err := mail.SendGrid(r, m); err != nil {
-			return err
+			return fmt.Errorf("send grid failed: %s", err)
 		}
 	}
 	return nil
