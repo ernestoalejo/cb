@@ -40,3 +40,21 @@ m.factory('GlobalMsg', function($timeout) {
   };
 });
 
+
+m.factory('ErrorRegister', function() {
+  var error_ = null;
+
+  return {
+    clean: function() {
+      error_ = null;
+    },
+
+    set: function(error) {
+      error_ = error;
+    },
+
+    isNull: function() {
+      return error_ === null;
+    }
+  };
+});

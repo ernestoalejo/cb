@@ -6,7 +6,7 @@ var m = angular.module('errorHandler', ['ng']);
 
 var insideErr = false;
 var limitErr = 0;
-m.factory('$exceptionHandler', function($injector, $log) {
+m.factory('$exceptionHandler', function($injector, $log, ErrorRegister) {
   return function(ex, cause) {
     // Log errors to the console too
     $log.error.apply($log, arguments);
@@ -16,8 +16,8 @@ m.factory('$exceptionHandler', function($injector, $log) {
       return;
 
     // Development mode shouldn't trigger errors to the server
-    if (location.hostname && location.hostname == 'localhost')
-      return;
+    //if (location.hostname && location.hostname == 'localhost')
+      //return;
 
     limitErr++;
     if (limitErr <= 3) {
@@ -49,7 +49,7 @@ m.factory('$exceptionHandler', function($injector, $log) {
       });
     }
 
-    $('#http-error').modal();
+    ErrorRegister.set('exception');
 
     insideErr = false;
   }

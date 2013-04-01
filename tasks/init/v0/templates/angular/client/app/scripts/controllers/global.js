@@ -68,3 +68,11 @@ m.controller('FeedbackCtrl', function($scope, $http, GlobalMsg) {
     });
   };
 });
+
+
+m.controller('ErrorCtrl', function($scope, ErrorRegister) {
+  $scope.ErrorRegister = ErrorRegister;
+  $scope.close = function() {
+    ErrorRegister.clean();
+  };
+});

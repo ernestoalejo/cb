@@ -70,23 +70,7 @@
     </div></div>
   </footer>
 
-  <div id="http-error" class="modal hide fade" tabindex="-1">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal">&times;</button>
-      <h3>Error en la conexión</h3>
-    </div>
-    <div class="modal-body">
-      <div class="alert alert-error">
-        Ha ocurrido un error mientras se sincronizaban los datos con el servidor.
-      </div>
-      <p>Comprueba que sigues conectado correctamente a Internet y prueba de nuevo.
-        Si el error persiste puedes probar a
-        <a href="javascript:location.reload();">recargar la página</a>.</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" data-dismiss="modal">Cerrar</button>
-    </div>
-  </div>
+  {% template "httperror" . %}
 
   <div class="global-msg" id="throbber" ng-controller="GlobalMsgCtrl"
       ng-show="gm.get() != '';" style="display: none;">
@@ -169,6 +153,28 @@
       <button class="btn btn-primary" ng-disabled="!message || message.length < 5"
         ng-click="send()">Enviar mensaje</button>
       <button class="btn" ng-click="close()">Cancelar</button>
+    </div>
+  </div>
+</div>
+{% end %}
+
+{% define "httperror" %}
+<div ng-controller="ErrorCtrl">
+  <div modal="!ErrorRegister.isNull()" close="close()" options="opts"
+    style="display: none;">
+    <div class="modal-header">
+      <button class="close" ng-click="close()">&times;</button>
+      <h4>Error en la conexión</h4>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-error">Ha ocurrido un error mientras se
+        sincronizaban los datos de la aplicación con el servidor.</div>
+      <p>Comprueba que sigues conectado correctamente a Internet y prueba de nuevo.
+        Si el error persiste puedes probar a
+        <a href="javascript:location.reload();">recargar la página</a>.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" ng-click="close()">Cerrar</button>
     </div>
   </div>
 </div>

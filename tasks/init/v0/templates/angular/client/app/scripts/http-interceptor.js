@@ -7,7 +7,7 @@ m.config(function($httpProvider) {
   $httpProvider.responseInterceptors.push('httpInterceptor');
 });
 
-m.factory('httpInterceptor', function($q, GlobalMsg) {
+m.factory('httpInterceptor', function($q, GlobalMsg, ErrorRegister) {
   var total = 0;
 
   return function(promise) {
@@ -22,7 +22,7 @@ m.factory('httpInterceptor', function($q, GlobalMsg) {
     }, function(response) {
       total--;
       GlobalMsg.set('');
-      $('#http-error').modal();
+      ErrorRegister.set('http-error');
       return $q.reject(response);
     });
   }

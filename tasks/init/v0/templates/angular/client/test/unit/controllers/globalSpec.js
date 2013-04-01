@@ -132,3 +132,29 @@ describe('Controller: FeedbackCtrl', function() {
     expect(scope.message).toBe('testing');
   });
 });
+
+
+describe('Controller: ErrorCtrl', function() {
+  beforeEach(module('controllers.global'));
+
+  var scope, GlobalMsg, ErrorRegister;
+  beforeEach(inject(function($injector) {
+    GlobalMsg = $injector.get('GlobalMsg');
+    ErrorRegister = $injector.get('ErrorRegister');
+    var $controller = $injector.get('$controller');
+    var $rootScope = $injector.get('$rootScope');
+
+    scope = $rootScope.$new();
+    $controller('ErrorCtrl', {$scope: scope});
+  }));
+
+  it('should scope the register', function() {
+    expect(scope.ErrorRegister).toBe(ErrorRegister);
+  });
+
+  it('should clean the register on close', function() {
+    ErrorRegister.set('foo');
+    scope.close();
+    expect(ErrorRegister.isNull()).toBeTruthy();
+  });
+});

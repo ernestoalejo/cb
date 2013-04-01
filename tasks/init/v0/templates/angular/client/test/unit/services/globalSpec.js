@@ -48,3 +48,22 @@ describe('GlobalMsg tests', function() {
     expect(GlobalMsg.getClass()).toBe('label-success');
   });
 });
+
+
+describe('ErrorRegister tests', function() {
+  beforeEach(module('services.global'));
+
+  var ErrorRegister, $timeout;
+  beforeEach(inject(function($injector) {
+    ErrorRegister = $injector.get('ErrorRegister');
+    $timeout = $injector.get('$timeout');
+  }));
+
+  it('should save & clean the error', function() {
+    expect(ErrorRegister.isNull()).toBeTruthy();
+    ErrorRegister.set('testing');
+    expect(ErrorRegister.isNull()).toBeFalsy();
+    ErrorRegister.clean();
+    expect(ErrorRegister.isNull()).toBeTruthy();
+  });
+});
