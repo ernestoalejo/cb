@@ -39,13 +39,15 @@ func ngtemplates(c *config.Config, q *registry.Queue) error {
 	}
 	defer f.Close()
 
-	fmt.Fprintf(f, "\n")
+	fmt.Fprintf(f, "\nangular.module('app').run(['$templateCache', "+
+		"function($templateCache) {")
 	for name, contents := range templates {
 		name = "/" + strings.Replace(name, `'`, `\'`, -1)
 		contents = strings.Replace(contents, `'`, `\'`, -1)
 		contents = strings.Replace(contents, "\n", `\n`, -1)
 		fmt.Fprintf(f, "$templateCache.put('%s', '%s');\n", name, contents)
 	}
+	fmt.Fprintf(f, "}]);")
 
 	if *config.Verbose {
 		log.Printf("writing templates to `%s`\n", dest)

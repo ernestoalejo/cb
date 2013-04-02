@@ -54,6 +54,9 @@ func compilejs(c *config.Config, q *registry.Queue) error {
 				}
 				line = lines[i]
 			}
+			if len(files) == 0 {
+				return fmt.Errorf("no files found to compile %s", match[1])
+			}
 
 			if err := compileJs(match[1], files); err != nil {
 				return fmt.Errorf("compile js failed: %s", err)
@@ -88,7 +91,7 @@ func compileJs(dest string, srcs []string) error {
 		return fmt.Errorf("compiler error: %s", err)
 	}
 	if *config.Verbose {
-		log.Printf("created file `%s`\n", dest)
+		log.Printf("compile file `%s` with %d sources\n", dest, len(srcs))
 	}
 	return nil
 }

@@ -70,7 +70,10 @@ func walkFn(path string, info os.FileInfo, err error) error {
 }
 
 func jpegtran(src, dest string) error {
-	log.Printf("optimizing jpeg `%s`\n", src)
+	if *config.Verbose {
+		log.Printf("optimizing jpeg `%s`\n", src)
+	}
+
 	args := []string{
 		"-copy", "none",
 		"-optimize", "-progressive",
@@ -86,7 +89,10 @@ func jpegtran(src, dest string) error {
 }
 
 func optipng(src, dest string) error {
-	log.Printf("optimizing png `%s`\n", src)
+	if *config.Verbose {
+		log.Printf("optimizing png `%s`\n", src)
+	}
+
 	args := []string{
 		"-strip", "all", "-clobber",
 		"-out", dest, src,

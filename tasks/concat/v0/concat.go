@@ -56,6 +56,9 @@ func concat(c *config.Config, q *registry.Queue) error {
 				}
 				line = lines[i]
 			}
+			if len(files) == 0 {
+				return fmt.Errorf("no files found to compile %s", match[1])
+			}
 
 			if err := concatFiles(match[2], files); err != nil {
 				return fmt.Errorf("concat files failed: %s", err)
@@ -90,6 +93,9 @@ func concat(c *config.Config, q *registry.Queue) error {
 					return fmt.Errorf("concat js block not closed, line %d", start)
 				}
 				line = lines[i]
+			}
+			if len(files) == 0 {
+				return fmt.Errorf("no files found to compile %s", match[1])
 			}
 
 			if err := concatFiles(match[2], files); err != nil {
@@ -128,7 +134,7 @@ func concatFiles(dest string, srcs []string) error {
 	}
 
 	if *config.Verbose {
-		log.Printf("created file `%s`\n", dest)
+		log.Printf("concat file `%s` with %d sources\n", dest, len(srcs))
 	}
 	return nil
 }
