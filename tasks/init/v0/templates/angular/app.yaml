@@ -5,10 +5,12 @@ version: beta
 runtime: go
 api_version: go1
 
+
 # Switch on the remote api and the datastore admin tool
 builtins:
 - remote_api: on
 - datastore_admin: on
+
 
 handlers:
 # Static files
