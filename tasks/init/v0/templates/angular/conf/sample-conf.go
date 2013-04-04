@@ -21,6 +21,9 @@ var (
 	SENDGRID_USER = ""
 	SENDGRID_KEY  = ""
 
+	// Secret key used for sessions
+	SESSION_SECRET = ""
+
 	// List of emails of the admins.
 	ADMIN_EMAILS = []string{}
 
