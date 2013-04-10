@@ -15,12 +15,13 @@ func init() {
 		"ERROR::500": stuff.ErrorHandler,
 
 		"::/":                         stuff.Base,
-		"::/_/feedback":               stuff.Feedback,
-		"::/_/not-found":              stuff.ErrNotFound,
-		"::/_/reporter":               stuff.ErrorReporter,
+		"::/BingSiteAuth.xml":         stuff.BingVerification,
 		"::/e2e":                      stuff.TestBase,
 		"::/google{id:[^/]{16}}.html": stuff.GoogleVerification,
-		"::/BingSiteAuth.xml":         stuff.BingVerification,
+		
+		"POST::/_/feedback":               stuff.Feedback,
+		"POST::/_/not-found":              stuff.ErrNotFound,
+		"POST::/_/reporter":               stuff.ErrorReporter,
 
 		"::/tasks/error-mail":    tasks.ErrorMail,
 		"::/tasks/feedback-mail": tasks.FeedbackMail,
