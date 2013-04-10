@@ -9,15 +9,12 @@ var limitErr = 0;
 m.factory('$exceptionHandler', function($injector, $log, ErrorRegister) {
   return function(ex, cause) {
     // Log errors to the console too
+    console.log('error handler');
     $log.error.apply($log, arguments);
 
     // Protect against recursive errors
     if (insideErr)
       return;
-
-    // Development mode shouldn't trigger errors to the server
-    //if (location.hostname && location.hostname == 'localhost')
-      //return;
 
     limitErr++;
     if (limitErr <= 3) {
@@ -26,6 +23,7 @@ m.factory('$exceptionHandler', function($injector, $log, ErrorRegister) {
       var message = (ex && ex.message) ? ex.message : '~message~';
       var name = (ex && ex.name) ? ex.name : '~name~';
       var stack = (ex && ex.stack) ? ex.stack : '~stack~';
+      stack += '\n\n' + printStackTrace({e: ex});
 
       // Filter some common errors and ignore others
       if (message.indexOf('missing hash prefix') != -1) {

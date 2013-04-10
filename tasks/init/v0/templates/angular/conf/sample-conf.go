@@ -22,8 +22,11 @@ var (
 	SENDGRID_KEY  = ""
 
 	// Secret name & key used for sessions
-	SESSION_NAME = "sid"
+	SESSION_NAME = "SID"
 	SESSION_SECRET = ""
+
+	// Secret key for the XSRF tokens
+	XSRF_SECRET = ""
 
 	// List of emails of the admins.
 	ADMIN_EMAILS = []string{}
