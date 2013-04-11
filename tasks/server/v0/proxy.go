@@ -8,6 +8,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"path/filepath"
+	"html/template"
 
 	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
@@ -55,8 +56,14 @@ func proxy(c *config.Config, q *registry.Queue) error {
 		}
 	}
 
+	if *config.ClientOnly {
+		urls["/"] = clientBaseHandler
+		urls["/e2e"] = clientBaseTest
+	}
 	registerUrls(urls)
-	http.Handle("/", proxy)
+	if !*config.ClientOnly {
+		http.Handle("/", proxy)
+	}
 
 	log.Printf("%sserving app at http://localhost:9810/...%s\n",
 		colors.YELLOW, colors.RESET)
@@ -65,6 +72,8 @@ func proxy(c *config.Config, q *registry.Queue) error {
 	}
 	return nil
 }
+
+// ==================================================================
 
 type Proxy struct{}
 
@@ -79,6 +88,8 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	}
 	return
 }
+
+// ==================================================================
 
 func appHandler(w http.ResponseWriter, r *http.Request) error {
 	http.ServeFile(w, r, filepath.Join("app", r.URL.Path))
@@ -109,6 +120,32 @@ func configureExts() error {
 		if err := mime.AddExtensionType(ext, t); err != nil {
 			return fmt.Errorf("add extension failed: %s", err)
 		}
+	}
+	return nil
+}
+
+// ==================================================================
+
+func clientBaseHandler(w http.ResponseWriter, r *http.Request) error {
+	return clientBase(w, r, false)
+}
+
+func clientBaseTest(w http.ResponseWriter, r *http.Request) error {
+	return clientBase(w, r, true)
+}
+
+func clientBase(w http.ResponseWriter, r *http.Request, test bool) error {
+	baseFile := filepath.Join("app", "base.html")
+	t, err := template.New("base").Delims(`{%`, `%}`).ParseFiles(baseFile)
+	if err != nil {
+		return fmt.Errorf("template parsing failed: %s", err)
+	}
+	
+	data := map[string]interface{}{
+		"Test": true,
+	}
+	if err := t.ExecuteTemplate(w, "base", data); err != nil {
+		return fmt.Errorf("template exec failed: %s", err)
 	}
 	return nil
 }
