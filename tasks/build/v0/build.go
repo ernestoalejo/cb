@@ -1,9 +1,6 @@
 package v0
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
 )
@@ -31,9 +28,7 @@ func build(c *config.Config, q *registry.Queue) error {
 			"copy_dist:0",
 		})
 
-		if _, err := os.Stat("../app.yaml"); err != nil && !os.IsNotExist(err) {
-			return fmt.Errorf("stat app.yaml failed: %s", err)
-		} else if err == nil {
+		if !*config.ClientOnly {
 			q.AddTask("deploy_gae")
 		}
 	}
