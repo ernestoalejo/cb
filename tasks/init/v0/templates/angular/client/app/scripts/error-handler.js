@@ -9,8 +9,9 @@ var limitErr = 0;
 m.factory('$exceptionHandler', function($injector, $log, ErrorRegister) {
   return function(ex, cause) {
     // Log errors to the console too
-    console.log('error handler');
+    if (console.log) console.log('error handler');
     $log.error.apply($log, arguments);
+    if (console.trace) console.trace();
 
     // Protect against recursive errors
     if (insideErr)
