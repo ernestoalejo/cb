@@ -2,7 +2,6 @@ package stuff
 
 import (
 	"conf"
-	"fmt"
 
 	"github.com/ernestokarim/gaelib/v1/app"
 
@@ -21,7 +20,6 @@ type ModuleData struct {
 }
 
 func Base(r *app.Request) error {
-	return fmt.Errorf("hey")
 	return emitBase(r, false)
 }
 
