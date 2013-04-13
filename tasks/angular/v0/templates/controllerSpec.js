@@ -3,7 +3,7 @@
 {{ else }}
 {{ end }}
 describe('Controller: {{ .Data.Name }}', function() {
-  beforeEach(module('{{ .Data.Module }}'));
+  beforeEach(module('controllers.{{ .Data.Module }}'));
 
   var scope;
   beforeEach(inject(function($injector) {

@@ -3,7 +3,7 @@
 {{ else }}
 {{ end }}
 describe('Service: {{ .Data.Name }}', function() {
-  beforeEach(module('{{ .Data.Module }}'));
+  beforeEach(module('services.{{ .Data.Module }}'));
 
   var {{ .Data.Name }};
   beforeEach(inject(function($injector) {

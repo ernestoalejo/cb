@@ -127,6 +127,10 @@ func configureExts() error {
 // ==================================================================
 
 func clientBaseHandler(w http.ResponseWriter, r *http.Request) error {
+	if r.URL.Path != "/" {
+		http.Error(w, "not found", 404)
+		return nil
+	}
 	return clientBase(w, r, false)
 }
 
