@@ -15,6 +15,10 @@ import (
 	"github.com/ernestokarim/cb/registry"
 )
 
+var (
+	proxyUrl *url.URL
+)
+
 func init() {
 	registry.NewTask("proxy", 0, proxy)
 }
@@ -31,16 +35,15 @@ func proxy(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("configure exts failed")
 	}
 
-	proxyUrl := fmt.Sprintf("http://%s:%s", serveConfig.host, serveConfig.port)
 	if *config.Verbose {
-		log.Printf("proxy url: %s (serve base: %+v)\n", proxyUrl, serveConfig.base)
+		log.Printf("proxy url: %s (serve base: %+v)\n", serveConfig.url, serveConfig.base)
 	}
 
-	u, err := url.Parse(proxyUrl)
+	proxyUrl, err = url.Parse(serveConfig.url)
 	if err != nil {
 		return fmt.Errorf("parse proxied url failed: %s", err)
 	}
-	proxy := httputil.NewSingleHostReverseProxy(u)
+	proxy := httputil.NewSingleHostReverseProxy(proxyUrl)
 	proxy.Transport = &Proxy{}
 
 	urls := map[string]handler{
@@ -69,9 +72,7 @@ func proxy(c *config.Config, q *registry.Queue) error {
 		urls["/e2e"] = clientBaseTest
 	}
 	registerUrls(urls)
-	if !*config.ClientOnly {
-		http.Handle("/", proxy)
-	}
+	http.Handle("/", proxy)
 
 	log.Printf("%sserving app at http://localhost:9810/...%s\n",
 		colors.YELLOW, colors.RESET)
@@ -89,6 +90,8 @@ func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
 	if !*config.Compiled {
 		r.Header.Set("X-Request-From", "cb")
 	}
+	r.Host = proxyUrl.Host
+
 	resp, err = http.DefaultTransport.RoundTrip(r)
 	if err != nil {
 		err = fmt.Errorf("roundtrip failed: %s", err)

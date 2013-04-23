@@ -8,14 +8,13 @@ import (
 
 type serveConfig struct {
   base bool
-  host, port string
+  url string
 }
 
 func readServeConfig(c *config.Config) (*serveConfig, error) {
   sc := &serveConfig{
     base: true,
-    host: "localhost",
-    port: "8080",
+    url: "http://localhost:8080/",
   }
 
   if !c.HasSection("serve") {
@@ -32,16 +31,9 @@ func readServeConfig(c *config.Config) (*serveConfig, error) {
     return nil, fmt.Errorf("get config failed: %s", err)
   }
 
-  host, err := c.Get("serve.host")
+  u, err := c.Get("serve.url")
   if err == nil {
-    sc.host = host
-  } else if !config.IsNotFound(err) {
-    return nil, fmt.Errorf("get config failed: %s", err)
-  }
-
-  port, err := c.Get("serve.port")
-  if err == nil {
-    sc.port = port
+    sc.url = u
   } else if !config.IsNotFound(err) {
     return nil, fmt.Errorf("get config failed: %s", err)
   }
