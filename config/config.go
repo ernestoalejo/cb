@@ -83,6 +83,10 @@ func (c *Config) GetStringListf(format string, a ...interface{}) ([]string, erro
 	return c.GetStringList(fmt.Sprintf(format, a...))
 }
 
+func (c *Config) HasSection(spec string) (bool) {
+	return c.f.Root.(yaml.Map).Key(spec) != nil
+}
+
 func checkFlags(c *Config) error {
 	// Both modes activated, error
 	if *AngularMode && *ClosureMode {
@@ -171,4 +175,8 @@ func fixPath(p string) (string, error) {
 
 	home := filepath.Join("/home", user)
 	return strings.Replace(p, "~", home, -1), nil
+}
+
+func IsNotFound(err error) bool {
+	return strings.Contains(err.Error(), "not found")
 }

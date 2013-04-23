@@ -23,15 +23,23 @@ func proxy(c *config.Config, q *registry.Queue) error {
 	configs = c
 	queue = q
 
+	serveConfig, err := readServeConfig(c)
+	if err != nil {
+		return err
+	}
 	if err := configureExts(); err != nil {
 		return fmt.Errorf("configure exts failed")
 	}
 
-	u, err := url.Parse("http://localhost:8080")
+	proxyUrl := fmt.Sprintf("http://%s:%s", serveConfig.host, serveConfig.port)
+	if *config.Verbose {
+		log.Printf("proxy url: %s (serve base: %+v)\n", proxyUrl, serveConfig.base)
+	}
+
+	u, err := url.Parse(proxyUrl)
 	if err != nil {
 		return fmt.Errorf("parse proxied url failed: %s", err)
 	}
-
 	proxy := httputil.NewSingleHostReverseProxy(u)
 	proxy.Transport = &Proxy{}
 
@@ -56,7 +64,7 @@ func proxy(c *config.Config, q *registry.Queue) error {
 		}
 	}
 
-	if *config.ClientOnly {
+	if *config.ClientOnly && serveConfig.base {
 		urls["/"] = clientBaseHandler
 		urls["/e2e"] = clientBaseTest
 	}
