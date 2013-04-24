@@ -38,6 +38,9 @@ htmlmin:
   - source: temp/base.html
     dest: temp/base.html
 
+prepare_dist:
+  - app
+
 dist:
   - base.html
   - components/jquery/jquery.min.js

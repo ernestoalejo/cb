@@ -73,6 +73,10 @@ closurejs:
 
   # externs:
 
+prepare_dist:
+  - base.html
+  - images
+
 dist:
   - scripts/scripts.js
   - styles/styles.css

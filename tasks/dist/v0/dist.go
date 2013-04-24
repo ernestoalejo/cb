@@ -19,34 +19,18 @@ func init() {
 }
 
 func prepare_dist(c *config.Config, q *registry.Queue) error {
-	var from, to []string
-	if *config.AngularMode {
-		dist := filepath.Join("dist")
-		if err := os.MkdirAll(dist, 0755); err != nil {
-			return fmt.Errorf("create dist folder failed: %s", err)
-		}
-		from = []string{"app"}
-		to = []string{"temp"}
+	dirs, err := c.GetStringList("prepare_dist")
+	if err != nil {
+		return fmt.Errorf("get config failed: %s", err)
 	}
-	if *config.ClosureMode {
-		if err := os.MkdirAll("temp", 0755); err != nil {
-			return fmt.Errorf("create temp folder failed")
-		}
-		from = []string{"base.html", "images"}
-		to = []string{
-			filepath.Join("temp", "base.html"),
-			filepath.Join("temp", "images"),
-		}
-	}
-
-	for i, origin := range from {
-		if _, err := os.Stat(origin); err != nil {
+	for _, from := range dirs {
+		if _, err := os.Stat(from); err != nil {
 			if os.IsNotExist(err) {
 				continue
 			}
 			return fmt.Errorf("stat failed: %s", err)
 		}
-		output, err := utils.Exec("cp", []string{"-r", origin, to[i]})
+		output, err := utils.Exec("cp", []string{"-r", from, "temp"})
 		if err != nil {
 			fmt.Println(output)
 			return fmt.Errorf("copy error: %s", err)
@@ -59,7 +43,7 @@ func prepare_dist(c *config.Config, q *registry.Queue) error {
 func copy_dist(c *config.Config, q *registry.Queue) error {
 	dirs, err := c.GetStringList("dist")
 	if err != nil {
-		return fmt.Errorf("get dist files failed: %s", err)
+		return fmt.Errorf("get config failed: %s", err)
 	}
 
 	changes := utils.LoadChanges()
