@@ -13,21 +13,21 @@ func init() {
 func server(c *config.Config, q *registry.Queue) error {
 	if *config.AngularMode {
 		q.AddTasks([]string{
-			"clean:0",
-			"recess:0",
-			"sass:0",
-			"watch:0",
-			"proxy:0",
+			"clean@0",
+			"recess@0",
+			"sass@0",
+			"watch@0",
+			"proxy@0",
 		})
 	}
 	if *config.ClosureMode {
 		q.AddTasks([]string{
-			"clean:0",
-			"sass:0",
-			"soy:0",
-			"closurejs:0",
-			"watch:0",
-			"server_closure:0",
+			"clean@0",
+			"sass@0",
+			"soy@0",
+			"closurejs@0",
+			"watch@0",
+			"server_closure@0",
 		})
 	}
 	return nil

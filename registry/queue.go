@@ -40,10 +40,10 @@ func (q *Queue) Run(c *config.Config) error {
 
 		var task string
 		var version int
-		if strings.Contains(t, ":") {
-			parts := strings.Split(t, ":")
+		if strings.Contains(t, "@") {
+			parts := strings.Split(t, "@")
 			if len(parts) != 2 {
-				return fmt.Errorf("task should have the `name:version` "+
+				return fmt.Errorf("task should have the `name@version` "+
 					"format: %+v", parts)
 			}
 
@@ -64,8 +64,13 @@ func (q *Queue) Run(c *config.Config) error {
 			return fmt.Errorf("get task failed: %s", err)
 		}
 
-		log.Printf("%s[%2d] Running `%s` task, version %d...%s\n",
-			colors.BLUE, len(q.tasks), task, version, colors.RESET)
+		if *config.Verbose {
+			log.Printf("%s[%2d] Running %s@%d...%s\n",
+					colors.BLUE, len(q.tasks), task, version, colors.RESET)
+		} else {
+			log.Printf("%s[%2d] Running %s%s\n",
+					colors.BLUE, len(q.tasks), task, colors.RESET)
+		}
 
 		if err := f(c, q); err != nil {
 			return fmt.Errorf("task failed (%s): %s", t, err)
