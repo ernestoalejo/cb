@@ -10,8 +10,8 @@ import (
 )
 
 func init() {
-	registry.NewTask("test", 0, test)
-	registry.NewTask("e2e", 0, e2e)
+	registry.NewUserTask("test", 0, test)
+	registry.NewUserTask("e2e", 0, e2e)
 }
 
 func test(c *config.Config, q *registry.Queue) error {

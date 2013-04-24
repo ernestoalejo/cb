@@ -32,7 +32,7 @@ var needTemplates = map[string]bool{
 }
 
 func init() {
-	registry.NewTask("init", 0, init_task)
+	registry.NewUserTask("init", 0, init_task)
 }
 
 func init_task(c *config.Config, q *registry.Queue) error {

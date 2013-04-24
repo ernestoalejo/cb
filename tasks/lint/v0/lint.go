@@ -13,8 +13,8 @@ var (
 )
 
 func init() {
-	registry.NewTask("lint", 0, lint)
-	registry.NewTask("fixlint", 0, fixlint)
+	registry.NewUserTask("lint", 0, lint)
+	registry.NewUserTask("fixlint", 0, fixlint)
 }
 
 func lint(c *config.Config, q *registry.Queue) error {

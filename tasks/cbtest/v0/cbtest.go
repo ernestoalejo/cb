@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	registry.NewTask("cbtest", 0, cbtest)
+	registry.NewUserTask("cbtest", 0, cbtest)
 }
 
 func cbtest(c *config.Config, q *registry.Queue) error {

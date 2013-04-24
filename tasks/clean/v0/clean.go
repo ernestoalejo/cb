@@ -10,8 +10,8 @@ import (
 )
 
 func init() {
-	registry.NewTask("clear", 0, clean)
-	registry.NewTask("clean", 0, clean)
+	registry.NewUserTask("clear", 0, clean)
+	registry.NewUserTask("clean", 0, clean)
 }
 
 func clean(c *config.Config, q *registry.Queue) error {
