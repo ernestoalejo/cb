@@ -14,9 +14,9 @@ func build(c *config.Config, q *registry.Queue) error {
 	if *config.AngularMode {
 		q.AddTasks([]string{
 			"clean@0",
-			"prepare_dist@0",
-			"build_recess@0",
-			"build_sass@0",
+			"dist:prepare@0",
+			"recess:build@0",
+			"sass:build@0",
 			"imagemin@0",
 			"minignore@0",
 			"ngmin@0",
@@ -25,7 +25,7 @@ func build(c *config.Config, q *registry.Queue) error {
 			"htmlmin@0",
 			"ngtemplates@0",
 			"cacherev@0",
-			"copy_dist@0",
+			"dist:copy@0",
 		})
 
 		if !*config.ClientOnly {
@@ -35,15 +35,15 @@ func build(c *config.Config, q *registry.Queue) error {
 	if *config.ClosureMode {
 		q.AddTasks([]string{
 			"clean@0",
-			"prepare_dist@0",
+			"dist:prepare@0",
 			"sass@0",
 			"gss@0",
 			"soy@0",
 			"closurejs@0",
-			"build_closurejs@0",
+			"closurejs:build@0",
 			"imagemin@0",
 			"cacherev@0",
-			"copy_dist@0",
+			"dist:copy@0",
 		})
 	}
 	return nil

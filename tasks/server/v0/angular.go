@@ -20,10 +20,10 @@ var (
 )
 
 func init() {
-	registry.NewTask("proxy", 0, proxy)
+	registry.NewTask("server:angular", 0, server_angular)
 }
 
-func proxy(c *config.Config, q *registry.Queue) error {
+func server_angular(c *config.Config, q *registry.Queue) error {
 	configs = c
 	queue = q
 
@@ -70,9 +70,10 @@ func proxy(c *config.Config, q *registry.Queue) error {
 	if *config.ClientOnly && serveConfig.base {
 		urls["/"] = clientBaseHandler
 		urls["/e2e"] = clientBaseTest
+	} else {
+		http.Handle("/", proxy)
 	}
 	registerUrls(urls)
-	http.Handle("/", proxy)
 
 	log.Printf("%sserving app at http://localhost:9810/...%s\n",
 		colors.YELLOW, colors.RESET)

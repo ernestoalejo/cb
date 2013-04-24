@@ -23,8 +23,7 @@ import (
 const SELF_PKG = "github.com/ernestokarim/cb/tasks/server/v0/templates"
 
 func init() {
-	registry.NewTask("server_closure", 0, server_closure)
-	registry.NewTask("closure_server", 0, server_closure)
+	registry.NewTask("server:closure", 0, server_closure)
 }
 
 func server_closure(c *config.Config, q *registry.Queue) error {

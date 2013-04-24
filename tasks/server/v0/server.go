@@ -17,7 +17,7 @@ func server(c *config.Config, q *registry.Queue) error {
 			"recess@0",
 			"sass@0",
 			"watch@0",
-			"proxy@0",
+			"server:angular@0",
 		})
 	}
 	if *config.ClosureMode {
@@ -27,7 +27,7 @@ func server(c *config.Config, q *registry.Queue) error {
 			"soy@0",
 			"closurejs@0",
 			"watch@0",
-			"server_closure@0",
+			"server:closure@0",
 		})
 	}
 	return nil

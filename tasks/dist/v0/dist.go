@@ -13,8 +13,8 @@ import (
 )
 
 func init() {
-	registry.NewTask("prepare_dist", 0, prepare_dist)
-	registry.NewTask("copy_dist", 0, copy_dist)
+	registry.NewTask("dist:prepare", 0, prepare_dist)
+	registry.NewTask("dist:copy", 0, copy_dist)
 	registry.NewTask("deploy_gae", 0, deploy_gae)
 }
 

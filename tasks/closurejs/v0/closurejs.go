@@ -15,7 +15,7 @@ import (
 
 func init() {
 	registry.NewTask("closurejs", 0, closurejs)
-	registry.NewTask("build_closurejs", 0, build_closurejs)
+	registry.NewTask("closurejs:build", 0, build_closurejs)
 }
 
 func closurejs(c *config.Config, q *registry.Queue) error {

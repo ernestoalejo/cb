@@ -14,7 +14,7 @@ func init() {
 	registry.NewTask("recess", 0, func(c *config.Config, q *registry.Queue) error {
 		return exec_recess(c, q, "dev")
 	})
-	registry.NewTask("build_recess", 0, func(c *config.Config, q *registry.Queue) error {
+	registry.NewTask("recess:build", 0, func(c *config.Config, q *registry.Queue) error {
 		return exec_recess(c, q, "prod")
 	})
 }

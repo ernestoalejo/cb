@@ -14,7 +14,7 @@ func init() {
 	registry.NewTask("sass", 0, func(c *config.Config, q *registry.Queue) error {
 		return exec_sass(c, q, "dev")
 	})
-	registry.NewTask("build_sass", 0, func(c *config.Config, q *registry.Queue) error {
+	registry.NewTask("sass:build", 0, func(c *config.Config, q *registry.Queue) error {
 		return exec_sass(c, q, "prod")
 	})
 }
