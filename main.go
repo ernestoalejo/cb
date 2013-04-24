@@ -38,7 +38,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("config loading failed: %s", err)
 	}
-	if c == nil && (len(args) != 1 || args[0] != "init") {
+	if c == nil && (len(args) != 1 || !isInitTask(args[0])) {
 		return fmt.Errorf("config file not found")
 	}
 
@@ -57,4 +57,8 @@ func usage() {
 	fmt.Println("\n Usage: cb [target] [options...]")
 	flag.PrintDefaults()
 	registry.PrintTasks()
+}
+
+func isInitTask(t string) bool {
+	return t == "init" || t == "init:client"
 }

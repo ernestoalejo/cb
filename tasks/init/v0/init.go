@@ -31,8 +31,18 @@ var needTemplates = map[string]bool{
 	"closure/base.html":                                 true,
 }
 
+var (
+	clientOnly bool
+)
+
 func init() {
 	registry.NewUserTask("init", 0, init_task)
+	registry.NewUserTask("init:client", 0, init_client)
+}
+
+func init_client(c *config.Config, q *registry.Queue) error {
+	clientOnly = true
+	return init_task(c, q)
 }
 
 func init_task(c *config.Config, q *registry.Queue) error {
@@ -44,7 +54,7 @@ func init_task(c *config.Config, q *registry.Queue) error {
 		path = filepath.Join(SELF_PKG, "closure")
 	}
 	// Mutually exclusive with closure mode, no problems here
-	if *config.ClientOnly {
+	if clientOnly {
 		path = filepath.Join(path, "client")
 	}
 
@@ -61,7 +71,7 @@ func init_task(c *config.Config, q *registry.Queue) error {
 		dest = filepath.Dir(dest)
 		appname = filepath.Base(dest)
 	}
-	if *config.ClientOnly {
+	if clientOnly {
 		// Client source folder is already selected, now the dest
 		// should be a client folder too
 		dest = filepath.Join(dest, "client")
@@ -134,7 +144,7 @@ func copyFile(c *config.Config, appname, srcPath, destPath, rel, root string) er
 		buf := bytes.NewBuffer(nil)
 		data := map[string]interface{}{
 			"AppName":    appname,
-			"ClientOnly": *config.ClientOnly,
+			"ClientOnly": clientOnly,
 		}
 		if err := t.Execute(buf, data); err != nil {
 			return fmt.Errorf("execute template failed: %s", err)

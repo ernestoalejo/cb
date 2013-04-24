@@ -28,9 +28,9 @@ func build(c *config.Config, q *registry.Queue) error {
 			"dist:copy@0",
 		})
 
-		if !*config.ClientOnly {
+		/*if !*config.ClientOnly {
 			q.AddTask("deploy_gae")
-		}
+		}*/
 	}
 	if *config.ClosureMode {
 		q.AddTasks([]string{

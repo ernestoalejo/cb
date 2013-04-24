@@ -105,19 +105,10 @@ func checkFlags(c *Config) error {
 		}
 		*AngularMode = true
 	}
-	if c != nil && c.f.Root != nil && c.f.Root.(yaml.Map).Key("clientonly") != nil {
-		if *ClientOnly {
-			return fmt.Errorf("redundant mode in command line flags: client-only")
-		}
-		*ClientOnly = true
-	}
 
 	// Additional checks
 	if !*ClosureMode && !*AngularMode {
 		return fmt.Errorf("no mode detected")
-	}
-	if *ClientOnly && !*AngularMode {
-		return fmt.Errorf("client-only flag is for angular exclusively")
 	}
 
 	return nil

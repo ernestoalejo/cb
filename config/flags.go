@@ -12,5 +12,4 @@ var (
 	AngularMode = flag.Bool("angular", false, "use angular tasks")
 	ClosureMode = flag.Bool("closure", false, "use closure tasks")
 	NoColors    = flag.Bool("no-color", false, "don't use colors in the output")
-	ClientOnly  = flag.Bool("client-only", false, "sync only the client items")
 )

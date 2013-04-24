@@ -69,7 +69,13 @@ func server_angular(c *config.Config, q *registry.Queue) error {
 		}
 	}
 
-	if *config.ClientOnly && serveConfig.base {
+	clientOnly := false
+	if v, err := c.GetBool("clientonly"); err != nil && !config.IsNotFound(err) {
+		return fmt.Errorf("get config failed: %s", err)
+	} else if v {
+		clientOnly = true
+	}
+	if clientOnly && serveConfig.base {
 		urls["/"] = clientBaseHandler
 		urls["/e2e"] = clientBaseTest
 	} else {
