@@ -17,10 +17,12 @@ import (
 
 var (
 	proxyUrl *url.URL
+	serverCompiled bool
 )
 
 func init() {
 	registry.NewTask("server:angular", 0, server_angular)
+	registry.NewTask("server:angular:compiled", 0, server_angular_compiled)
 }
 
 func server_angular(c *config.Config, q *registry.Queue) error {
@@ -61,7 +63,7 @@ func server_angular(c *config.Config, q *registry.Queue) error {
 		"/favicon.ico": appHandler,
 		"/views/":      appHandler,
 	}
-	if !*config.Compiled {
+	if !serverCompiled {
 		for k, v := range devUrls {
 			urls[k] = v
 		}
@@ -83,12 +85,17 @@ func server_angular(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
+func server_angular_compiled(c *config.Config, q *registry.Queue) error {
+	serverCompiled = true
+	return server_angular(c, q)
+}
+
 // ==================================================================
 
 type Proxy struct{}
 
 func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
-	if !*config.Compiled {
+	if !serverCompiled {
 		r.Header.Set("X-Request-From", "cb")
 	}
 	r.Host = proxyUrl.Host

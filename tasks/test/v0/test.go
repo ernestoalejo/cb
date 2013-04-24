@@ -2,7 +2,6 @@ package v0
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
@@ -11,26 +10,21 @@ import (
 
 func init() {
 	registry.NewUserTask("test", 0, test)
+	registry.NewUserTask("test:compiled", 0, test_compiled)
 	registry.NewUserTask("e2e", 0, e2e)
+	registry.NewUserTask("e2e:compiled", 0, e2e_compiled)
 }
 
 func test(c *config.Config, q *registry.Queue) error {
-	if !*config.AngularMode {
-		return fmt.Errorf("angular task only")
+	args := []string{"start", "config/testacular.conf.js"}
+	if err := utils.ExecCopyOutput("testacular", args); err != nil {
+		return fmt.Errorf("exec failed: %s", err)
 	}
+	return nil
+}
 
-	var configFile string
-	if *config.Compiled {
-		configFile = "config/testacular-compiled.conf.js"
-	} else {
-		configFile = "config/testacular.conf.js"
-	}
-
-	if *config.Verbose {
-		log.Printf("using config `%s`\n", configFile)
-	}
-
-	args := []string{"start", configFile}
+func test_compiled(c *config.Config, q *registry.Queue) error {
+	args := []string{"start", "config/testacular-compiled.conf.js"}
 	if err := utils.ExecCopyOutput("testacular", args); err != nil {
 		return fmt.Errorf("exec failed: %s", err)
 	}
@@ -38,10 +32,11 @@ func test(c *config.Config, q *registry.Queue) error {
 }
 
 func e2e(c *config.Config, q *registry.Queue) error {
-	if *config.Compiled {
-		q.AddTask("proxy")
-	} else {
-		q.AddTask("server")
-	}
+	q.AddTask("server")
+	return nil
+}
+
+func e2e_compiled(c *config.Config, q *registry.Queue) error {
+	q.AddTask("server:angular:compiled")
 	return nil
 }
