@@ -21,8 +21,8 @@ var (
 )
 
 func init() {
-	registry.NewTask("service", 0, service)
-	registry.NewTask("controller", 0, controller)
+	registry.NewUserTask("angular:service", 0, service)
+	registry.NewUserTask("angular:controller", 0, controller)
 }
 
 func service(c *config.Config, q *registry.Queue) error {

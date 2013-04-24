@@ -10,7 +10,10 @@ import (
 
 type Task func(c *config.Config, q *Queue) error
 
-var tasks = map[string]map[int]Task{}
+var (
+	tasks = map[string]map[int]Task{}
+	userTasks = map[string]bool{}
+)
 
 // Register a new task in the system
 func NewTask(name string, version int, f Task) {
@@ -26,23 +29,13 @@ func NewTask(name string, version int, f Task) {
 	tasks[name] = m
 }
 
-func PrintTasks() {
-	userTasks := map[string]bool{
-		"build":      true,
-		"compile":    true,
-		"e2e":        true,
-		"fixlint":    true,
-		"init":       true,
-		"lint":       true,
-		"server":     true,
-		"test":       true,
-		"cbtest":     true,
-		"clean":      true,
-		"clear":      true,
-		"controller": true,
-		"service":    true,
-	}
+// Create a new task that users can call from console
+func NewUserTask(name string, version int, f Task) {
+	userTasks[name] = true
+	NewTask(name, version, f)
+}
 
+func PrintTasks() {
 	system := []string{}
 	user := []string{}
 	for name, _ := range tasks {
