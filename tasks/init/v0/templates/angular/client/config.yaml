@@ -19,6 +19,18 @@ watch:
     paths:
       - app/styles/*.scss
 
+cacherev:
+  dirs:
+    - images
+    - styles
+    - scripts
+    - fonts
+    - components
+  rev:
+    - styles
+    - views
+    - base.html
+
 dist:
   - base.html
   - components/jquery/jquery.min.js

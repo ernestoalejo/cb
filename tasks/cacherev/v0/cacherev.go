@@ -38,7 +38,10 @@ func init() {
 }
 
 func cacherev(c *config.Config, q *registry.Queue) error {
-	dirs := []string{"images", "styles", "scripts", "fonts", "components"}
+	dirs, err := c.GetStringList("cacherev.dirs")
+	if err != nil {
+		return fmt.Errorf("get config failed: %s", err)
+	}
 	for _, dir := range dirs {
 		dir = filepath.Join("temp", dir)
 		if err := filepath.Walk(dir, changeName); err != nil {
@@ -46,9 +49,11 @@ func cacherev(c *config.Config, q *registry.Queue) error {
 		}
 	}
 
-	if *config.AngularMode {
-		dirs = []string{"styles", "views", "base.html"}
-		for _, dir := range dirs {
+	rev, err := c.GetStringList("cacherev.rev")
+	if err != nil && !config.IsNotFound(err) {
+		return fmt.Errorf("get config failed: %s", err)
+	} else if err == nil {
+		for _, dir := range rev {
 			dir = filepath.Join("temp", dir)
 			if err := filepath.Walk(dir, changeReferences); err != nil {
 				return fmt.Errorf("change references walk failed (%s): %s", dir, err)

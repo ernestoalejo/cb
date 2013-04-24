@@ -26,6 +26,14 @@ watch:
     paths:
       - scripts/**/*.js
 
+cacherev:
+  dirs:
+    - images
+    - styles
+    - scripts
+    - fonts
+    - components
+
 closurejs:
   dest: scripts.js
   debug: false
