@@ -16,19 +16,27 @@ func init() {
 }
 
 func htmlmin(c *config.Config, q *registry.Queue) error {
-	if !*config.ClientOnly {
-		base := filepath.Join("temp", "base.html")
-		if err := htmlcompressor(base, base); err != nil {
-			return fmt.Errorf("compress base failed: %s", err)
+	size, err := c.Count("htmlmin")
+	if err != nil {
+		if config.IsNotFound(err) {
+			return nil
+		}
+		return fmt.Errorf("get config failed: %s", err)
+	}
+	for i := 0; i < size; i++ {
+		source, err := c.GetStringf("htmlmin[%d].source", i)
+		if err != nil {
+			return fmt.Errorf("get config failed: %s", err)
+		}
+		dest, err := c.GetStringf("htmlmin[%d].dest", i)
+		if err != nil {
+			return fmt.Errorf("get config failed: %s", err)
+		}
+		if err := htmlcompressor(source, dest); err != nil {
+			return fmt.Errorf("html compress failed: %s", err)
 		}
 	}
-
-	from := filepath.Join("app", "views")
-	to := filepath.Join("temp", "views")
-	if err := htmlcompressor(from, to); err != nil {
-		return fmt.Errorf("compress views failed: %s", err)
-	}
-
+	
 	return nil
 }
 

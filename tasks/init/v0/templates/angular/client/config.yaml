@@ -31,6 +31,12 @@ cacherev:
     - views
     - base.html
 
+htmlmin:
+  - source: app/views
+    dest: temp/views
+  - source: temp/base.html
+    dest: temp/base.html
+
 dist:
   - base.html
   - components/jquery/jquery.min.js
