@@ -25,7 +25,12 @@ func init() {
 }
 
 func concat(c *config.Config, q *registry.Queue) error {
-	base := filepath.Join("temp", "base.html")
+	base, err := c.Get("base")
+	if err != nil {
+		return fmt.Errorf("get config failed: %s", err)
+	}
+	base = filepath.Join("temp", base)
+	
 	lines, err := utils.ReadLines(base)
 	if err != nil {
 		return fmt.Errorf("read base html failed: %s", err)
