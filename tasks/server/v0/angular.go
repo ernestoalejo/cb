@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"path/filepath"
 	"html/template"
+	"strconv"
+	"time"
 
 	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
@@ -100,18 +102,25 @@ func server_angular_compiled(c *config.Config, q *registry.Queue) error {
 
 type Proxy struct{}
 
-func (p *Proxy) RoundTrip(r *http.Request) (resp *http.Response, err error) {
+func (p *Proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 	if !serverCompiled {
 		r.Header.Set("X-Request-From", "cb")
 	}
 	r.Host = proxyUrl.Host
 
-	resp, err = http.DefaultTransport.RoundTrip(r)
+	resp, err := http.DefaultTransport.RoundTrip(r)
 	if err != nil {
-		err = fmt.Errorf("roundtrip failed: %s", err)
-		return
+		return nil, fmt.Errorf("roundtrip failed: %s", err)
 	}
-	return
+
+	size, err := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("cannot parse resp size: %s", err)
+	}
+	var zero time.Time
+	writeLog(r, zero, resp.StatusCode, int(size))
+
+	return resp, nil
 }
 
 // ==================================================================
