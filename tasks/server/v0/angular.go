@@ -103,22 +103,35 @@ func server_angular_compiled(c *config.Config, q *registry.Queue) error {
 type Proxy struct{}
 
 func (p *Proxy) RoundTrip(r *http.Request) (*http.Response, error) {
+	// Debug / Production settings switch
 	if !serverCompiled {
 		r.Header.Set("X-Request-From", "cb")
 	}
 	r.Host = proxyUrl.Host
 
+	// Make the real request
 	resp, err := http.DefaultTransport.RoundTrip(r)
 	if err != nil {
 		return nil, fmt.Errorf("roundtrip failed: %s", err)
 	}
 
+	// Log the request data
 	size, err := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse resp size: %s", err)
 	}
 	var zero time.Time
 	writeLog(r, zero, resp.StatusCode, int(size))
+
+	// Rewrite the location header to the new host if present
+	if resp.StatusCode == 302 {
+		location, err := url.Parse(resp.Header.Get("Location"))
+		if err != nil {
+			return nil, fmt.Errorf("cannot parse the redirect url: %s", err)
+		}
+		location.Host = "localhost:9810"
+		resp.Header.Set("Location", location.String())
+	}
 
 	return resp, nil
 }
