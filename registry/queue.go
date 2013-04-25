@@ -13,6 +13,7 @@ import (
 
 type Queue struct {
 	tasks []string
+	CurTask string
 }
 
 func (q *Queue) AddTask(t string) {
@@ -72,6 +73,7 @@ func (q *Queue) Run(c *config.Config) error {
 					colors.BLUE, len(q.tasks), task, colors.RESET)
 		}
 
+		q.CurTask = task
 		if err := f(c, q); err != nil {
 			return fmt.Errorf("task failed (%s): %s", t, err)
 		}

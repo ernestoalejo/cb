@@ -1,6 +1,8 @@
 package v0
 
 import (
+	"fmt"
+
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
 )
@@ -28,9 +30,12 @@ func build(c *config.Config, q *registry.Queue) error {
 			"dist:copy@0",
 		})
 
-		/*if !*config.ClientOnly {
-			q.AddTask("deploy_gae")
-		}*/
+		deploy, err := c.Get("deploy")
+		if err != nil && !config.IsNotFound(err) {
+			return fmt.Errorf("get config failed: %s", err)
+		} else if err == nil {
+			q.AddTask(fmt.Sprintf("deploy:%s", deploy))
+		}
 	}
 	if *config.ClosureMode {
 		q.AddTasks([]string{

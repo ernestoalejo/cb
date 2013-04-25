@@ -1,6 +1,7 @@
 
-{{ if .ClientOnly }}clientonly: true{{end}}
-base: base.html
+{{ if .ClientOnly }}clientonly: true
+{{end}}base: base.html{{ if not .ClientOnly }}
+deploy: gae{{end}}
 
 recess:
   - source: bootstrap/main.less

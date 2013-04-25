@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
@@ -15,7 +14,6 @@ import (
 func init() {
 	registry.NewTask("dist:prepare", 0, prepare_dist)
 	registry.NewTask("dist:copy", 0, copy_dist)
-	registry.NewTask("deploy_gae", 0, deploy_gae)
 }
 
 func prepare_dist(c *config.Config, q *registry.Queue) error {
@@ -83,23 +81,5 @@ func copy_dist(c *config.Config, q *registry.Queue) error {
 		}
 	}
 
-	return nil
-}
-
-func deploy_gae(c *config.Config, q *registry.Queue) error {
-	commands := []string{
-		"rm -rf ../static",
-		"cp -r dist ../static",
-		"rm -f ../templates/base.html",
-		"mv ../static/base.html ../templates/base.html",
-	}
-	for _, c := range commands {
-		cmd := strings.Split(c, " ")
-		output, err := utils.Exec(cmd[0], cmd[1:])
-		if err != nil {
-			fmt.Println(output)
-			return fmt.Errorf("command error (%s): %s", c, err)
-		}
-	}
 	return nil
 }
