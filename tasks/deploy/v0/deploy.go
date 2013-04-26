@@ -3,29 +3,42 @@ package v0
 import (
   "fmt"
   "strings"
+  "encoding/json"
+  "os"
+  "path/filepath"
+  "log"
 
   "github.com/ernestokarim/cb/config"
   "github.com/ernestokarim/cb/registry"
   "github.com/ernestokarim/cb/utils"
 )
 
-var deployCommands = map[string]string{
-  "gae": `
-    rm -rf ../static
-    cp -r dist ../static
-    rm -f ../templates/base.html
-    mv ../static/$base ../templates
-  `,
-  "php": `
-    mv ../public/index.php temp/index.php
-    mv ../public/.htaccess temp/.htaccess
-    rm -rf ../public
-    cp -r dist ../public
-    mv temp/index.php ../public/index.php
-    mv temp/.htaccess ../public/.htaccess
-    mv ../public/$base ../application/views
-  `,
-}
+type Macro func() (string, error)
+
+var (
+  deployCommands = map[string]string{
+    "gae": `
+      rm -rf ../static
+      cp -r dist ../static
+      rm -f ../templates/base.html
+      mv ../static/$base ../templates
+    `,
+    "php": `
+      mv ../public/index.php temp/index.php
+      mv ../public/.htaccess temp/.htaccess
+      rm -rf ../public
+      cp -r dist ../public
+      mv temp/index.php ../public/index.php
+      mv temp/.htaccess ../public/.htaccess
+      mv ../public/$base ../application/views
+      @generateCacheMapping
+    `,
+  }
+  
+  macros = map[string]Macro{
+    "generateCacheMapping": generateCacheMapping,
+  }
+)
 
 func init() {
   for name, _ := range deployCommands {
@@ -48,7 +61,18 @@ func deploy(c *config.Config, q *registry.Queue) error {
       continue
     }
 
-    // Replace some macros in the commands
+    // Execute macros
+    if command[0] == '@' && macros[command[1:]] != nil {
+      command, err = macros[command[1:]]()
+      if err != nil {
+        return fmt.Errorf("macro %s failed: %s", command[1:], err)
+      }
+      if len(command) == 0 {
+        continue
+      }
+    }
+
+    // Replace some variables in the commands
     command = strings.Replace(command, "$base", base, -1)
     
     // Execute it
@@ -60,4 +84,22 @@ func deploy(c *config.Config, q *registry.Queue) error {
     }
   }
   return nil
+}
+
+func generateCacheMapping() (string, error) {
+  changes := utils.LoadChanges()
+  f, err := os.Create(filepath.Join("dist", "cache-mapping.json"))
+  if err != nil {
+    return "", fmt.Errorf("create mapping failed: %s", err)
+  }
+  defer f.Close()
+  if err := json.NewEncoder(f).Encode(changes); err != nil {
+    return "", fmt.Errorf("encode mapping failed: %s", err)
+  }
+
+  if *config.Verbose {
+    log.Println("write cache mapping file in `dist/cache-mapping.json`")
+  }
+
+  return "", nil
 }
