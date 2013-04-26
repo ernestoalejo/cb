@@ -116,9 +116,13 @@ func (p *Proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 	}
 
 	// Log the request data
-	size, err := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("cannot parse resp size: %s", err)
+	length := resp.Header.Get("Content-Length")
+	var size int64
+	if length != "" {
+		size, err = strconv.ParseInt(length, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("cannot parse resp size: %s", err)
+		}
 	}
 	var zero time.Time
 	writeLog(r, zero, resp.StatusCode, int(size))
