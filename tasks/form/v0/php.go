@@ -23,7 +23,8 @@ class {{ .Classname }} {
   public static function validate() {
     $data = Input::json(true);
     $rules = array(
-      {{ range .Rules }}'{{ .Name }}' => '{{ .Validators }}',{{ end }}
+      {{ range .Rules }}'{{ .Name }}' => '{{ .Validators }}',
+      {{ end }}
     );
 
     $validation = Validator::make($data, $rules);
