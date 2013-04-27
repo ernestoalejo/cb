@@ -63,7 +63,7 @@ func getFile(c *config.Config) (*file, error) {
 	}
 	f.externs, err = c.GetStringList("closurejs.externs")
 	if err != nil {
-		if err == config.ErrNotFound {
+		if config.IsNotFound(err) {
 			f.externs = []string{}
 		} else {
 			return nil, fmt.Errorf("get externs failed: %s", err)
@@ -127,7 +127,7 @@ func getChecks(c *config.Config) ([]*check, error) {
 	for _, item := range items {
 		names, err := c.GetStringListf("closurejs.checks.%s", item)
 		if err != nil {
-			if err == config.ErrNotFound {
+			if config.IsNotFound(err) {
 				continue
 			}
 			return nil, fmt.Errorf("get check list failed: %s", err)

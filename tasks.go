@@ -12,6 +12,7 @@ import (
 	_ "github.com/ernestokarim/cb/tasks/dist/v0"
 	_ "github.com/ernestokarim/cb/tasks/gss/v0"
 	_ "github.com/ernestokarim/cb/tasks/htmlmin/v0"
+	_ "github.com/ernestokarim/cb/tasks/form/v0"
 	_ "github.com/ernestokarim/cb/tasks/imagemin/v0"
 	_ "github.com/ernestokarim/cb/tasks/init/v0"
 	_ "github.com/ernestokarim/cb/tasks/lint/v0"

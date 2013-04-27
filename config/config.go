@@ -9,10 +9,14 @@ import (
 	"github.com/kylelemons/go-gypsy/yaml"
 )
 
-var ErrNotFound = fmt.Errorf("not found")
+var errNotFound = fmt.Errorf("not found")
 
 type Config struct {
 	f *yaml.File
+}
+
+func NewConfig(f *yaml.File) *Config {
+	return &Config{f}
 }
 
 func Load() (*Config, error) {
@@ -30,11 +34,11 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("read config failed: %s", err)
 	}
 
-	c := &Config{f}
+	c := NewConfig(f)
 	if err := checkFlags(c); err != nil {
 		return nil, err
 	}
-	if err := c.prepare(); err != nil {
+	if err := prepare(c); err != nil {
 		return nil, err
 	}
 	return c, nil
@@ -64,7 +68,7 @@ func (c *Config) GetStringList(spec string) ([]string, error) {
 	size, err := c.Count(spec)
 	if err != nil {
 		if _, ok := err.(*yaml.NodeNotFound); ok {
-			return nil, ErrNotFound
+			return nil, errNotFound
 		}
 		return nil, fmt.Errorf("count failed: %s", err)
 	}
@@ -122,7 +126,7 @@ func (c *Config) Render() {
 	fmt.Println(yaml.Render(c.f.Root))
 }
 
-func (c *Config) prepare() error {
+func prepare(c *Config) error {
 	if *ClosureMode {
 		items := []string{"library", "templates", "stylesheets", "compiler"}
 		for _, item := range items {
