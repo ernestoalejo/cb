@@ -22,7 +22,6 @@ m.factory('$exceptionHandler', function($injector, $log, ErrorRegister) {
       var message = (ex && ex.message) ? ex.message : '~message~';
       var name = (ex && ex.name) ? ex.name : '~name~';
       var stack = (ex && ex.stack) ? ex.stack : '~stack~';
-      stack += '\n\n' + printStackTrace({e: ex});
 
       // Filter some common errors and ignore others
       if (message.indexOf('missing hash prefix') != -1) {
