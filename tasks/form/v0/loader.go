@@ -16,7 +16,7 @@ var (
 )
 
 func loadData() (*config.Config, string, error) {
-  fmt.Printf(" - Name of the file: ")
+  fmt.Fprintf(os.Stderr, " - Name of the file: ")
   name, err := getLine()
   if err != nil {
     return nil, "", fmt.Errorf("read filename failed: %s", err)

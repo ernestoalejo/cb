@@ -16,7 +16,7 @@ func Ask(q string) bool {
 	for {
 		var ans string
 		if !*config.AlwaysY && !*config.AlwaysN {
-			fmt.Printf("%s%s%s", colors.YELLOW, q, colors.RESET)
+			fmt.Fprintf(os.Stderr, "%s%s%s", colors.YELLOW, q, colors.RESET)
 
 			var err error
 			ans, err = buf.ReadString('\n')
@@ -33,7 +33,7 @@ func Ask(q string) bool {
 			return false
 		}
 
-		fmt.Printf("%sanswer y or n%s\n", colors.RED, colors.RESET)
+		fmt.Fprintf(os.Stderr, "%sanswer y or n%s\n", colors.RED, colors.RESET)
 	}
 	panic("should not reach here")
 }
