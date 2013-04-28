@@ -31,7 +31,7 @@ class {{ .Classname }} {
     if ($validation->fails())
       return null;
 
-    return Input::json(false);
+    return $data;
   }
 
 }
