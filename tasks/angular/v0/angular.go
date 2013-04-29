@@ -211,7 +211,7 @@ func writeControllerRouteFile(data *ControllerData) error {
 
 			parts := strings.Split(data.Module, ".")
 			name := parts[len(parts)-1]
-			filename := strings.ToLower(data.Name) + ".html"
+			filename := strings.ToLower(data.Name[:len(data.Name)-4]) + ".html"
 
 			newlines = append(newlines, []string{
 				fmt.Sprintf("      .when('%s', {\n", data.Route),
