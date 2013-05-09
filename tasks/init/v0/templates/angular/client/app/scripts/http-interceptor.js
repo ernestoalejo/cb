@@ -4,26 +4,42 @@
 var m = angular.module('httpInterceptor', ['services.global']);
 
 m.config(function($httpProvider) {
-  $httpProvider.responseInterceptors.push('httpInterceptor');
+  $httpProvider.interceptors.push('httpInterceptor');
 });
 
-m.factory('httpInterceptor', function($q, GlobalMsg, ErrorRegister) {
-  var total = 0;
 
-  return function(promise) {
-    total++;
-    GlobalMsg.set('loading');
+m.factory('httpInterceptor', function($q, GlobalMsg) {
+  var total_ = 0;
 
-    return promise.then(function(response) {
-      total--;
-      if (total == 0 && GlobalMsg.get() == 'loading')
-        GlobalMsg.set('');
-      return response;
-    }, function(response) {
-      total--;
-      GlobalMsg.set('');
-      ErrorRegister.set('http-error');
-      return $q.reject(response);
-    });
+  function error_() {
+    total_--;
+    GlobalMsg.set('');
+    ErrorRegister.set('http-error');
   }
+
+  return {
+    'request': function(config) {
+      total_++;
+      GlobalMsg.set('loading');
+      return config || $q.when(config);
+    },
+
+    'requestError': function(rejection) {
+      error_();
+      return $q.reject(rejection);
+    },
+
+    'response': function(response) {
+      total_--;
+      if (total_ == 0 && GlobalMsg.get() == 'loading') {
+        GlobalMsg.set('');
+      }
+      return response || $q.when(response);
+    },
+
+    'responseError': function(rejection) {
+      error_();
+      return $q.reject(rejection);
+    }
+  };
 });
