@@ -242,7 +242,7 @@ func (f *DateField) Build(form *Form) string {
 type SelectField struct {
   Id, Name    string
   Help        string
-  Origin string
+  Origin, OriginId, OriginLabel string
   Class []string
 }
 
@@ -261,8 +261,8 @@ func (f *SelectField) Build(form *Form) string {
   for k, v := range attrs {
     ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
-  ctrl += fmt.Sprintf(`><option ng-repeat="item in %s" value="{{item.id}}">` +
-    `{{item.value}}</option></select>`, f.Origin)
+  ctrl += fmt.Sprintf(` ng-options="item.%s as item.%s for item in %s"></select>`,
+      f.Origin, f.OriginId, f.OriginLabel)
 
   return fmt.Sprintf(control, ctrl)
 }
