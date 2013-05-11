@@ -114,11 +114,7 @@ func form_php(c *config.Config, q *registry.Queue) error {
 			return fmt.Errorf("get field type failed: %s", err)
 		}
 		if fieldType == "radiobtn" {
-			values, err := extractRadioBtnValues(data, i)
-			if err != nil {
-				return fmt.Errorf("extract radiobtn values failed: %s", err)
-			}
-
+			values := extractRadioBtnValues(data, i)
 			keys := []string{}
 			for key := range values {
 				keys = append(keys, key)

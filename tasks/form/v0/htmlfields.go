@@ -179,6 +179,67 @@ func (f *TextAreaField) Build(form *Form) string {
 	return fmt.Sprintf(control, ctrl)
 }
 
+// ==================================================================
+
+type RadioBtnField struct {
+  Id, Name    string
+  Help        string
+  Values map[string]string
+}
+
+func (f *RadioBtnField) Build(form *Form) string {
+  _, control := buildControl(form, f.Id, f.Name, f.Help)
+  model := fmt.Sprintf("%s.%s", form.ObjName, f.Id)
+
+  ctrl := `<div class="btn-group">`
+  for k, v := range f.Values {
+    ctrl += fmt.Sprintf(`<button type="button" class="btn btn-primary" ` +
+      `ng-model="%s" btn-radio="'%s'">%s</button>`, model, k, v)
+  }
+  ctrl += "</div>"
+
+  return fmt.Sprintf(control, ctrl)
+}
+
+// ==================================================================
+
+type DateField struct {
+  Id, Name    string
+  Help        string
+  Values map[string]string
+  DateOptions string
+  Class []string
+  JsFormat string
+}
+
+func (f *DateField) Build(form *Form) string {
+  attrs := map[string]string{
+    "type":        "text",
+    "id":          fmt.Sprintf("%s%s", form.Name, f.Id),
+    "name":        fmt.Sprintf("%s%s", form.Name, f.Id),
+    "class":       strings.Join(f.Class, " "),
+    "ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+    "ui-date": f.DateOptions,
+  }
+  if f.JsFormat != "" {
+    attrs["ui-date-format"] = f.JsFormat
+  }
+
+  controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
+  update(attrs, controlAttrs)
+
+  ctrl := "<input"
+  for k, v := range attrs {
+    ctrl += fmt.Sprintf(` %s="%s"`, k, v)
+  }
+  ctrl += ">"
+
+  return fmt.Sprintf(control, ctrl)
+}
+
+
+/**/
+
 /*
 // ==================================================================
 
