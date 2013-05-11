@@ -23,3 +23,17 @@ select:focus:invalid {
     .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6)");
   }
 }
+
+
+.control-group.error input:focus,
+.control-group.error select:focus,
+.control-group.error textarea:focus {
+  background-color: @inputBackground;
+  border: 1px solid rgba(82,168,236,.8);
+  .transition(~"border linear .2s, box-shadow linear .2s");
+  color: rgb(85, 85, 85);
+  outline: 0;
+  outline: thin dotted \9; /* IE6-9 */
+  .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6)");
+}
+
