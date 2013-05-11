@@ -40,6 +40,9 @@ class {{ .Classname }} {
   phpNameTable = map[string]string{
     "required": "required",
     "minlength": "min",
+    "email": "email",
+    "dateBefore": "before",
+    "boolean": "in",
   }
 )
 
@@ -81,7 +84,7 @@ func form_php(c *config.Config, q *registry.Queue) error {
 
     validatorsSize, err := data.Countf("fields[%d].validators", i)
     if err != nil {
-      return fmt.Errorf("count config failed: %s", err)
+      return fmt.Errorf("count config failed for %s: %s", name, err)
     }
     validators := []string{}
     for j := 0; j < validatorsSize; j++ {
@@ -93,6 +96,9 @@ func form_php(c *config.Config, q *registry.Queue) error {
       if err != nil && !config.IsNotFound(err) {
         return fmt.Errorf("get validator value failed: %s", err)
       }
+      if vname == "boolean" {
+        vvalue = "true,false"
+      }
 
       vname = phpNameTable[vname]
 
@@ -101,6 +107,23 @@ func form_php(c *config.Config, q *registry.Queue) error {
         val = fmt.Sprintf("%s:%s", vname, vvalue)
       }
       validators = append(validators, val)
+    }
+
+    fieldType, err := data.GetStringf("fields[%d].type", i)
+    if err != nil {
+      return fmt.Errorf("get field type failed: %s", err)
+    }
+    if (fieldType == "radiobtn") {
+      values, err := extractRadioBtnValues(data, i)
+      if err != nil {
+        return fmt.Errorf("extract radiobtn values failed: %s", err)
+      }
+
+      keys := []string{}
+      for key := range values {
+        keys = append(keys, key)
+      }
+      validators = append(validators, "in:" + strings.Join(keys, ","))
     }
 
     tdata.Rules = append(tdata.Rules, &Rule{
