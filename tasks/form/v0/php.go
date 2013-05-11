@@ -35,7 +35,7 @@ class {{ .Classname }} {
   }
 
 }
-  `
+`
 
   phpNameTable = map[string]string{
     "required": "required",

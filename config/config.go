@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"strconv"
 
 	"github.com/kylelemons/go-gypsy/yaml"
 )
@@ -48,12 +49,51 @@ func (c *Config) Get(spec string) (string, error) {
 	return c.f.Get(spec)
 }
 
+func (c *Config) GetRequired(format string, a ...interface{}) string {
+	s, err := c.f.Get(fmt.Sprintf(format, a...))
+	if err != nil {
+		panic(err)
+	}
+	return s
+}
+
+func (c *Config) GetDefault(format, def string, a ...interface{}) string {
+	s, err := c.f.Get(fmt.Sprintf(format, a...))
+	if err != nil {
+		if IsNotFound(err) {
+			return def
+		}
+		panic(err)
+	}
+	return s
+}
+
+func (c *Config) GetInt(format string, def int, a ...interface{}) int {
+	s := c.GetDefault(fmt.Sprintf(format, a), fmt.Sprintf("%d", def))
+	n, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return def
+	}
+	return int(n)
+}
+
 func (c *Config) GetBool(spec string) (bool, error) {
 	return c.f.GetBool(spec)
 }
 
 func (c *Config) Count(spec string) (int, error) {
 	return c.f.Count(spec)
+}
+
+func (c *Config) CountDefault(spec string) int {
+	s, err := c.f.Count(spec)
+	if err != nil {
+		if IsNotFound(err) {
+			return 0
+		}
+		panic(err)
+	}
+	return s
 }
 
 func (c *Config) GetStringf(format string, a ...interface{}) (string, error) {
