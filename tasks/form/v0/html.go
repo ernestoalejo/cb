@@ -61,47 +61,47 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "email":
 		fallthrough
 	case "text":
-		/*field = &InputField{
+		field = &InputField{
 			Id:          name,
       Name: name,
 			Type:        fieldType,
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
-		}*/
+		}
 
 	case "textarea":
-		/*field = &TextAreaField{
+		field = &TextAreaField{
 			Id:          name,
       Name: name,
 			Rows:        data.GetInt("fields[%d].rows", 3, idx),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
-		}*/
+		}
 
 	case "submit":
-		/*field = &SubmitField{
+		field = &SubmitField{
 			Label: data.GetDefault("fields[%d].label", "", idx),
-		}*/
+		}
 
 	case "radiobtn":
-    /*field = &RadioBtnField{
+    field = &RadioBtnField{
       Id: name,
       Name: name,
       Help: data.GetDefault("fields[%d].help", "", idx),
       Values: extractRadioBtnValues(data, idx),
-    }*/
+    }
 
 	case "date":
-		/*field = &DateField{
+		field = &DateField{
 			Id: name,
 			Name: name,
 			Help: data.GetDefault("fields[%d].help", "", idx),
 			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
 			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			JsFormat: data.GetDefault("fields[%d].jsformat", "", idx),
-		}*/
+		}
 
 	case "select":
 		field = &SelectField{
@@ -113,6 +113,11 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		}
 
 	case "checkbox":
+		field = &CheckboxField{
+			Id: name,
+			Name: name,
+			Help: data.GetDefault("fields[%d].help", "", idx),
+		}
 
 	default:
 		return nil, fmt.Errorf("no field type %s in html mode", fieldType)

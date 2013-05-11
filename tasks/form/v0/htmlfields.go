@@ -261,87 +261,40 @@ func (f *SelectField) Build(form *Form) string {
   for k, v := range attrs {
     ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
-  ctrl += fmt.Sprintf(`><option ng-repeat="item in %s" name="{{item.id}}">` +
+  ctrl += fmt.Sprintf(`><option ng-repeat="item in %s" value="{{item.id}}">` +
     `{{item.value}}</option>`, f.Origin)
 
   return fmt.Sprintf(control, ctrl)
 }
 
-
-/**/
-
-/*
 // ==================================================================
 
-type SelectField struct {
-  Control        *Control
-  Class          []string
-  Labels, Values []string
+type CheckboxField struct {
+  Id, Name    string
+  Help        string
+  Label string
 }
 
-func (f *SelectField) Build() string {
-  // The select tag attributes
+func (f *CheckboxField) Build(form *Form) string {
   attrs := map[string]string{
-    "id":       f.Control.Id,
-    "name":     f.Control.Id,
-    "ng-model": "data." + f.Control.Id,
+    "type":        "checkbox",
+    "id":          fmt.Sprintf("%s%s", form.Name, f.Id),
+    "name":        fmt.Sprintf("%s%s", form.Name, f.Id),
+    "ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
   }
 
-  // The CSS classes
-  if f.Class != nil {
-    attrs["class"] = strings.Join(f.Class, " ")
-  }
-
-  // Add the validators
-  errors := fmt.Sprintf(`<p class="help-block error" ng-show="val && f.%s.$invalid">`,
-    f.Control.Id)
-  for _, v := range f.Control.Validations {
-    // Fail early if it's not a valid one
-    if v.Error != "required" && v.Error != "select" {
-      panic("validator not allowed in select " + f.Control.Id + ": " + v.Error)
-    }
-
-    // Add the attributes and errors
-    for k, v := range v.Attrs {
-      attrs[k] = v
-    }
-    errors += fmt.Sprintf(`<span ng-show="f.%s.$error.%s">%s</span>`, f.Control.Id,
-      v.Error, v.Message)
-    f.Control.errors = append(f.Control.errors, v.Error)
-  }
-  errors += "</p>"
-
-  // Build the tag
-  ctrl := "<select"
+  ctrl := "<input"
   for k, v := range attrs {
-    ctrl += fmt.Sprintf(" %s=\"%s\"", k, v)
+    ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
   ctrl += ">"
 
-  // Assert the same length precondition, because the error is not
-  // very descriptive. Then add the option tags to the select field.
-  if len(f.Labels) != len(f.Values) {
-    panic("labels and values should have the same size")
-  }
-  for i, label := range f.Labels {
-    ctrl += fmt.Sprintf(`<option value="%s">%s</option>`, f.Values[i], label)
-  }
-
-  // Finish the control build
-  ctrl += "</select>"
-
-  return fmt.Sprintf(f.Control.Build(), ctrl, errors)
+  return fmt.Sprintf(`
+    <div class="control-group">
+      <label class="checkbox">
+        %s %s
+      </label>
+    </div>
+  `, ctrl, f.Label)
 }
 
-func (f *SelectField) Validate(value string) bool {
-  return f.Control.Validate(value)
-}*/
-
-// ==================================================================
-
-// Update the contents of m with the s items
-func update(m map[string]string, s map[string]string) {
-	for k, v := range s {
-		m[k] = v
-	}
-}

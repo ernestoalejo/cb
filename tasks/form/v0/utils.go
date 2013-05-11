@@ -14,3 +14,10 @@ func extractRadioBtnValues(data *config.Config, idx int) map[string]string {
 	}
 	return m
 }
+
+// Update the contents of m with the s items
+func update(m map[string]string, s map[string]string) {
+  for k, v := range s {
+    m[k] = v
+  }
+}
