@@ -98,9 +98,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 			Id: name,
       Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
-			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
 			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
-			JsFormat: data.GetDefault("fields[%d].jsformat", "", idx),
 		}
 
 	case "select":

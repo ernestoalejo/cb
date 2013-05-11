@@ -209,7 +209,6 @@ type DateField struct {
   Values map[string]string
   DateOptions string
   Class []string
-  JsFormat string
 }
 
 func (f *DateField) Build(form *Form) string {
@@ -219,20 +218,23 @@ func (f *DateField) Build(form *Form) string {
     "name":        fmt.Sprintf("%s%s", form.Name, f.Id),
     "class":       strings.Join(f.Class, " "),
     "ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
-    "ui-date": f.DateOptions,
-  }
-  if f.JsFormat != "" {
-    attrs["ui-date-format"] = f.JsFormat
   }
 
   controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
   update(attrs, controlAttrs)
 
-  ctrl := "<input"
+  ctrl := "<input readonly"
   for k, v := range attrs {
     ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
   ctrl += ">"
+
+  ctrl = fmt.Sprintf(`
+    <div class="input-append date" bs-date>
+      %s
+      <span class="add-on"><i class="icon-calendar"></i></span>
+    </div>
+  `, ctrl)
 
   return fmt.Sprintf(control, ctrl)
 }
@@ -262,7 +264,7 @@ func (f *SelectField) Build(form *Form) string {
     ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
   ctrl += fmt.Sprintf(` ng-options="item.%s as item.%s for item in %s"></select>`,
-      f.Origin, f.OriginId, f.OriginLabel)
+      f.OriginId, f.OriginLabel, f.Origin)
 
   return fmt.Sprintf(control, ctrl)
 }
