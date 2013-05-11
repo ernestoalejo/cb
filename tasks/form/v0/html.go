@@ -109,8 +109,8 @@ func parseField(data *config.Config, idx int) (Field, error) {
       Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
 			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
-			OriginId: data.GetRequired("fields[%d].originId", idx),
-			OriginLabel: data.GetRequired("fields[%d].originLabel", idx),
+			OriginId: data.GetDefault("fields[%d].originId", "id", idx),
+			OriginLabel: data.GetDefault("fields[%d].originLabel", "label", idx),
 			Origin: data.GetRequired("fields[%d].origin", idx),
 		}
 
