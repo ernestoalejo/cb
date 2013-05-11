@@ -237,6 +237,36 @@ func (f *DateField) Build(form *Form) string {
   return fmt.Sprintf(control, ctrl)
 }
 
+// ==================================================================
+
+type SelectField struct {
+  Id, Name    string
+  Help        string
+  Origin string
+  Class []string
+}
+
+func (f *SelectField) Build(form *Form) string {
+  attrs := map[string]string{
+    "id":          fmt.Sprintf("%s%s", form.Name, f.Id),
+    "name":        fmt.Sprintf("%s%s", form.Name, f.Id),
+    "class":       strings.Join(f.Class, " "),
+    "ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+  }
+
+  controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
+  update(attrs, controlAttrs)
+
+  ctrl := "<select"
+  for k, v := range attrs {
+    ctrl += fmt.Sprintf(` %s="%s"`, k, v)
+  }
+  ctrl += fmt.Sprintf(`><option ng-repeat="item in %s" name="{{item.id}}">` +
+    `{{item.value}}</option>`, f.Origin)
+
+  return fmt.Sprintf(control, ctrl)
+}
+
 
 /**/
 

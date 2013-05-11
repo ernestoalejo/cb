@@ -94,16 +94,23 @@ func parseField(data *config.Config, idx int) (Field, error) {
     }*/
 
 	case "date":
-		field = &DateField{
+		/*field = &DateField{
 			Id: name,
 			Name: name,
 			Help: data.GetDefault("fields[%d].help", "", idx),
 			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
 			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			JsFormat: data.GetDefault("fields[%d].jsformat", "", idx),
-		}
+		}*/
 
 	case "select":
+		field = &SelectField{
+			Id: name,
+			Name: name,
+			Help: data.GetDefault("fields[%d].help", "", idx),
+			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			Origin: data.GetRequired("fields[%d].origin", idx),
+		}
 
 	case "checkbox":
 
