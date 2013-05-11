@@ -25,7 +25,7 @@ func minignore(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("get config failed: %s", err)
 	}
 	base = filepath.Join("temp", base)
-	
+
 	lines, err := utils.ReadLines(base)
 	if err != nil {
 		return fmt.Errorf("read base html failed: %s", err)

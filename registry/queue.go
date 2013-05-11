@@ -12,7 +12,7 @@ import (
 )
 
 type Queue struct {
-	tasks []string
+	tasks   []string
 	CurTask string
 }
 
@@ -67,10 +67,10 @@ func (q *Queue) Run(c *config.Config) error {
 
 		if *config.Verbose {
 			log.Printf("%s[%2d] Running %s@%d...%s\n",
-					colors.BLUE, len(q.tasks), task, version, colors.RESET)
+				colors.BLUE, len(q.tasks), task, version, colors.RESET)
 		} else {
 			log.Printf("%s[%2d] Running %s%s\n",
-					colors.BLUE, len(q.tasks), task, colors.RESET)
+				colors.BLUE, len(q.tasks), task, colors.RESET)
 		}
 
 		q.CurTask = task

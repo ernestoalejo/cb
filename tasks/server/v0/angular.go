@@ -2,13 +2,13 @@ package v0
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"mime"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"path/filepath"
-	"html/template"
 	"strconv"
 	"time"
 
@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	proxyUrl *url.URL
+	proxyUrl       *url.URL
 	serverCompiled bool
 )
 
@@ -195,7 +195,7 @@ func clientBase(w http.ResponseWriter, r *http.Request, test bool) error {
 	if err != nil {
 		return fmt.Errorf("template parsing failed: %s", err)
 	}
-	
+
 	data := map[string]interface{}{
 		"Test": true,
 	}

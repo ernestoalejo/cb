@@ -36,7 +36,7 @@ func htmlmin(c *config.Config, q *registry.Queue) error {
 			return fmt.Errorf("html compress failed: %s", err)
 		}
 	}
-	
+
 	return nil
 }
 

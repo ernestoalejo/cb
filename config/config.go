@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/kylelemons/go-gypsy/yaml"
 )
@@ -69,7 +69,7 @@ func (c *Config) GetDefault(format, def string, a ...interface{}) string {
 }
 
 func (c *Config) GetInt(format string, def int, a ...interface{}) int {
-	s := c.GetDefault(fmt.Sprintf(format, a), fmt.Sprintf("%d", def))
+	s := c.GetDefault(fmt.Sprintf(format, a...), fmt.Sprintf("%d", def))
 	n, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
 		return def
@@ -85,15 +85,15 @@ func (c *Config) Count(spec string) (int, error) {
 	return c.f.Count(spec)
 }
 
-func (c *Config) CountDefault(spec string) int {
-	s, err := c.f.Count(spec)
+func (c *Config) CountDefault(format string, a ...interface{}) int {
+	cnt, err := c.f.Count(fmt.Sprintf(format, a...))
 	if err != nil {
 		if IsNotFound(err) {
 			return 0
 		}
 		panic(err)
 	}
-	return s
+	return cnt
 }
 
 func (c *Config) GetStringf(format string, a ...interface{}) (string, error) {
@@ -127,7 +127,7 @@ func (c *Config) GetStringListf(format string, a ...interface{}) ([]string, erro
 	return c.GetStringList(fmt.Sprintf(format, a...))
 }
 
-func (c *Config) HasSection(spec string) (bool) {
+func (c *Config) HasSection(spec string) bool {
 	return c.f.Root.(yaml.Map).Key(spec) != nil
 }
 

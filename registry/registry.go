@@ -11,7 +11,7 @@ import (
 type Task func(c *config.Config, q *Queue) error
 
 var (
-	tasks = map[string]map[int]Task{}
+	tasks     = map[string]map[int]Task{}
 	userTasks = map[string]bool{}
 )
 

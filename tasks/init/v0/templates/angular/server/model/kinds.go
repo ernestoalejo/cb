@@ -1,5 +1,5 @@
 package model
 
 const (
-  KIND_SESSION = "Session"
+	KIND_SESSION = "Session"
 )

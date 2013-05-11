@@ -22,7 +22,7 @@ var (
 	SENDGRID_KEY  = ""
 
 	// Secret name & key used for sessions
-	SESSION_NAME = "SID"
+	SESSION_NAME   = "SID"
 	SESSION_SECRET = ""
 
 	// Secret key for the XSRF tokens
