@@ -51,17 +51,17 @@ func buildControl(form *Form, id, name, help string) (map[string]string, string)
 	attrs := map[string]string{}
 
 	fid := fmt.Sprintf("%s%s", form.Name, id)
-	messages = fmt.Sprintf(`<p class="help-block error" `+
+	messages = fmt.Sprintf("\n" + `<p class="help-block error" `+
 		`ng-show="%s.val && %s.%s.$invalid">`, form.Name, form.Name, fid)
 
-	for _, val := range form.Validators[name] {
+	for _, val := range form.Validators[id] {
 		update(attrs, val.Attrs)
 		errs += fmt.Sprintf("%s.%s.$error.%s || ", form.Name, fid, val.Error)
-		messages += fmt.Sprintf(`<span ng-show="%s.%s.$error.%s">%s</span>`,
+		messages += fmt.Sprintf(`<span ng-show="%s.%s.$error.%s">%s</span>` + "\n",
 			form.Name, fid, val.Error, val.Message)
 	}
 
-	messages += `</p>`
+	messages += "</p>\n"
 	if len(errs) > 0 {
     errs = fmt.Sprintf("(%s)", errs[:len(errs)-4])
   } else {
@@ -262,7 +262,7 @@ func (f *SelectField) Build(form *Form) string {
     ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
   ctrl += fmt.Sprintf(`><option ng-repeat="item in %s" value="{{item.id}}">` +
-    `{{item.value}}</option>`, f.Origin)
+    `{{item.value}}</option></select>`, f.Origin)
 
   return fmt.Sprintf(control, ctrl)
 }
@@ -272,7 +272,6 @@ func (f *SelectField) Build(form *Form) string {
 type CheckboxField struct {
   Id, Name    string
   Help        string
-  Label string
 }
 
 func (f *CheckboxField) Build(form *Form) string {
@@ -290,11 +289,11 @@ func (f *CheckboxField) Build(form *Form) string {
   ctrl += ">"
 
   return fmt.Sprintf(`
-    <div class="control-group">
+    <div class="control-group"><div class="controls">
       <label class="checkbox">
         %s %s
       </label>
-    </div>
-  `, ctrl, f.Label)
+    </div></div>
+  `, ctrl, f.Name)
 }
 

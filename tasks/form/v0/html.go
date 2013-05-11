@@ -63,7 +63,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "text":
 		field = &InputField{
 			Id:          name,
-      Name: name,
+      Name: data.GetDefault("fields[%d].label", "", idx),
 			Type:        fieldType,
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
@@ -73,7 +73,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "textarea":
 		field = &TextAreaField{
 			Id:          name,
-      Name: name,
+      Name: data.GetDefault("fields[%d].label", "", idx),
 			Rows:        data.GetInt("fields[%d].rows", 3, idx),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
@@ -88,7 +88,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "radiobtn":
     field = &RadioBtnField{
       Id: name,
-      Name: name,
+      Name: data.GetDefault("fields[%d].label", "", idx),
       Help: data.GetDefault("fields[%d].help", "", idx),
       Values: extractRadioBtnValues(data, idx),
     }
@@ -96,7 +96,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "date":
 		field = &DateField{
 			Id: name,
-			Name: name,
+      Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
 			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
 			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
@@ -106,7 +106,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "select":
 		field = &SelectField{
 			Id: name,
-			Name: name,
+      Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
 			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			Origin: data.GetRequired("fields[%d].origin", idx),
@@ -115,7 +115,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "checkbox":
 		field = &CheckboxField{
 			Id: name,
-			Name: name,
+      Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
 		}
 
