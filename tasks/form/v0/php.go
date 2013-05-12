@@ -27,6 +27,12 @@ class {{ .Classname }} {
       {{ end }}
     );
 
+    foreach ($rules as $key => $value) {
+      if (!isset($data[$key])) {
+        $data[$key] = '';
+      }
+    }
+
     $validation = Validator::make($data, $rules);
     if ($validation->fails())
       return null;
