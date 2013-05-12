@@ -218,6 +218,7 @@ func (f *DateField) Build(form *Form) string {
     "name":        fmt.Sprintf("%s%s", form.Name, f.Id),
     "class":       strings.Join(f.Class, " "),
     "ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+    "bs-date": f.DateOptions,
   }
 
   controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
@@ -230,11 +231,11 @@ func (f *DateField) Build(form *Form) string {
   ctrl += ">"
 
   ctrl = fmt.Sprintf(`
-    <div class="input-append date" bs-date="%s">
+    <div class="input-append date">
       %s
       <span class="add-on"><i class="icon-calendar"></i></span>
     </div>
-  `, f.DateOptions, ctrl)
+  `, ctrl)
 
   return fmt.Sprintf(control, ctrl)
 }
