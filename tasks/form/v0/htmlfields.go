@@ -223,18 +223,18 @@ func (f *DateField) Build(form *Form) string {
   controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
   update(attrs, controlAttrs)
 
-  ctrl := "<input readonly"
+  ctrl := "<input"
   for k, v := range attrs {
     ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
   ctrl += ">"
 
   ctrl = fmt.Sprintf(`
-    <div class="input-append date" bs-date>
+    <div class="input-append date" bs-date="%s">
       %s
       <span class="add-on"><i class="icon-calendar"></i></span>
     </div>
-  `, ctrl)
+  `, f.DateOptions, ctrl)
 
   return fmt.Sprintf(control, ctrl)
 }

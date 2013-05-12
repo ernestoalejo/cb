@@ -99,6 +99,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
       Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
 			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
 		}
 
 	case "select":
