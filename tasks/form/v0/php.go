@@ -65,37 +65,19 @@ func form_php(c *config.Config, q *registry.Queue) error {
 	tdata := &PhpData{
 		Filename: filename,
 		Rules:    make([]*Rule, 0),
+		Classname: data.GetRequired("classname"),
 	}
 
-	tdata.Classname, err = data.Get("classname")
-	if err != nil {
-		return fmt.Errorf("get config failed: %s", err)
-	}
-
-	size, err := data.Count("fields")
-	if err != nil {
-		return fmt.Errorf("count config failed: %s", err)
-	}
+	size := data.CountDefault("fields")
 	for i := 0; i < size; i++ {
-		name, err := data.GetStringf("fields[%d].name", i)
-		if err != nil {
-			return fmt.Errorf("get config failed: %s", err)
-		}
+		name := data.GetRequired("fields[%d].name", i)
 
-		validatorsSize, err := data.Countf("fields[%d].validators", i)
-		if err != nil {
-			return fmt.Errorf("count config failed for %s: %s", name, err)
-		}
+
+		validatorsSize := data.CountDefault("fields[%d].validators", i)
 		validators := []string{}
 		for j := 0; j < validatorsSize; j++ {
-			vname, err := data.GetStringf("fields[%d].validators[%d].name", i, j)
-			if err != nil {
-				return fmt.Errorf("get validator name failed: %s", err)
-			}
-			vvalue, err := data.GetStringf("fields[%d].validators[%d].value", i, j)
-			if err != nil && !config.IsNotFound(err) {
-				return fmt.Errorf("get validator value failed: %s", err)
-			}
+			vname := data.GetRequired("fields[%d].validators[%d].name", i, j)
+			vvalue := data.GetDefault("fields[%d].validators[%d].value", "", i, j)
 			if vname == "boolean" {
 				vvalue = "true,false"
 			}
@@ -109,10 +91,7 @@ func form_php(c *config.Config, q *registry.Queue) error {
 			validators = append(validators, val)
 		}
 
-		fieldType, err := data.GetStringf("fields[%d].type", i)
-		if err != nil {
-			return fmt.Errorf("get field type failed: %s", err)
-		}
+		fieldType := data.GetRequired("fields[%d].type", i)
 		if fieldType == "radiobtn" {
 			values := extractRadioBtnValues(data, i)
 			keys := []string{}
@@ -128,20 +107,12 @@ func form_php(c *config.Config, q *registry.Queue) error {
 		})
 	}
 
-	if err := build_php(tdata); err != nil {
-		return fmt.Errorf("build form failed: %s", err)
-	}
-
-	return nil
-}
-
-func build_php(data *PhpData) error {
 	t, err := template.New("php").Parse(phpTemplate)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)
 	}
 
-	if err := t.Execute(os.Stdout, data); err != nil {
+	if err := t.Execute(os.Stdout, tdata); err != nil {
 		return fmt.Errorf("execute template failed: %s", err)
 	}
 

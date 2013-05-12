@@ -12,6 +12,7 @@ func initValidator(name, value, msg string) *Validator {
 		"minlength": minLength,
 		"maxlength": maxLength,
 		"email":     email,
+		"dateBefore": dateBefore,
 	}
 	if m[name] == nil {
 		return nil
@@ -48,5 +49,13 @@ func email(name, value, msg string) *Validator {
 		Attrs:   map[string]string{},
 		Message: msg,
 		Error:   "email",
+	}
+}
+
+func dateBefore(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{"date-before": value},
+		Message: msg,
+		Error:   "dateBefore",
 	}
 }
