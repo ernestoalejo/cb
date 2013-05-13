@@ -49,6 +49,7 @@ class {{ .Classname }} {
 		"email":      "email",
 		"dateBefore": "before",
 		"boolean":    "in",
+		"integer": "integer",
 	}
 )
 

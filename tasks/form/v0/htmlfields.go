@@ -224,7 +224,7 @@ func (f *DateField) Build(form *Form) string {
   controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
   update(attrs, controlAttrs)
 
-  ctrl := "<input"
+  ctrl := "<input readonly"
   for k, v := range attrs {
     ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
