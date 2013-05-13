@@ -34,8 +34,10 @@ class {{ .Classname }} {
     }
 
     $validation = Validator::make($data, $rules);
-    if ($validation->fails())
+    if ($validation->fails()) {
+    	Log::error(print_r($validation->errors->all(), true));
       return null;
+    }
 
     return $data;
   }
@@ -79,7 +81,6 @@ func form_php(c *config.Config, q *registry.Queue) error {
 	for i := 0; i < size; i++ {
 		name := data.GetRequired("fields[%d].name", i)
 
-
 		validatorsSize := data.CountDefault("fields[%d].validators", i)
 		validators := []string{}
 		for j := 0; j < validatorsSize; j++ {
@@ -106,6 +107,8 @@ func form_php(c *config.Config, q *registry.Queue) error {
 				keys = append(keys, key)
 			}
 			validators = append(validators, "in:"+strings.Join(keys, ","))
+		} else if fieldType == "date" {
+			validators = append(validators, "valid_date")
 		}
 
 		tdata.Rules = append(tdata.Rules, &Rule{
