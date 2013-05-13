@@ -52,6 +52,7 @@ class {{ .Classname }} {
 		"dateBefore": "before",
 		"boolean":    "in",
 		"integer": "integer",
+    "db_present": "db_present",
 	}
 )
 
