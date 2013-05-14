@@ -268,8 +268,10 @@ func (f *SelectField) Build(form *Form) string {
   for k, v := range attrs {
     ctrl += fmt.Sprintf(` %s="%s"`, k, v)
   }
-  ctrl += fmt.Sprintf(` ng-options="item.%s as item.%s for item in %s"></select>`,
-      f.OriginId, f.OriginLabel, f.Origin)
+  ctrl += fmt.Sprintf(
+    `><option ng-repeat="item in %s" value="{{item.%s}}">{{item.%s}}</option>`,
+    f.Origin, f.OriginId, f.OriginLabel)
+  ctrl += "</select>"
 
   return fmt.Sprintf(control, ctrl)
 }
