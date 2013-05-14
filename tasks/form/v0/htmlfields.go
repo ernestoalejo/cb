@@ -66,11 +66,11 @@ func buildControl(form *Form, id, name, help string) (map[string]string, string)
 		}
 
 		messages += "      </p>"
-		if len(errs) > 0 {
-			errs = fmt.Sprintf("(%s)", errs[:len(errs)-4])
-		} else {
-			errs = "false"
-		}
+	}
+	if len(errs) > 0 {
+		errs = fmt.Sprintf("(%s)", errs[:len(errs)-4])
+	} else {
+		errs = "false"
 	}
 
 	if name == "" {
