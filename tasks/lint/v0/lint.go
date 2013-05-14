@@ -19,7 +19,7 @@ func init() {
 
 func lint(c *config.Config, q *registry.Queue) error {
 	for _, folder := range folders {
-		args := []string{"--strict", "-r", folder}
+		args := []string{"--strict", "-r", folder, "-e", "app/scripts/vendor"}
 		output, err := utils.Exec("gjslint", args)
 		if err != nil {
 			fmt.Println(output)
@@ -31,7 +31,7 @@ func lint(c *config.Config, q *registry.Queue) error {
 
 func fixlint(c *config.Config, q *registry.Queue) error {
 	for _, folder := range folders {
-		args := []string{"--strict", "-r", folder}
+		args := []string{"--strict", "-r", folder, "-e", "app/scripts/vendor"}
 		output, err := utils.Exec("fixjsstyle", args)
 		if err != nil {
 			fmt.Println(output)

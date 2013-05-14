@@ -31,6 +31,16 @@ class {{ .Classname }} {
       if (!isset($data[$key])) {
         $data[$key] = '';
       }
+      if (is_int($data[$key])) {
+        $data[$key] = strval($data[$key]);
+      }
+      if ($value === 'in:true,false') {
+        if (!is_bool($data[$key])) {
+          $data[$key] = '';
+        }
+      } else if (!is_string($data[$key]) && !is_bool($data[$key])) {
+        $data[$key] = '';
+      }
     }
 
     $validation = Validator::make($data, $rules);
