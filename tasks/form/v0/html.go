@@ -39,10 +39,7 @@ func form_html(c *config.Config, q *registry.Queue) error {
 			form.Fields = append(form.Fields, field)
 		}
 
-		validators, err := parseValidators(data, i)
-		if err != nil {
-			return fmt.Errorf("parse validators failed for `%s`: %s", name, err)
-		}
+		validators := parseValidators(data, i)
 		if validators != nil {
 			form.Validators[name] = validators
 		}
@@ -111,6 +108,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 			OriginId: data.GetDefault("fields[%d].originId", "id", idx),
 			OriginLabel: data.GetDefault("fields[%d].originLabel", "label", idx),
 			Origin: data.GetRequired("fields[%d].origin", idx),
+			Attrs: parseAttrs(data, idx),
 		}
 
 	case "checkbox":
@@ -126,7 +124,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	return field, nil
 }
 
-func parseValidators(data *config.Config, idx int) ([]*Validator, error) {
+func parseValidators(data *config.Config, idx int) []*Validator {
 	validators := []*Validator{}
 
 	nvalidators := data.CountDefault("fields[%d].validators", idx)
@@ -140,5 +138,18 @@ func parseValidators(data *config.Config, idx int) ([]*Validator, error) {
     }
 	}
 
-	return validators, nil
+	return validators
+}
+
+func parseAttrs(data *config.Config, idx int) map[string]string {
+	m := map[string]string{}
+
+	size := data.CountDefault("fields[%d].attrs")
+	for i := 0; i < size; i++ {
+		name := data.GetRequired("fields[%d].attrs[%d].name", idx, i)
+    value := data.GetDefault("fields[%d].attrs[%d].value", "", idx, i)
+    m[name] = value
+	}
+
+	return m
 }

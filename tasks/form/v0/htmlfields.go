@@ -247,6 +247,7 @@ type SelectField struct {
   Help        string
   Origin, OriginId, OriginLabel string
   Class []string
+  Attrs map[string]string
 }
 
 func (f *SelectField) Build(form *Form) string {
@@ -259,6 +260,9 @@ func (f *SelectField) Build(form *Form) string {
 
   controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
   update(attrs, controlAttrs)
+  if f.Attrs != nil {
+    update(attrs, f.Attrs)
+  }
 
   ctrl := "<select"
   for k, v := range attrs {
