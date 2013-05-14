@@ -8,12 +8,12 @@ type Validator struct {
 
 func initValidator(name, value, msg string) *Validator {
 	m := map[string]func(name, value, msg string) *Validator{
-		"required":  required,
-		"minlength": minLength,
-		"maxlength": maxLength,
-		"email":     email,
+		"required":   required,
+		"minlength":  minLength,
+		"maxlength":  maxLength,
+		"email":      email,
 		"dateBefore": dateBefore,
-		"integer": integer,
+		"integer":    integer,
 	}
 	if m[name] == nil {
 		return nil

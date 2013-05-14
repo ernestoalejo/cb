@@ -19,12 +19,12 @@ func form_html(c *config.Config, q *registry.Queue) error {
 	}
 
 	form := &Form{
-		Filename:  filename,
-		Name:      data.GetDefault("formname", "f"),
-		Submit:    data.GetDefault("submitfunc", "submit"),
-		TrySubmit: data.GetDefault("trySubmitfunc", "trySubmit"),
-		ObjName:   data.GetDefault("objname", "data"),
-    Validators: make(map[string][]*Validator),
+		Filename:   filename,
+		Name:       data.GetDefault("formname", "f"),
+		Submit:     data.GetDefault("submitfunc", "submit"),
+		TrySubmit:  data.GetDefault("trySubmitfunc", "trySubmit"),
+		ObjName:    data.GetDefault("objname", "data"),
+		Validators: make(map[string][]*Validator),
 	}
 
 	fields := data.CountDefault("fields")
@@ -64,7 +64,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 			Id:          name,
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 			Type:        fieldType,
-      Name: data.GetDefault("fields[%d].label", "", idx),
+			Name:        data.GetDefault("fields[%d].label", "", idx),
 		}
 
 	case "textarea":
@@ -74,7 +74,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 			Id:          name,
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 			Rows:        data.GetInt("fields[%d].rows", 3, idx),
-      Name: data.GetDefault("fields[%d].label", "", idx),
+			Name:        data.GetDefault("fields[%d].label", "", idx),
 		}
 
 	case "submit":
@@ -83,40 +83,40 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		}
 
 	case "radiobtn":
-    field = &RadioBtnField{
-      Help: data.GetDefault("fields[%d].help", "", idx),
-      Id: name,
-      Name: data.GetDefault("fields[%d].label", "", idx),
-      Values: extractRadioBtnValues(data, idx),
-    }
+		field = &RadioBtnField{
+			Help:   data.GetDefault("fields[%d].help", "", idx),
+			Id:     name,
+			Name:   data.GetDefault("fields[%d].label", "", idx),
+			Values: extractRadioBtnValues(data, idx),
+		}
 
 	case "date":
 		field = &DateField{
-			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
-			Help: data.GetDefault("fields[%d].help", "", idx),
-			Id: name,
-      Name: data.GetDefault("fields[%d].label", "", idx),
+			Help:        data.GetDefault("fields[%d].help", "", idx),
+			Id:          name,
+			Name:        data.GetDefault("fields[%d].label", "", idx),
 		}
 
 	case "select":
 		field = &SelectField{
-			Attrs: parseAttrs(data, idx),
-			BlankId: data.GetDefault("fields[%d].blank.id", "", idx),
-			BlankLabel: data.GetDefault("fields[%d].blank.label", "", idx),
-			Class: strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
-			Help: data.GetDefault("fields[%d].help", "", idx),
-			Id: name,
-			Origin: data.GetRequired("fields[%d].origin", idx),
-			OriginId: data.GetDefault("fields[%d].originId", "id", idx),
+			Attrs:       parseAttrs(data, idx),
+			BlankId:     data.GetDefault("fields[%d].blank.id", "", idx),
+			BlankLabel:  data.GetDefault("fields[%d].blank.label", "", idx),
+			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			Help:        data.GetDefault("fields[%d].help", "", idx),
+			Id:          name,
+			Origin:      data.GetRequired("fields[%d].origin", idx),
+			OriginId:    data.GetDefault("fields[%d].originId", "id", idx),
 			OriginLabel: data.GetDefault("fields[%d].originLabel", "label", idx),
-      Name: data.GetDefault("fields[%d].label", "", idx),
+			Name:        data.GetDefault("fields[%d].label", "", idx),
 		}
 
 	case "checkbox":
 		field = &CheckboxField{
-			Id: name,
-      Name: data.GetDefault("fields[%d].label", "", idx),
+			Id:   name,
+			Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
 		}
 
@@ -131,13 +131,13 @@ func parseValidators(data *config.Config, idx int) []*Validator {
 
 	nvalidators := data.CountDefault("fields[%d].validators", idx)
 	for i := 0; i < nvalidators; i++ {
-    name := data.GetRequired("fields[%d].validators[%d].name", idx, i)
-    value := data.GetDefault("fields[%d].validators[%d].value", "", idx, i)
-    msg := data.GetDefault("fields[%d].validators[%d].msg", "", idx, i)
-    validator := initValidator(name, value, msg)
-    if validator != nil {
-      validators = append(validators, validator)
-    }
+		name := data.GetRequired("fields[%d].validators[%d].name", idx, i)
+		value := data.GetDefault("fields[%d].validators[%d].value", "", idx, i)
+		msg := data.GetDefault("fields[%d].validators[%d].msg", "", idx, i)
+		validator := initValidator(name, value, msg)
+		if validator != nil {
+			validators = append(validators, validator)
+		}
 	}
 
 	return validators
@@ -149,8 +149,8 @@ func parseAttrs(data *config.Config, idx int) map[string]string {
 	size := data.CountDefault("fields[%d].attrs", idx)
 	for i := 0; i < size; i++ {
 		name := data.GetRequired("fields[%d].attrs[%d].name", idx, i)
-    value := data.GetDefault("fields[%d].attrs[%d].value", "", idx, i)
-    m[name] = value
+		value := data.GetDefault("fields[%d].attrs[%d].value", "", idx, i)
+		m[name] = value
 	}
 
 	return m

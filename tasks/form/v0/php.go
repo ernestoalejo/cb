@@ -61,8 +61,8 @@ class {{ .Classname }} {
 		"email":      "email",
 		"dateBefore": "before",
 		"boolean":    "in",
-		"integer": "integer",
-    "db_present": "db_present",
+		"integer":    "integer",
+		"db_present": "db_present",
 	}
 )
 
@@ -83,8 +83,8 @@ func form_php(c *config.Config, q *registry.Queue) error {
 	}
 
 	tdata := &PhpData{
-		Filename: filename,
-		Rules:    make([]*Rule, 0),
+		Filename:  filename,
+		Rules:     make([]*Rule, 0),
 		Classname: data.GetRequired("classname"),
 	}
 

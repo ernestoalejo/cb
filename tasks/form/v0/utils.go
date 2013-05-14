@@ -1,7 +1,7 @@
 package v0
 
 import (
-  "fmt"
+	"fmt"
 
 	"github.com/ernestokarim/cb/config"
 )
@@ -19,27 +19,27 @@ func extractRadioBtnValues(data *config.Config, idx int) map[string]string {
 
 // Update the contents of m with the s items
 func update(m map[string]string, s map[string]string) {
-  for k, v := range s {
-    m[k] = v
-  }
+	for k, v := range s {
+		m[k] = v
+	}
 }
 
 func buildCtrl(start, end string, attrs map[string]string) string {
-  tabs := 6
+	tabs := 6
 
-  ctrl := start
-  n := len(ctrl)
-  for k, v := range attrs {
-    newattr := fmt.Sprintf(` %s="%s"`, k, v)
-    n += len(newattr)
-    if n > 80 - tabs {
-      ctrl += "\n   "
-      for i := 0; i < tabs; i++ {
-        ctrl += " "
-      }
-      n = len(newattr)
-    }
-    ctrl += newattr
-  }
-  return ctrl + end
+	ctrl := start
+	n := len(ctrl)
+	for k, v := range attrs {
+		newattr := fmt.Sprintf(` %s="%s"`, k, v)
+		n += len(newattr)
+		if n > 80-tabs {
+			ctrl += "\n   "
+			for i := 0; i < tabs; i++ {
+				ctrl += " "
+			}
+			n = len(newattr)
+		}
+		ctrl += newattr
+	}
+	return ctrl + end
 }
