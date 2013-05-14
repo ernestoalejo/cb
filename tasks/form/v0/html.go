@@ -144,7 +144,7 @@ func parseValidators(data *config.Config, idx int) []*Validator {
 func parseAttrs(data *config.Config, idx int) map[string]string {
 	m := map[string]string{}
 
-	size := data.CountDefault("fields[%d].attrs")
+	size := data.CountDefault("fields[%d].attrs", idx)
 	for i := 0; i < size; i++ {
 		name := data.GetRequired("fields[%d].attrs[%d].name", idx, i)
     value := data.GetDefault("fields[%d].attrs[%d].value", "", idx, i)
