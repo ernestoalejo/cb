@@ -52,19 +52,34 @@ func buildControl(form *Form, id, name, help string) (map[string]string, string)
 
 	fid := fmt.Sprintf("%s%s", form.Name, id)
 	if len(form.Validators[id]) > 0 {
-		messages = fmt.Sprintf("\n      "+`<p class="help-block error" `+
-			`ng-show="%s.val && %s.%s.$invalid">`+"\n", form.Name, form.Name, fid)
 
+		// Recorrer una primera vez las validaciones para construir el p.
+		// Recorrerlas a la misma vez añadiendo errores y mensajes que luego
+		// se juntan al terminar con el verdadero mensaje.
+		var valErrors, showErrs string
 		for _, val := range form.Validators[id] {
 			update(attrs, val.Attrs)
-			errs += fmt.Sprintf("%s.%s.$error.%s || ", form.Name, fid, val.Error)
-			messages += fmt.Sprintf(`        <span ng-show="%s.%s.$error.%s">`,
-				form.Name, fid, val.Error)
-			messages += "\n          "
-			messages += val.Message
-			messages += "\n        </span>\n"
+
+			if val.User {
+				errs += fmt.Sprintf("%s || ", val.Error)
+				showErrs += " || " + val.Error
+			} else {
+				errs += fmt.Sprintf("%s.%s.$error.%s || ", form.Name, fid, val.Error)
+			}
+
+			var e string
+			if val.User {
+				e = val.Error
+			} else {
+				e = fmt.Sprintf("%s.%s.$error.%s", form.Name, fid, val.Error)
+			}
+			valErrors += fmt.Sprintf(`        <span ng-show="%s">`, e)
+			valErrors += "\n          " + val.Message + "\n        </span>\n"
 		}
 
+		messages = fmt.Sprintf("\n      "+`<p class="help-block error" `+
+			`ng-show="%s.val && (%s.%s.$invalid%s)">`+"\n", form.Name, form.Name, fid, showErrs)
+		messages += valErrors
 		messages += "      </p>"
 	}
 	if len(errs) > 0 {
