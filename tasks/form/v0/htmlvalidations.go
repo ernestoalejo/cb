@@ -4,7 +4,7 @@ type Validator struct {
 	Attrs   map[string]string
 	Message string
 	Error   string
-	User bool
+	User    bool
 }
 
 func initValidator(name, value, msg string) *Validator {
@@ -15,7 +15,8 @@ func initValidator(name, value, msg string) *Validator {
 		"email":      email,
 		"dateBefore": dateBefore,
 		"integer":    integer,
-		"user": user,
+		"user":       user,
+		"validDate":  validDate,
 	}
 	if m[name] == nil {
 		return nil
@@ -73,9 +74,17 @@ func integer(name, value, msg string) *Validator {
 
 func user(name, value, msg string) *Validator {
 	return &Validator{
-		Attrs: map[string]string{},
+		Attrs:   map[string]string{},
 		Message: msg,
-		Error: value,
-		User: true,
+		Error:   value,
+		User:    true,
+	}
+}
+
+func validDate(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{"valid-date": ""},
+		Message: msg,
+		Error:   "validDate",
 	}
 }
