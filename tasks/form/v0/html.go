@@ -120,6 +120,9 @@ func parseField(data *config.Config, idx int) (Field, error) {
 			Help: data.GetDefault("fields[%d].help", "", idx),
 		}
 
+	case "norender":
+		return nil, nil
+
 	default:
 		return nil, fmt.Errorf("no field type %s in html mode", fieldType)
 	}
