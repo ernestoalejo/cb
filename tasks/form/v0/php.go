@@ -102,6 +102,9 @@ func form_php(c *config.Config, q *registry.Queue) error {
 			}
 
 			vname = phpNameTable[vname]
+      if len(vname) == 0 {
+        continue
+      }
 
 			val := fmt.Sprintf("%s", vname)
 			if len(vvalue) > 0 {
@@ -121,6 +124,10 @@ func form_php(c *config.Config, q *registry.Queue) error {
 		} else if fieldType == "date" {
 			validators = append(validators, "valid_date")
 		}
+
+    if len(validators) == 0 {
+      continue
+    }
 
 		tdata.Rules = append(tdata.Rules, &Rule{
 			Name:       name,
