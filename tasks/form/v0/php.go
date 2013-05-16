@@ -42,25 +42,23 @@ class {{ .Classname }} {
 
       // If it's an int, convert it back to string
       if (is_int($rawData[$key])) {
-        $data[$key] = strval($rawData[$key]);
-        $validateData = $data[$key];
+        $rawData[$key] = strval($rawData[$key]);
       }
+
+      $data[$key] = $rawData[$key];
+      $validateData[$key] = $data[$key];
 
       if ($value === 'in:true,false') {
         // If it's a boolean, check it and validate it as a string
-        if (!is_bool($rawData[$key])) {
+        if (!is_bool($data[$key])) {
+          $data[$key] = '';
           $validateData[$key] = '';
         }
-        $data[$key] = $rawData[$key];
         $validateData[$key] = $data[$key] ? 'true' : 'false';
-      } else if (!is_string($rawData[$key]) && !is_bool($rawData[$key])) {
+      } else if (!is_string($data[$key]) && !is_bool($data[$key])) {
         // If it's any other JSON-valid type, reset it to an empty string
         $data[$key] = '';
         $validateData[$key] = '';
-      } else {
-        // Normal strings, copy them
-        $data[$key] = $rawData[$key];
-        $validateData[$key] = $rawData[$key];
       }
     }
 
@@ -71,6 +69,7 @@ class {{ .Classname }} {
 
     $validation = Validator::make($validateData, $rules);
     if ($validation->fails()) {
+      Log::error(print_r($validateData, true));
     	Log::error(print_r($validation->errors->all(), true));
       foreach ($rules as $key => $value) {
         if ($validation->errors->has($key)) {
