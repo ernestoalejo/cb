@@ -21,31 +21,62 @@ var (
 class {{ .Classname }} {
 
   public static function validate() {
-    $data = Input::json(true);
+    $rawData = Input::json(true);
     $rules = array(
       {{ range .Rules }}'{{ .Name }}' => '{{ .Validators }}',
       {{ end }}
     );
 
+    $data = array();
+    $validateData = array();
+    $removeFromRules = array();
+
     foreach ($rules as $key => $value) {
-      if (!isset($data[$key])) {
-        $data[$key] = '';
+      // If not set, it's an empty string
+      if (!isset($rawData[$key])) {
+        $rawData[$key] = '';
       }
-      if (is_int($data[$key])) {
-        $data[$key] = strval($data[$key]);
+      if (strlen($value) == 0) {
+        array_push($removeFromRules, $key);
       }
+
+      // If it's an int, convert it back to string
+      if (is_int($rawData[$key])) {
+        $data[$key] = strval($rawData[$key]);
+        $validateData = $data[$key];
+      }
+
       if ($value === 'in:true,false') {
-        if (!is_bool($data[$key])) {
-          $data[$key] = '';
+        // If it's a boolean, check it and validate it as a string
+        if (!is_bool($rawData[$key])) {
+          $validateData[$key] = '';
         }
-      } else if (!is_string($data[$key]) && !is_bool($data[$key])) {
+        $data[$key] = $rawData[$key];
+        $validateData[$key] = $data[$key] ? 'true' : 'false';
+      } else if (!is_string($rawData[$key]) && !is_bool($rawData[$key])) {
+        // If it's any other JSON-valid type, reset it to an empty string
         $data[$key] = '';
+        $validateData[$key] = '';
+      } else {
+        // Normal strings, copy them
+        $data[$key] = $rawData[$key];
+        $validateData[$key] = $rawData[$key];
       }
     }
 
-    $validation = Validator::make($data, $rules);
+    // Remove empty validation rules (only needed to initialize the values)
+    foreach ($removeFromRules as $name) {
+      unset($rules[$name]);
+    }
+
+    $validation = Validator::make($validateData, $rules);
     if ($validation->fails()) {
     	Log::error(print_r($validation->errors->all(), true));
+      foreach ($rules as $key => $value) {
+        if ($validation->errors->has($key)) {
+          Log::error('Failing: ' . $key);
+        }
+      }
       return null;
     }
 
@@ -124,10 +155,6 @@ func form_php(c *config.Config, q *registry.Queue) error {
 		} else if fieldType == "date" {
 			validators = append(validators, "valid_date")
 		}
-
-    if len(validators) == 0 {
-      continue
-    }
 
 		tdata.Rules = append(tdata.Rules, &Rule{
 			Name:       name,
