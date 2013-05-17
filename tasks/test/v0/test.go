@@ -16,16 +16,16 @@ func init() {
 }
 
 func test(c *config.Config, q *registry.Queue) error {
-	args := []string{"start", "config/testacular.conf.js"}
-	if err := utils.ExecCopyOutput("testacular", args); err != nil {
+	args := []string{"start", "config/karma.conf.js"}
+	if err := utils.ExecCopyOutput("karma", args); err != nil {
 		return fmt.Errorf("exec failed: %s", err)
 	}
 	return nil
 }
 
 func test_compiled(c *config.Config, q *registry.Queue) error {
-	args := []string{"start", "config/testacular-compiled.conf.js"}
-	if err := utils.ExecCopyOutput("testacular", args); err != nil {
+	args := []string{"start", "config/karma-compiled.conf.js"}
+	if err := utils.ExecCopyOutput("karma", args); err != nil {
 		return fmt.Errorf("exec failed: %s", err)
 	}
 	return nil
