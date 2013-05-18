@@ -215,7 +215,7 @@ func writeControllerRouteFile(data *ControllerData) error {
 
 			newlines = append(newlines, []string{
 				fmt.Sprintf("      .when('%s', {\n", data.Route),
-				fmt.Sprintf("        templateUrl: 'views/%s/%s',\n", name, filename),
+				fmt.Sprintf("        templateUrl: '/views/%s/%s',\n", name, filename),
 				fmt.Sprintf("        controller: '%s'\n", data.Name),
 				"      })\n",
 			}...)
