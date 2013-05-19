@@ -49,7 +49,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 	newlines := []string{}
 	for i, line := range lines {
 		// Functions
-		funcs := []string{"factory", "directive", "config", "controller"}
+		funcs := []string{"factory", "directive", "config", "controller", "run"}
 		used := false
 		for _, f := range funcs {
 			if !strings.HasPrefix(line, "m."+f+"(") {
