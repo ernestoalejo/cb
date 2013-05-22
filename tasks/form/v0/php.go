@@ -132,9 +132,9 @@ func form_php(c *config.Config, q *registry.Queue) error {
 			}
 
 			vname = phpNameTable[vname]
-      if len(vname) == 0 {
-        continue
-      }
+			if len(vname) == 0 {
+				continue
+			}
 
 			val := fmt.Sprintf("%s", vname)
 			if len(vvalue) > 0 {

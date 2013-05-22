@@ -83,8 +83,15 @@ func (c *Config) GetInt(format string, def int, a ...interface{}) int {
 	return int(n)
 }
 
-func (c *Config) GetBool(spec string) (bool, error) {
-	return c.f.GetBool(spec)
+func (c *Config) GetBoolDefault(spec string) bool {
+	b, err := c.f.GetBool(spec)
+	if err != nil {
+		if IsNotFound(err) {
+			return false
+		}
+		panic(err)
+	}
+	return b
 }
 
 func (c *Config) Count(spec string) (int, error) {

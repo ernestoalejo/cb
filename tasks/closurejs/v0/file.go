@@ -69,11 +69,7 @@ func getFile(c *config.Config) (*file, error) {
 			return nil, fmt.Errorf("get externs failed: %s", err)
 		}
 	}
-	f.debug, err = c.GetBool("closurejs.debug")
-	if err != nil {
-		return nil, fmt.Errorf("get debug failed: %s", err)
-	}
-
+	f.debug = c.GetBoolDefault("closurejs.debug")
 	f.dest = filepath.Join("temp", "scripts", f.dest)
 	return f, nil
 }

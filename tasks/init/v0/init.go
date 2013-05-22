@@ -21,14 +21,14 @@ const SELF_PKG = "github.com/ernestokarim/cb/tasks/init/v0/templates"
 
 // List of files that must be passed through the template system
 var needTemplates = map[string]bool{
-	"angular/app.yaml":                                  true,
-	"angular/client/app/base.html":                      true,
-	"angular/client/bower.json":                     true,
-	"angular/client/config.yaml":                        true,
+	"angular/app.yaml":                             true,
+	"angular/client/app/base.html":                 true,
+	"angular/client/bower.json":                    true,
+	"angular/client/config.yaml":                   true,
 	"angular/client/config/karma-compiled.conf.js": true,
-	"angular/component.json":                            true,
-	"angular/conf/sample-conf.go":                       true,
-	"closure/base.html":                                 true,
+	"angular/component.json":                       true,
+	"angular/conf/sample-conf.go":              true,
+	"closure/base.html":                        true,
 }
 
 var (
