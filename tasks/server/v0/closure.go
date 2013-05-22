@@ -101,11 +101,7 @@ func compileHandler(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	library, err := configs.Get("closure.library")
-	if err != nil {
-		return fmt.Errorf("cannot get library root: %s", err)
-	}
-
+	library := configs.GetRequired("closure.library")
 	content := bytes.NewBuffer(nil)
 	files := []string{
 		filepath.Join(library, "closure", "goog", "base.js"),

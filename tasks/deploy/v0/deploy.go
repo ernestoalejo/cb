@@ -47,11 +47,7 @@ func init() {
 }
 
 func deploy(c *config.Config, q *registry.Queue) error {
-	base, err := c.Get("base")
-	if err != nil {
-		return fmt.Errorf("get config failed: %s", err)
-	}
-
+	base := c.GetRequired("base")
 	name := strings.Split(q.CurTask, ":")[1]
 	commands := strings.Split(deployCommands[name], "\n")
 	for _, command := range commands {
@@ -63,6 +59,7 @@ func deploy(c *config.Config, q *registry.Queue) error {
 
 		// Execute macros
 		if command[0] == '@' && macros[command[1:]] != nil {
+			var err error
 			command, err = macros[command[1:]]()
 			if err != nil {
 				return fmt.Errorf("macro %s failed: %s", command[1:], err)

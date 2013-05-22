@@ -56,14 +56,9 @@ func newSource(c *config.Config, path string) (*Source, error) {
 		src = new(Source)
 	}
 
-	base, err := isBase(c, path)
-	if err != nil {
-		return nil, fmt.Errorf("cannot check if it's the base file: %s", err)
-	}
-
 	src.Provides = []string{}
 	src.Requires = []string{}
-	src.Base = base
+	src.Base = isBase(c, path)
 	src.Path = path
 	src.Cached = false
 
@@ -115,11 +110,8 @@ func newSource(c *config.Config, path string) (*Source, error) {
 	return src, nil
 }
 
-func isBase(c *config.Config, path string) (bool, error) {
-	library, err := c.Get("closure.library")
-	if err != nil {
-		return false, fmt.Errorf("cannot get library root: %s", err)
-	}
+func isBase(c *config.Config, path string) bool {
+	library := c.GetRequired("closure.library")
 	base := filepath.Join(library, "closure", "goog", "base.js")
-	return path == base, nil
+	return path == base
 }

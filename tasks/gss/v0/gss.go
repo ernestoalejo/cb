@@ -16,14 +16,7 @@ func init() {
 }
 
 func gss(c *config.Config, q *registry.Queue) error {
-	if !*config.ClosureMode {
-		return fmt.Errorf("closure mode only task")
-	}
-
-	compilerPath, err := c.Get("closure.stylesheets")
-	if err != nil {
-		return fmt.Errorf("cannot get compiler path: %s", err)
-	}
+	compilerPath := c.GetRequired("closure.stylesheets")
 	compilerPath = filepath.Join(compilerPath, "build", "closure-stylesheets.jar")
 
 	size := c.CountRequired("gss")

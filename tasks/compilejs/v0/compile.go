@@ -23,17 +23,11 @@ func init() {
 }
 
 func compilejs(c *config.Config, q *registry.Queue) error {
-	base, err := c.Get("base")
-	if err != nil {
-		return fmt.Errorf("get config failed: %s", err)
-	}
-	base = filepath.Join("temp", base)
-
+	base := filepath.Join("temp", c.GetRequired("base"))
 	lines, err := utils.ReadLines(base)
 	if err != nil {
 		return fmt.Errorf("read base html failed: %s", err)
 	}
-
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
 		if strings.Contains(line, "<!-- compile") {

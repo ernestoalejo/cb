@@ -81,14 +81,8 @@ func closurejs(c *config.Config, q *registry.Queue) error {
 }
 
 func build_closurejs(c *config.Config, q *registry.Queue) error {
-	compiler, err := c.Get("closure.compiler")
-	if err != nil {
-		return fmt.Errorf("cannot obtain compiler root: %s", err)
-	}
-	library, err := c.Get("closure.library")
-	if err != nil {
-		return fmt.Errorf("cannot obtain library root: %s", err)
-	}
+	compiler := c.GetRequired("closure.compiler")
+	library := c.GetRequired("closure.library")
 
 	file, err := getFile(c)
 	if err != nil {

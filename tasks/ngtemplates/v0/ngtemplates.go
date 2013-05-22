@@ -57,11 +57,7 @@ func ngtemplates(c *config.Config, q *registry.Queue) error {
 }
 
 func getPaths(c *config.Config) ([]string, string, error) {
-	appendto, err := c.Get("ngtemplates.appendto")
-	if err != nil {
-		return nil, "", fmt.Errorf("get appendto failed: %s", err)
-	}
-
+	appendto := c.GetRequired("ngtemplates.appendto")
 	paths := []string{}
 	size := c.CountRequired("ngtemplates.files")
 	for i := 0; i < size; i++ {
@@ -71,7 +67,6 @@ func getPaths(c *config.Config) ([]string, string, error) {
 		}
 		paths = append(paths, file)
 	}
-
 	return paths, appendto, nil
 }
 

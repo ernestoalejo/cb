@@ -21,11 +21,7 @@ func soy(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("scan source failed: %s", err)
 	}
 
-	compilerPath, err := c.Get("closure.compiler")
-	if err != nil {
-		return fmt.Errorf("obtain compiler path failed: %s", err)
-	}
-
+	compilerPath := c.GetRequired("closure.compiler")
 	for i, src := range srcs {
 		dest := dests[i]
 

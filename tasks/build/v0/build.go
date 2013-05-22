@@ -30,10 +30,8 @@ func build(c *config.Config, q *registry.Queue) error {
 			"dist:copy@0",
 		})
 
-		deploy, err := c.Get("deploy")
-		if err != nil && !config.IsNotFound(err) {
-			return fmt.Errorf("get config failed: %s", err)
-		} else if err == nil {
+		deploy := c.GetDefault("deploy", "")
+		if len(deploy) > 0 {
 			q.AddTask(fmt.Sprintf("deploy:%s", deploy))
 		}
 	}
