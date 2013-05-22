@@ -32,11 +32,13 @@ var needTemplates = map[string]bool{
 }
 
 var (
-	clientOnly bool
+	clientOnly  bool
+	closureMode bool
 )
 
 func init() {
 	registry.NewUserTask("init", 0, init_task)
+	registry.NewUserTask("init:closure", 0, init_closure)
 	registry.NewUserTask("init:client", 0, init_client)
 }
 
@@ -45,17 +47,22 @@ func init_client(c *config.Config, q *registry.Queue) error {
 	return init_task(c, q)
 }
 
+func init_closure(c *config.Config, q *registry.Queue) error {
+	closureMode = true
+	return init_task(c, q)
+}
+
 func init_task(c *config.Config, q *registry.Queue) error {
 	var path string
-	if *config.AngularMode {
+	if !closureMode {
 		path = filepath.Join(SELF_PKG, "angular")
+
+		if clientOnly {
+			path = filepath.Join(path, "client")
+		}
 	}
-	if *config.ClosureMode {
+	if closureMode {
 		path = filepath.Join(SELF_PKG, "closure")
-	}
-	// Mutually exclusive with closure mode, no problems here
-	if clientOnly {
-		path = filepath.Join(path, "client")
 	}
 
 	cur, err := os.Getwd()
@@ -80,7 +87,7 @@ func init_task(c *config.Config, q *registry.Queue) error {
 	if err := copyFiles(c, appname, base, dest, cur); err != nil {
 		return fmt.Errorf("copy files failed: %s", err)
 	}
-	if *config.AngularMode {
+	if !closureMode {
 		fmt.Printf("Don't forget to run %s`bower install`%s inside the client folder\n",
 			colors.RED, colors.RESET)
 	}

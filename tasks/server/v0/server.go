@@ -11,7 +11,8 @@ func init() {
 }
 
 func server(c *config.Config, q *registry.Queue) error {
-	if *config.AngularMode {
+	closure := (len(c.GetDefault("closure.library", "")) > 0)
+	if !closure {
 		q.AddTasks([]string{
 			"clean@0",
 			"recess@0",
@@ -20,7 +21,7 @@ func server(c *config.Config, q *registry.Queue) error {
 			"server:angular@0",
 		})
 	}
-	if *config.ClosureMode {
+	if closure {
 		q.AddTasks([]string{
 			"clean@0",
 			"sass@0",

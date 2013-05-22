@@ -13,7 +13,8 @@ func init() {
 }
 
 func build(c *config.Config, q *registry.Queue) error {
-	if *config.AngularMode {
+	closure := (len(c.GetDefault("closure.library", "")) > 0)
+	if !closure {
 		q.AddTasks([]string{
 			"clean@0",
 			"dist:prepare@0",
@@ -35,7 +36,7 @@ func build(c *config.Config, q *registry.Queue) error {
 			q.AddTask(fmt.Sprintf("deploy:%s", deploy))
 		}
 	}
-	if *config.ClosureMode {
+	if closure {
 		q.AddTasks([]string{
 			"clean@0",
 			"dist:prepare@0",

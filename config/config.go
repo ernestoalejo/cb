@@ -23,9 +23,6 @@ func NewConfig(f *yaml.File) *Config {
 func Load() (*Config, error) {
 	if _, err := os.Stat("config.yaml"); err != nil {
 		if os.IsNotExist(err) {
-			if err := checkFlags(nil); err != nil {
-				return nil, err
-			}
 			return nil, nil
 		}
 		return nil, fmt.Errorf("stat config failed: %s", err)
@@ -36,9 +33,6 @@ func Load() (*Config, error) {
 	}
 
 	c := NewConfig(f)
-	if err := checkFlags(c); err != nil {
-		return nil, err
-	}
 	if err := prepare(c); err != nil {
 		return nil, err
 	}
@@ -129,33 +123,6 @@ func (c *Config) GetListDefault(format string, a ...interface{}) []string {
 	return items
 }
 
-func checkFlags(c *Config) error {
-	// Both modes activated, error
-	if *AngularMode && *ClosureMode {
-		return fmt.Errorf("cannot activate angular & closure at the same time")
-	}
-
-	// No options, take it from the config file
-	if c != nil && c.f.Root != nil && c.f.Root.(yaml.Map).Key("closurejs") != nil {
-		if *ClosureMode {
-			return fmt.Errorf("redundant mode in command line flags: closure")
-		}
-		*ClosureMode = true
-	} else if !*ClosureMode {
-		if *AngularMode {
-			return fmt.Errorf("redundant mode in command line flags: angular")
-		}
-		*AngularMode = true
-	}
-
-	// Additional checks
-	if !*ClosureMode && !*AngularMode {
-		return fmt.Errorf("no mode detected")
-	}
-
-	return nil
-}
-
 func (c *Config) Render() {
 	if c.f.Root == nil {
 		fmt.Println(nil)
@@ -165,7 +132,7 @@ func (c *Config) Render() {
 }
 
 func prepare(c *Config) error {
-	if *ClosureMode {
+	if len(c.GetDefault("closure.library", "")) > 0 {
 		items := []string{"library", "templates", "stylesheets", "compiler"}
 		for _, item := range items {
 			path := c.GetRequired("closure.%s", item)

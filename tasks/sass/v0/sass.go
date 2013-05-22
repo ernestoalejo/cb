@@ -24,16 +24,11 @@ func exec_sass(c *config.Config, q *registry.Queue, mode string) error {
 	if err != nil {
 		return fmt.Errorf("read config failed")
 	}
-
-	var cache string
-	if *config.AngularMode {
-		cache = filepath.Join("temp", "sass-cache")
-	} else {
-		cache = filepath.Join("temp", "sass-cache")
-	}
-
 	for _, file := range files {
-		args := []string{file.Src, "--cache-location", cache}
+		args := []string{
+			file.Src,
+			"--cache-location", filepath.Join("temp", "sass-cache"),
+		}
 		if mode == "dev" {
 			args = append(args, "-l")
 		} else if mode == "prod" {
@@ -53,7 +48,6 @@ func exec_sass(c *config.Config, q *registry.Queue, mode string) error {
 			log.Printf("created file %s\n", file.Dest)
 		}
 	}
-
 	return nil
 }
 
@@ -63,7 +57,7 @@ type SassFile struct {
 
 func sassFromConfig(c *config.Config, mode string) ([]*SassFile, error) {
 	var from string
-	if *config.AngularMode {
+	if len(c.GetDefault("closure.library", "")) == 0 {
 		if mode == "dev" {
 			from = filepath.Join("app")
 		} else if mode == "prod" {

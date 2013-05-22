@@ -27,9 +27,6 @@ func init() {
 }
 
 func server_closure(c *config.Config, q *registry.Queue) error {
-	if !*config.ClosureMode {
-		return fmt.Errorf("closure mode only task")
-	}
 	configs = c
 	queue = q
 
