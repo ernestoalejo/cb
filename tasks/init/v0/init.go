@@ -23,9 +23,9 @@ const SELF_PKG = "github.com/ernestokarim/cb/tasks/init/v0/templates"
 var needTemplates = map[string]bool{
 	"angular/app.yaml":                                  true,
 	"angular/client/app/base.html":                      true,
+	"angular/client/bower.json":                     true,
 	"angular/client/config.yaml":                        true,
-	"angular/client/config/testacular-compiled.conf.js": true,
-	"angular/client/component.json":                     true,
+	"angular/client/config/karma-compiled.conf.js": true,
 	"angular/component.json":                            true,
 	"angular/conf/sample-conf.go":                       true,
 	"closure/base.html":                                 true,

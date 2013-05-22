@@ -4,6 +4,7 @@ basePath = '..';
 files = [
   JASMINE,
   JASMINE_ADAPTER,
+  'dist/components/jquery/*.js',
   'dist/scripts/*.{{ .AppName }}.js',
   'dist/scripts/*.js',
   'app/components/bower-angular/angular-mocks.js',
