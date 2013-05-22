@@ -74,17 +74,8 @@ func sassFromConfig(c *config.Config, mode string) ([]*SassFile, error) {
 	files := []*SassFile{}
 	size := c.CountRequired("sass")
 	for i := 0; i < size; i++ {
-		src, err := c.GetStringf("sass[%d].source", i)
-		if err != nil {
-			return nil, fmt.Errorf("get sass source failed: %s", err)
-		}
-		dest, err := c.GetStringf("sass[%d].dest", i)
-		if err != nil {
-			return nil, fmt.Errorf("get sass dest failed: %s", err)
-		}
-
-		src = filepath.Join(from, "styles", src)
-		dest = filepath.Join("temp", "styles", dest)
+		src := filepath.Join(from, "styles", c.GetRequired("sass[%d].source", i))
+		dest := filepath.Join("temp", "styles", c.GetRequired("sass[%d].dest", i))
 		files = append(files, &SassFile{src, dest})
 	}
 	return files, nil

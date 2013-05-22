@@ -39,10 +39,7 @@ func stylesHandler(w http.ResponseWriter, r *http.Request) error {
 	for _, dest := range dests {
 		size := configs.CountRequired(dest)
 		for i := 0; i < size; i++ {
-			style, err := configs.GetStringf("%s[%d].dest", dest, i)
-			if err != nil {
-				return fmt.Errorf("get dest failed: %s", err)
-			}
+			style := configs.GetRequired("%s[%d].dest", dest, i)
 			if style != name {
 				continue
 			}

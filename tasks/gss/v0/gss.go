@@ -21,14 +21,8 @@ func gss(c *config.Config, q *registry.Queue) error {
 
 	size := c.CountRequired("gss")
 	for i := 0; i < size; i++ {
-		src, err := c.GetStringf("gss[%d].source", i)
-		if err != nil {
-			return fmt.Errorf("get gss source failed: %s", err)
-		}
-		dest, err := c.GetStringf("gss[%d].dest", i)
-		if err != nil {
-			return fmt.Errorf("get gss dest failed: %s", err)
-		}
+		src := c.GetRequired("gss[%d].source", i)
+		dest := c.GetRequired("gss[%d].dest", i)
 
 		dir := filepath.Dir(dest)
 		if err := os.MkdirAll(dir, 0755); err != nil {

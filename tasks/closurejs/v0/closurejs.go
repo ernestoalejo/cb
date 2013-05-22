@@ -140,10 +140,7 @@ func build_closurejs(c *config.Config, q *registry.Queue) error {
 }
 
 func getInputs(c *config.Config) ([]string, []string, error) {
-	inputs, err := c.GetStringList("closurejs.inputs")
-	if err != nil {
-		return nil, nil, fmt.Errorf("get inputs failed: %s", err)
-	}
+	inputs := c.GetListRequired("closurejs.inputs")
 
 	tests := []string{}
 	fn := func(path string, info os.FileInfo, err error) error {

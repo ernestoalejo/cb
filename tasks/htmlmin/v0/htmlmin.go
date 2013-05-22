@@ -18,14 +18,8 @@ func init() {
 func htmlmin(c *config.Config, q *registry.Queue) error {
 	size := c.CountDefault("htmlmin")
 	for i := 0; i < size; i++ {
-		source, err := c.GetStringf("htmlmin[%d].source", i)
-		if err != nil {
-			return fmt.Errorf("get config failed: %s", err)
-		}
-		dest, err := c.GetStringf("htmlmin[%d].dest", i)
-		if err != nil {
-			return fmt.Errorf("get config failed: %s", err)
-		}
+		source := c.GetRequired("htmlmin[%d].source", i)
+		dest := c.GetRequired("htmlmin[%d].dest", i)
 		if err := htmlcompressor(source, dest); err != nil {
 			return fmt.Errorf("html compress failed: %s", err)
 		}

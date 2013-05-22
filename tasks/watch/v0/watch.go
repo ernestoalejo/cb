@@ -16,23 +16,13 @@ func watch(c *config.Config, q *registry.Queue) error {
 	size := c.CountRequired("watch")
 	for i := 0; i < size; i++ {
 		// Extract the task name
-		task, err := c.GetStringf("watch[%d].task", i)
-		if err != nil {
-			return fmt.Errorf("get watch task failed: %s", err)
-		}
+		task := c.GetRequired("watch[%d].task", i)
 
 		// Extract the paths
-		pathsSize, err := c.Countf("watch[%d].paths", i)
-		if err != nil {
-			return fmt.Errorf("count watch paths failed: %s", err)
-		}
 		paths := []string{}
+		pathsSize := c.CountDefault("watch[%d].paths", i)
 		for j := 0; j < pathsSize; j++ {
-			p, err := c.GetStringf("watch[%d].paths[%d]", i, j)
-			if err != nil {
-				return fmt.Errorf("get watch path failed: %s", err)
-			}
-			paths = append(paths, p)
+			paths = append(paths, c.GetRequired("watch[%d].paths[%d]", i, j))
 		}
 
 		// Init the watcher

@@ -38,10 +38,7 @@ func init() {
 }
 
 func cacherev(c *config.Config, q *registry.Queue) error {
-	dirs, err := c.GetStringList("cacherev.dirs")
-	if err != nil {
-		return fmt.Errorf("get config failed: %s", err)
-	}
+	dirs := c.GetListRequired("cacherev.dirs")
 	for _, dir := range dirs {
 		dir = filepath.Join("temp", dir)
 		if err := filepath.Walk(dir, changeName); err != nil {
@@ -49,20 +46,15 @@ func cacherev(c *config.Config, q *registry.Queue) error {
 		}
 	}
 
-	rev, err := c.GetStringList("cacherev.rev")
-	if err != nil && !config.IsNotFound(err) {
-		return fmt.Errorf("get config failed: %s", err)
-	} else if err == nil {
-		for _, dir := range rev {
-			dir = filepath.Join("temp", dir)
-			if err := filepath.Walk(dir, changeReferences); err != nil {
-				return fmt.Errorf("change references walk failed (%s): %s", dir, err)
-			}
+	rev := c.GetListDefault("cacherev.rev")
+	for _, dir := range rev {
+		dir = filepath.Join("temp", dir)
+		if err := filepath.Walk(dir, changeReferences); err != nil {
+			return fmt.Errorf("change references walk failed (%s): %s", dir, err)
 		}
 	}
 
 	utils.SaveChanges(changes)
-
 	return nil
 }
 

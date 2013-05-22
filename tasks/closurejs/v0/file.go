@@ -38,18 +38,15 @@ type file struct {
 }
 
 func getFile(c *config.Config) (*file, error) {
-	f := &file{}
-	var err error
+	f := &file{
+		externs: c.GetListDefault("closurejs.externs"),
+		inputs:  c.GetListRequired("closurejs.inputs"),
+		defines: getDefines(c),
+		debug:   c.GetBoolDefault("closurejs.debug"),
+		dest:    filepath.Join("temp", "scripts", c.GetRequired("closurejs.dest")),
+	}
 
-	f.dest = c.GetRequired("closurejs.dest")
-	f.inputs, err = c.GetStringList("closurejs.inputs")
-	if err != nil {
-		return nil, fmt.Errorf("get inputs failed: %s", err)
-	}
-	f.defines, err = getDefines(c)
-	if err != nil {
-		return nil, fmt.Errorf("get defines failed: %s", err)
-	}
+	var err error
 	f.compilationLevel, err = getCompilationLevel(c)
 	if err != nil {
 		return nil, fmt.Errorf("get compilation level failed: %s", err)
@@ -58,35 +55,19 @@ func getFile(c *config.Config) (*file, error) {
 	if err != nil {
 		return nil, fmt.Errorf("get checks failed: %s", err)
 	}
-	f.externs, err = c.GetStringList("closurejs.externs")
-	if err != nil {
-		if config.IsNotFound(err) {
-			f.externs = []string{}
-		} else {
-			return nil, fmt.Errorf("get externs failed: %s", err)
-		}
-	}
-	f.debug = c.GetBoolDefault("closurejs.debug")
-	f.dest = filepath.Join("temp", "scripts", f.dest)
+
 	return f, nil
 }
 
-func getDefines(c *config.Config) ([]*define, error) {
+func getDefines(c *config.Config) []*define {
 	defines := []*define{}
 	size := c.CountRequired("closurejs.defines")
 	for i := 0; i < size; i++ {
-		name, err := c.GetStringf("closurejs.defines[%d].name", i)
-		if err != nil {
-			return nil, fmt.Errorf("get define name failed: %s", err)
-		}
-		value, err := c.GetStringf("closurejs.defines[%d].value", i)
-		if err != nil {
-			return nil, fmt.Errorf("get define value failed: %s", err)
-		}
-
+		name := c.GetRequired("closurejs.defines[%d].name", i)
+		value := c.GetRequired("closurejs.defines[%d].value", i)
 		defines = append(defines, &define{name, value})
 	}
-	return defines, nil
+	return defines
 }
 
 func getChecks(c *config.Config) ([]*check, error) {
@@ -115,13 +96,7 @@ func getChecks(c *config.Config) ([]*check, error) {
 	checks := []*check{}
 	items := []string{"off", "warning", "error"}
 	for _, item := range items {
-		names, err := c.GetStringListf("closurejs.checks.%s", item)
-		if err != nil {
-			if config.IsNotFound(err) {
-				continue
-			}
-			return nil, fmt.Errorf("get check list failed: %s", err)
-		}
+		names := c.GetListDefault("closurejs.checks.%s", item)
 		for _, name := range names {
 			if !validChecks[name] {
 				return nil, fmt.Errorf("%s is not a valid check", name)

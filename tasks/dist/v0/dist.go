@@ -17,10 +17,7 @@ func init() {
 }
 
 func prepare_dist(c *config.Config, q *registry.Queue) error {
-	dirs, err := c.GetStringList("prepare_dist")
-	if err != nil {
-		return fmt.Errorf("get config failed: %s", err)
-	}
+	dirs := c.GetListRequired("prepare_dist")
 	for _, from := range dirs {
 		if _, err := os.Stat(from); err != nil {
 			if os.IsNotExist(err) {
@@ -34,15 +31,11 @@ func prepare_dist(c *config.Config, q *registry.Queue) error {
 			return fmt.Errorf("copy error: %s", err)
 		}
 	}
-
 	return nil
 }
 
 func copy_dist(c *config.Config, q *registry.Queue) error {
-	dirs, err := c.GetStringList("dist")
-	if err != nil {
-		return fmt.Errorf("get config failed: %s", err)
-	}
+	dirs := c.GetListRequired("dist")
 
 	changes := utils.LoadChanges()
 	for i, dir := range dirs {

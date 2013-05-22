@@ -61,11 +61,7 @@ func getPaths(c *config.Config) ([]string, string, error) {
 	paths := []string{}
 	size := c.CountRequired("ngtemplates.files")
 	for i := 0; i < size; i++ {
-		file, err := c.GetStringf("ngtemplates.files[%d]", i)
-		if err != nil {
-			return nil, "", fmt.Errorf("get file failed: %s", err)
-		}
-		paths = append(paths, file)
+		paths = append(paths, c.GetRequired("ngtemplates.files[%d]", i))
 	}
 	return paths, appendto, nil
 }

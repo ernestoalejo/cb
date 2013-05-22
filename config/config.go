@@ -45,10 +45,6 @@ func Load() (*Config, error) {
 	return c, nil
 }
 
-/*func (c *Config) Get(spec string) (string, error) {
-	return c.f.Get(spec)
-}*/
-
 func (c *Config) GetRequired(format string, a ...interface{}) string {
 	s, err := c.f.Get(fmt.Sprintf(format, a...))
 	if err != nil {
@@ -113,35 +109,24 @@ func (c *Config) CountRequired(format string, a ...interface{}) int {
 	return cnt
 }
 
-func (c *Config) GetStringf(format string, a ...interface{}) (string, error) {
-	return c.f.Get(fmt.Sprintf(format, a...))
-}
-
-func (c *Config) Countf(format string, a ...interface{}) (int, error) {
-	return c.f.Count(fmt.Sprintf(format, a...))
-}
-
-func (c *Config) GetStringList(spec string) ([]string, error) {
-	size, err := c.f.Count(spec)
-	if err != nil {
-		if _, ok := err.(*yaml.NodeNotFound); ok {
-			return nil, errNotFound
-		}
-		return nil, fmt.Errorf("count failed: %s", err)
-	}
+func (c *Config) GetListRequired(format string, a ...interface{}) []string {
+	spec := fmt.Sprintf(format, a...)
 	items := []string{}
+	size := c.CountRequired(spec)
 	for i := 0; i < size; i++ {
-		item, err := c.GetStringf("%s[%d]", spec, i)
-		if err != nil {
-			return nil, fmt.Errorf("get item failed: %s", err)
-		}
-		items = append(items, item)
+		items = append(items, c.GetRequired("%s[%d]", spec, i))
 	}
-	return items, nil
+	return items
 }
 
-func (c *Config) GetStringListf(format string, a ...interface{}) ([]string, error) {
-	return c.GetStringList(fmt.Sprintf(format, a...))
+func (c *Config) GetListDefault(format string, a ...interface{}) []string {
+	spec := fmt.Sprintf(format, a...)
+	items := []string{}
+	size := c.CountDefault(spec)
+	for i := 0; i < size; i++ {
+		items = append(items, c.GetDefault("%s[%d]", spec, i))
+	}
+	return items
 }
 
 func (c *Config) HasSection(spec string) bool {
@@ -187,10 +172,9 @@ func prepare(c *Config) error {
 	if *ClosureMode {
 		items := []string{"library", "templates", "stylesheets", "compiler"}
 		for _, item := range items {
-			path, err := c.GetStringf("closure.%s", item)
-			if err != nil {
-				return fmt.Errorf("get path failed: %s", err)
-			}
+			path := c.GetRequired("closure.%s", item)
+
+			var err error
 			path, err = fixPath(path)
 			if err != nil {
 				return fmt.Errorf("fix path faled: %s", err)
