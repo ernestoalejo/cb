@@ -16,9 +16,6 @@ func readServeConfig(c *config.Config) (*serveConfig, error) {
 		base: true,
 		url:  c.GetDefault("serve.url", "http://localhost:8080/"),
 	}
-	if !c.HasSection("serve") {
-		return sc, nil
-	}
 
 	method := c.GetDefault("serve.base", "")
 	if method != "" && method != "proxy" && method != "cb" {

@@ -129,10 +129,6 @@ func (c *Config) GetListDefault(format string, a ...interface{}) []string {
 	return items
 }
 
-func (c *Config) HasSection(spec string) bool {
-	return c.f.Root.(yaml.Map).Key(spec) != nil
-}
-
 func checkFlags(c *Config) error {
 	// Both modes activated, error
 	if *AngularMode && *ClosureMode {
