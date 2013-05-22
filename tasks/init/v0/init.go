@@ -27,8 +27,8 @@ var needTemplates = map[string]bool{
 	"angular/client/config.yaml":                   true,
 	"angular/client/config/karma-compiled.conf.js": true,
 	"angular/component.json":                       true,
-	"angular/conf/sample-conf.go":              true,
-	"closure/base.html":                        true,
+	"angular/conf/sample-conf.go":                  true,
+	"closure/base.html":                            true,
 }
 
 var (
