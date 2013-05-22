@@ -94,16 +94,20 @@ func (c *Config) GetBoolDefault(spec string) bool {
 	return b
 }
 
-func (c *Config) Count(spec string) (int, error) {
-	return c.f.Count(spec)
-}
-
 func (c *Config) CountDefault(format string, a ...interface{}) int {
 	cnt, err := c.f.Count(fmt.Sprintf(format, a...))
 	if err != nil {
 		if IsNotFound(err) {
 			return 0
 		}
+		panic(err)
+	}
+	return cnt
+}
+
+func (c *Config) CountRequired(format string, a ...interface{}) int {
+	cnt, err := c.f.Count(fmt.Sprintf(format, a...))
+	if err != nil {
 		panic(err)
 	}
 	return cnt
@@ -118,7 +122,7 @@ func (c *Config) Countf(format string, a ...interface{}) (int, error) {
 }
 
 func (c *Config) GetStringList(spec string) ([]string, error) {
-	size, err := c.Count(spec)
+	size, err := c.f.Count(spec)
 	if err != nil {
 		if _, ok := err.(*yaml.NodeNotFound); ok {
 			return nil, errNotFound

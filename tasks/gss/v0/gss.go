@@ -26,10 +26,7 @@ func gss(c *config.Config, q *registry.Queue) error {
 	}
 	compilerPath = filepath.Join(compilerPath, "build", "closure-stylesheets.jar")
 
-	size, err := c.Count("gss")
-	if err != nil {
-		return fmt.Errorf("count gss files failed: %s", err)
-	}
+	size := c.CountRequired("gss")
 	for i := 0; i < size; i++ {
 		src, err := c.GetStringf("gss[%d].source", i)
 		if err != nil {

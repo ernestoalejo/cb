@@ -71,11 +71,8 @@ func sassFromConfig(c *config.Config, mode string) ([]*SassFile, error) {
 		}
 	}
 
-	size, err := c.Count("sass")
-	if err != nil {
-		return nil, fmt.Errorf("get sass files failed: %s", err)
-	}
 	files := []*SassFile{}
+	size := c.CountRequired("sass")
 	for i := 0; i < size; i++ {
 		src, err := c.GetStringf("sass[%d].source", i)
 		if err != nil {

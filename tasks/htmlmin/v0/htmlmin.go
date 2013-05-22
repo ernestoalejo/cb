@@ -16,13 +16,7 @@ func init() {
 }
 
 func htmlmin(c *config.Config, q *registry.Queue) error {
-	size, err := c.Count("htmlmin")
-	if err != nil {
-		if config.IsNotFound(err) {
-			return nil
-		}
-		return fmt.Errorf("get config failed: %s", err)
-	}
+	size := c.CountDefault("htmlmin")
 	for i := 0; i < size; i++ {
 		source, err := c.GetStringf("htmlmin[%d].source", i)
 		if err != nil {

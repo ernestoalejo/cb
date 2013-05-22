@@ -13,10 +13,7 @@ func init() {
 }
 
 func watch(c *config.Config, q *registry.Queue) error {
-	size, err := c.Count("watch")
-	if err != nil {
-		return fmt.Errorf("count watch failed: %s", err)
-	}
+	size := c.CountRequired("watch")
 	for i := 0; i < size; i++ {
 		// Extract the task name
 		task, err := c.GetStringf("watch[%d].task", i)

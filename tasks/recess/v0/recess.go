@@ -64,11 +64,8 @@ func lessFromConfig(c *config.Config, mode string) ([]*LessFile, error) {
 		from = "temp"
 	}
 
-	size, err := c.Count("recess")
-	if err != nil {
-		return nil, fmt.Errorf("get recess files failed: %s", err)
-	}
 	files := []*LessFile{}
+	size := c.CountRequired("recess")
 	for i := 0; i < size; i++ {
 		src, err := c.GetStringf("recess[%d].source", i)
 		if err != nil {

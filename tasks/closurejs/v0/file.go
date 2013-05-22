@@ -75,11 +75,8 @@ func getFile(c *config.Config) (*file, error) {
 }
 
 func getDefines(c *config.Config) ([]*define, error) {
-	size, err := c.Count("closurejs.defines")
-	if err != nil {
-		return nil, fmt.Errorf("count defines failed: %s", err)
-	}
 	defines := []*define{}
+	size := c.CountRequired("closurejs.defines")
 	for i := 0; i < size; i++ {
 		name, err := c.GetStringf("closurejs.defines[%d].name", i)
 		if err != nil {
