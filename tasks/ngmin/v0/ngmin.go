@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	funcRe = regexp.MustCompile(`^m\.(factory|directive|config|controller)` +
+	funcRe = regexp.MustCompile(`^m\.(factory|directive|config|controller|filter)` +
 		`\(('(.+?)', )?function\((.*?)\) {\n$`)
 )
 
