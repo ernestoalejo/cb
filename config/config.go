@@ -118,7 +118,7 @@ func (c *Config) GetListDefault(format string, a ...interface{}) []string {
 	items := []string{}
 	size := c.CountDefault(spec)
 	for i := 0; i < size; i++ {
-		items = append(items, c.GetDefault("%s[%d]", spec, i))
+		items = append(items, c.GetDefault("%s[%d]", "", spec, i))
 	}
 	return items
 }
