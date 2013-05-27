@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	funcRe = regexp.MustCompile(`^m\.(factory|directive|config|controller|filter)` +
+	funcRe = regexp.MustCompile(`^m\.(factory|directive|config|controller|filter|run)` +
 		`\(('(.+?)', )?function\((.*?)\) {\n$`)
 )
 
@@ -82,7 +82,7 @@ func walkFn(path string, info os.FileInfo, err error) error {
 			// Annotate the function
 			ls, err := funcAnnotations(path, i+1, line)
 			if err != nil {
-				return fmt.Errorf("annotation failed")
+				return fmt.Errorf("annotation failed: %s", err)
 			}
 			newlines = append(newlines, ls...)
 
