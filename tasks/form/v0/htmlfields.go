@@ -264,7 +264,7 @@ func (f *SelectField) Build(form *Form) string {
 		"name":     fmt.Sprintf("%s%s", form.Name, f.Id),
 		"class":    strings.Join(f.Class, " "),
 		"ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.Id),
-		"style": "display: none;",
+		"style":    "display: none;",
 	}
 
 	controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
