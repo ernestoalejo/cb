@@ -55,10 +55,17 @@ func PrintTasks() {
 
 // Obtain the task by name and version. If version is -1 it will return the
 // latest version of that task.
+// It tries to retrieve a greedy task name:* too.
 func getTask(name string, version int) (Task, error) {
 	m := tasks[name]
 	if m == nil {
-		return nil, fmt.Errorf("task not found: %s", name)
+		if strings.Contains(name, ":") {
+			parts := strings.Split(name, ":")
+			m = tasks[parts[0]+":*"]
+			if m == nil {
+				return nil, fmt.Errorf("task not found: %s", name)
+			}
+		}
 	}
 
 	if version == -1 {

@@ -2,6 +2,7 @@ package v0
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
@@ -10,7 +11,7 @@ import (
 
 func init() {
 	registry.NewUserTask("test", 0, test)
-	registry.NewUserTask("test:compiled", 0, test_compiled)
+	registry.NewUserTask("test:*", 0, test_greedy)
 	registry.NewUserTask("e2e", 0, e2e)
 	registry.NewUserTask("e2e:compiled", 0, e2e_compiled)
 }
@@ -23,8 +24,13 @@ func test(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func test_compiled(c *config.Config, q *registry.Queue) error {
-	args := []string{"start", "config/karma-compiled.conf.js"}
+func test_greedy(c *config.Config, q *registry.Queue) error {
+	parts := strings.Split(q.CurTask, ":")
+
+	args := []string{
+		"start",
+		fmt.Sprintf("config/karma-%s.conf.js", parts[1]),
+	}
 	if err := utils.ExecCopyOutput("karma", args); err != nil {
 		return fmt.Errorf("exec failed: %s", err)
 	}
