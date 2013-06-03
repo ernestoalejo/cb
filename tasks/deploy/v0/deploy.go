@@ -30,7 +30,7 @@ var (
       cp -r dist ../public
       mv temp/index.php ../public/index.php
       mv temp/.htaccess ../public/.htaccess
-      mv ../public/$base ../application/views
+      mv ../public/$base ../app/views
       @generateCacheMapping
     `,
 	}
