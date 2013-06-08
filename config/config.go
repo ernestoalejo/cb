@@ -45,7 +45,7 @@ func (c *Config) GetRequired(format string, a ...interface{}) string {
 		panic(err)
 	}
 	if s[0] == '"' && s[len(s)-1] == '"' {
-		s = s[1 : len(s)-2]
+		s = s[1 : len(s)-1]
 	}
 	return s
 }
@@ -59,7 +59,7 @@ func (c *Config) GetDefault(format, def string, a ...interface{}) string {
 		panic(err)
 	}
 	if s[0] == '"' && s[len(s)-1] == '"' {
-		s = s[1 : len(s)-2]
+		s = s[1 : len(s)-1]
 	}
 	return s
 }
