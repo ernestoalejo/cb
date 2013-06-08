@@ -91,3 +91,16 @@ func (q *Queue) ExecTasks(tasks string, c *config.Config) error {
 	}
 	return nil
 }
+
+func (q *Queue) NextTask() string {
+	if len(q.tasks) > 0 {
+		return q.tasks[0]
+	}
+	return ""
+}
+
+func (q *Queue) RemoveNextTask() {
+	if q.NextTask() != "" {
+		q.tasks = q.tasks[1:]
+	}
+}
