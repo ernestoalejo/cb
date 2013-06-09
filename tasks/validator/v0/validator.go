@@ -45,13 +45,19 @@ func validator(c *config.Config, q *registry.Queue) error {
     namespace = `\` + namespace
   }
   name := data.GetRequired("name")
+  root := data.GetDefault("root", "Object")
+  if root != "Object" && root != "Array" {
+    return fmt.Errorf("invalid root type, only 'object' and 'array' are accepted")
+  }
   fields := parseFields(data, "fields")
-  if err := generator(filename, name, namespace, fields); err != nil {
+  if err := generator(filename, name, namespace, root, fields); err != nil {
     return fmt.Errorf("generator error: %s", err)
   }
 
   return nil
 }
+
+// ==================================================================
 
 func parseFields(data *config.Config, spec string) []*Field {
   fields := []*Field{}
@@ -59,7 +65,7 @@ func parseFields(data *config.Config, spec string) []*Field {
   size := data.CountRequired("%s", spec)
   for i := 0; i < size; i++ {
     field := &Field{
-      Key: data.GetRequired("%s[%d].key", spec, i),
+      Key: data.GetDefault("%s[%d].key", "", spec, i),
       Kind: data.GetRequired("%s[%d].kind", spec, i),
       Validators: make([]*Validator, 0),
     }
@@ -83,10 +89,13 @@ func parseFields(data *config.Config, spec string) []*Field {
   return fields
 }
 
+// ==================================================================
+
 type emitter struct {
   f io.Writer
   indentation int
   uses []string
+  id int
 }
 
 func (e *emitter) indent() {
@@ -109,7 +118,15 @@ func (e *emitter) emitf(format string, a ...interface{}) {
   fmt.Fprintln(e.f)
 }
 
-func generator(filename, name, namespace string, fields []*Field) error {
+func (e *emitter) arrayId() int {
+  id := e.id
+  e.id++
+  return id
+}
+
+// ==================================================================
+
+func generator(filename, name, namespace, root string, fields []*Field) error {
   f, err := os.Create(name + ".php")
   if err != nil {
     return fmt.Errorf("cannot create dest file: %s", err)
@@ -117,10 +134,18 @@ func generator(filename, name, namespace string, fields []*Field) error {
   defer f.Close()
 
   buf := bytes.NewBuffer(nil)
-  e := &emitter{f: buf, indentation: 2}
-  if err := generateFields(e, "data", "valid", fields); err != nil {
-    return fmt.Errorf("generate fields failed: %s", err)
+  e := &emitter{f: buf, indentation: 4}
+
+  if root == "Object" {
+    if err := generateObject(e, "data", "valid", fields); err != nil {
+      return fmt.Errorf("generate object fields failed: %s", err)
+    }
+  } else if root == "Array" {
+    if err := generateArray(e, "data", "valid", fields); err != nil {
+      return fmt.Errorf("generate array fields failed: %s", err)
+    }
   }
+
   var uses string
   for _, use := range e.uses {
     uses += "\nuse " + use + ";"
@@ -155,8 +180,7 @@ class %s {
       return self::error($data, 'root is not an array');
     }
 
-    %s
-
+%s
     return $valid;
   }
 
@@ -166,58 +190,88 @@ class %s {
   return nil
 }
 
-func generateFields(e *emitter, varname, result string, fields []*Field) error {
-  e.indent()
-
+func generateObject(e *emitter, varname, result string, fields []*Field) error {
   for _, f := range fields {
-    e.emitf(`if (!isset($%s['%s'])) {`, varname, f.Key)
-    e.emitf(`  $%s['%s'] = null;`, varname, f.Key);
+    f.Key = "'" + f.Key + "'"
+
+    e.emitf(`if (!isset($%s[%s])) {`, varname, f.Key)
+    e.emitf(`  $%s[%s] = null;`, varname, f.Key);
     e.emitf(`}`)
 
-    e.emitf(`$value = $%s['%s'];`, varname, f.Key)
-    switch f.Kind {
-    case "String":
-      e.emitf(`if ($value === null) {`)
-      e.emitf(`  $value = '';`)
-      e.emitf(`}`)
-      e.emitf(`if (is_int($value)) {`)
-      e.emitf(`  $value = strval($value);`)
-      e.emitf(`}`)
-      e.emitf(`if (!is_string($value)) {`)
-      e.emitf(`  return self::error($data, 'key "%s" is not a string');`, f.Key);
-      e.emitf(`}`)
-
-    case "Integer":
-      e.emitf(`if ($value === null) {`)
-      e.emitf(`  $value = 0;`)
-      e.emitf(`}`)
-      e.emitf(`if (is_string($value)) {`)
-      e.emitf(`  if (!ctype_digit($value)) {`)
-      e.emitf(`    return self::error($data, 'key "%s" is not a valid int');`, f.Key);
-      e.emitf(`  }`)
-      e.emitf(`  $value = intval($value);`)
-      e.emitf(`}`)
-      e.emitf(`if (!is_int($value)) {`)
-      e.emitf(`  return self::error($data, 'key "%s" is not an int');`, f.Key);
-      e.emitf(`}`)
-
-    case "Boolean":
-      e.emitf(`if (!is_bool($value)) {`)
-      e.emitf(`  return self::error($data, 'key "%s" is not a boolean');`, f.Key);
-      e.emitf(`}`)
-
-    default:
-      return fmt.Errorf("`%s` is not a valid field kind", f.Kind)
+    if err := generateField(e, f, varname); err != nil {
+      return fmt.Errorf("generate field failed: %s", err)
     }
-
     if err := generateValidators(e, f); err != nil {
       return fmt.Errorf("generate validators failed: %s", err)
     }
-    e.emitf(`$%s['%s'] = $value;`, result, f.Key)
+    e.emitf(`$%s[%s] = $%s[%s];`, result, f.Key, varname, f.Key)
+    e.emitf("")
+  }
+  return nil
+}
+
+func generateArray(e *emitter, varname, result string, fields []*Field) error {
+  id := e.arrayId()
+  e.emitf("$size%d = count($%s);", id, varname)
+  e.emitf("for ($i%d = 0; $i%d < $size%d; $i%d++) {", id, id, id, id)
+  e.indent()
+
+  for _, f := range fields {
+    f.Key = fmt.Sprintf("$i%d", id)
+
+    if err := generateField(e, f, varname); err != nil {
+      return fmt.Errorf("generate field failed: %s", err)
+    }
+    if err := generateValidators(e, f); err != nil {
+      return fmt.Errorf("generate validators failed: %s", err)
+    }
+    e.emitf(`$%s[%s] = $value;`, result, f.Key)
     e.emitf("")
   }
 
   e.unindent()
+  e.emitf("}")
+  return nil
+}
+
+func generateField(e *emitter, f *Field, varname string) error {
+  switch f.Kind {
+  case "String":
+    e.emitf(`$value = $%s[%s];`, varname, f.Key)
+    e.emitf(`if ($value === null) {`)
+    e.emitf(`  $value = '';`)
+    e.emitf(`}`)
+    e.emitf(`if (is_int($value)) {`)
+    e.emitf(`  $value = strval($value);`)
+    e.emitf(`}`)
+    e.emitf(`if (!is_string($value)) {`)
+    e.emitf(`  return self::error($data, 'key "%s" is not a string');`, f.Key);
+    e.emitf(`}`)
+
+  case "Integer":
+    e.emitf(`$value = $%s[%s];`, varname, f.Key)
+    e.emitf(`if ($value === null) {`)
+    e.emitf(`  $value = 0;`)
+    e.emitf(`}`)
+    e.emitf(`if (is_string($value)) {`)
+    e.emitf(`  if (!ctype_digit($value)) {`)
+    e.emitf(`    return self::error($data, 'key "%s" is not a valid int');`, f.Key);
+    e.emitf(`  }`)
+    e.emitf(`  $value = intval($value);`)
+    e.emitf(`}`)
+    e.emitf(`if (!is_int($value)) {`)
+    e.emitf(`  return self::error($data, 'key "%s" is not an int');`, f.Key);
+    e.emitf(`}`)
+
+  case "Boolean":
+    e.emitf(`$value = $%s[%s];`, varname, f.Key)
+    e.emitf(`if (!is_bool($value)) {`)
+    e.emitf(`  return self::error($data, 'key "%s" is not a boolean');`, f.Key);
+    e.emitf(`}`)
+
+  default:
+    return fmt.Errorf("`%s` is not a valid field kind", f.Kind)
+  }
   return nil
 }
 
