@@ -7,6 +7,7 @@ import (
   "io"
   "strconv"
   "bytes"
+  "path/filepath"
 
   "github.com/ernestokarim/cb/config"
   "github.com/kylelemons/go-gypsy/yaml"
@@ -143,7 +144,7 @@ func (e *emitter) arrayId() int {
 // ==================================================================
 
 func generator(filename, name, namespace, root string, fields []*Field) error {
-  f, err := os.Create(name + ".php")
+  f, err := os.Create(filepath.Join(filepath.Dir(filename), name + ".php"))
   if err != nil {
     return fmt.Errorf("cannot create dest file: %s", err)
   }
