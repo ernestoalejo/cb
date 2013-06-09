@@ -419,6 +419,7 @@ func generateValidators(e *emitter, f *Field) error {
       if v.Value == "" {
         return fmt.Errorf("Before filter needs a date as value")
       }
+      e.addUse("DateTime")
       e.emitf(`$str = explode('/', $value);`)
       e.emitf(`if (count($str) === 3 &&
           DateTime::createFromFormat('d/m/Y', $value) >= new DateTime('%s')) {`, v.Value)
