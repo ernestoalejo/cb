@@ -192,7 +192,7 @@ class %s {
 
   public static function validate($data) {
     $valid = array();
-    $stored = array();
+    $store = array();
 
     if (!is_array($data)) {
       return self::error($data, 'root is not an array');
