@@ -190,7 +190,7 @@ class %s {
     App::abort(403);
   }
 
-  public static function validateDate($data) {
+  public static function validateData($data) {
     $valid = array();
     $store = array();
 
