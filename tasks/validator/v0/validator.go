@@ -18,7 +18,7 @@ func init() {
 }
 
 type Field struct {
-  Key, Kind, Store string
+  Key, Kind, Store, Condition string
   Validators []*Validator
   Fields []*Field
 }
@@ -69,10 +69,11 @@ func parseFields(data *config.Config, spec string) []*Field {
       Key: data.GetDefault("%s[%d].key", "", spec, i),
       Kind: data.GetRequired("%s[%d].kind", spec, i),
       Store: data.GetDefault("%s[%d].store", "", spec, i),
+      Condition: data.GetDefault("%s[%d].condition", "", spec, i),
       Validators: make([]*Validator, 0),
     }
 
-    if field.Kind == "Array" || field.Kind == "Object" {
+    if field.Kind == "Array" || field.Kind == "Object" || field.Kind == "Conditional" {
       newSpec := fmt.Sprintf("%s[%d].fields", spec, i)
       field.Fields = parseFields(data, newSpec)
     }
@@ -210,17 +211,21 @@ func generateObject(e *emitter, varname, result string, fields []*Field) error {
   for _, f := range fields {
     f.Key = "'" + f.Key + "'"
 
-    e.emitf(`if (!isset($%s[%s])) {`, varname, f.Key)
-    e.emitf(`  $%s[%s] = null;`, varname, f.Key);
-    e.emitf(`}`)
+    if f.Kind != "Conditional" {
+      e.emitf(`if (!isset($%s[%s])) {`, varname, f.Key)
+      e.emitf(`  $%s[%s] = null;`, varname, f.Key);
+      e.emitf(`}`)
+    }
 
     if err := generateField(e, f, varname, result); err != nil {
       return fmt.Errorf("generate field failed: %s", err)
     }
-    if err := generateValidators(e, f); err != nil {
-      return fmt.Errorf("generate validators failed: %s", err)
+    if f.Kind != "Conditional" {
+      if err := generateValidators(e, f); err != nil {
+        return fmt.Errorf("generate validators failed: %s", err)
+      }
+      e.emitf(`$%s[%s] = $%s[%s];`, result, f.Key, varname, f.Key)
     }
-    e.emitf(`$%s[%s] = $%s[%s];`, result, f.Key, varname, f.Key)
     e.emitf("")
   }
   return nil
@@ -238,10 +243,12 @@ func generateArray(e *emitter, varname, result string, fields []*Field) error {
     if err := generateField(e, f, varname, result); err != nil {
       return fmt.Errorf("generate field failed: %s", err)
     }
-    if err := generateValidators(e, f); err != nil {
-      return fmt.Errorf("generate validators failed: %s", err)
+    if f.Kind != "Conditional" {
+      if err := generateValidators(e, f); err != nil {
+        return fmt.Errorf("generate validators failed: %s", err)
+      }
+      e.emitf(`$%s[%s] = $value;`, result, f.Key)
     }
-    e.emitf(`$%s[%s] = $value;`, result, f.Key)
     e.emitf("")
   }
 
@@ -299,6 +306,21 @@ func generateField(e *emitter, f *Field, varname, result string) error {
       return fmt.Errorf("generate object failed: %s", err)
     }
     e.emitf(`$value = $%s;`, res)
+
+  case "Conditional":
+    if len(f.Condition) == 0 {
+      return fmt.Errorf("conditional node needs a condition")
+    }
+
+    e.emitf(`if (%s) {`, f.Condition)
+    e.indent()
+
+    if err := generateObject(e, varname, result, f.Fields); err != nil {
+      return fmt.Errorf("generate object failed: %s", err)
+    }
+
+    e.unindent()
+    e.emitf(`}`)
 
   default:
     return fmt.Errorf("`%s` is not a valid field kind", f.Kind)
