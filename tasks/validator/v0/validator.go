@@ -18,13 +18,14 @@ func init() {
 }
 
 type Field struct {
-  Key, Kind string
+  Key, Kind, Store string
   Validators []*Validator
   Fields []*Field
 }
 
 type Validator struct {
   Name, Value string
+  Uses []string
 }
 
 func validator(c *config.Config, q *registry.Queue) error {
@@ -67,20 +68,29 @@ func parseFields(data *config.Config, spec string) []*Field {
     field := &Field{
       Key: data.GetDefault("%s[%d].key", "", spec, i),
       Kind: data.GetRequired("%s[%d].kind", spec, i),
+      Store: data.GetDefault("%s[%d].store", "", spec, i),
       Validators: make([]*Validator, 0),
     }
 
-    if field.Kind == "Array" {
+    if field.Kind == "Array" || field.Kind == "Object" {
       newSpec := fmt.Sprintf("%s[%d].fields", spec, i)
       field.Fields = parseFields(data, newSpec)
     }
 
     validatorsSize := data.CountDefault("%s[%d].validators", spec, i)
     for j := 0; j < validatorsSize; j++ {
-      field.Validators = append(field.Validators, &Validator{
+      v := &Validator{
         Name: data.GetRequired("%s[%d].validators[%d].name", spec, i, j),
         Value: data.GetDefault("%s[%d].validators[%d].value", "", spec, i, j),
-      })
+      }
+
+      usesSize := data.CountDefault("%s[%d].validators[%d].use", spec, i, j)
+      for k := 0; k < usesSize; k++ {
+        value := data.GetDefault("%s[%d].validators[%d].use[%d]", "", spec, i, j, k)
+        v.Uses = append(v.Uses, value)
+      }
+
+      field.Validators = append(field.Validators, v)
     }
 
     fields = append(fields, field)
@@ -175,6 +185,7 @@ class %s {
 
   public static function validate($data) {
     $valid = array();
+    $stored = array();
 
     if (!is_array($data)) {
       return self::error($data, 'root is not an array');
@@ -203,7 +214,7 @@ func generateObject(e *emitter, varname, result string, fields []*Field) error {
     e.emitf(`  $%s[%s] = null;`, varname, f.Key);
     e.emitf(`}`)
 
-    if err := generateField(e, f, varname); err != nil {
+    if err := generateField(e, f, varname, result); err != nil {
       return fmt.Errorf("generate field failed: %s", err)
     }
     if err := generateValidators(e, f); err != nil {
@@ -224,7 +235,7 @@ func generateArray(e *emitter, varname, result string, fields []*Field) error {
   for _, f := range fields {
     f.Key = fmt.Sprintf("$i%d", id)
 
-    if err := generateField(e, f, varname); err != nil {
+    if err := generateField(e, f, varname, result); err != nil {
       return fmt.Errorf("generate field failed: %s", err)
     }
     if err := generateValidators(e, f); err != nil {
@@ -239,7 +250,7 @@ func generateArray(e *emitter, varname, result string, fields []*Field) error {
   return nil
 }
 
-func generateField(e *emitter, f *Field, varname string) error {
+func generateField(e *emitter, f *Field, varname, result string) error {
   switch f.Kind {
   case "String":
     e.emitf(`$value = $%s[%s];`, varname, f.Key)
@@ -274,9 +285,29 @@ func generateField(e *emitter, f *Field, varname string) error {
     e.emitf(`  return self::error($data, 'key ' . %s . ' is not a boolean');`, f.Key);
     e.emitf(`}`)
 
+  case "Object":
+    e.emitf(`$value = $%s[%s];`, varname, f.Key)
+    e.emitf(`if (!is_array($value)) {`)
+    e.emitf(`  return self::error($data, 'key ' . %s . ' is not a string');`, f.Key);
+    e.emitf(`}`)
+    e.emitf(`$%s[%s] = array();`, result, f.Key)
+    e.emitf("")
+
+    name := fmt.Sprintf("%s[%s]", varname, f.Key)
+    res := fmt.Sprintf("%s[%s]", result, f.Key)
+    if err := generateObject(e, name, res, f.Fields); err != nil {
+      return fmt.Errorf("generate object failed: %s", err)
+    }
+    e.emitf(`$value = $%s;`, res)
+
   default:
     return fmt.Errorf("`%s` is not a valid field kind", f.Kind)
   }
+
+  if f.Store != "" {
+    e.emitf(`$store['%s'] = $value;`, f.Store)
+  }
+
   return nil
 }
 
@@ -345,6 +376,14 @@ func generateValidators(e *emitter, f *Field) error {
       e.emitf(`if (count($str) === 3 &&
           DateTime::createFromFormat('d/m/Y', $value) >= new DateTime('%s')) {`, v.Value)
       e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the before validation');`, f.Key);
+      e.emitf(`}`)
+
+    case "Custom":
+      for _, u := range v.Uses {
+        e.addUse(u)
+      }
+      e.emitf(`if (%s) {`, v.Value)
+      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the custom validation');`, f.Key);
       e.emitf(`}`)
 
     default:
