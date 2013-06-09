@@ -377,7 +377,7 @@ func generateValidators(e *emitter, f *Field) error {
         return fmt.Errorf("cannot parse minlength number: %s", err)
       }
 
-      e.emitf(`if (!strlen($value) < %d) {`, val)
+      e.emitf(`if (strlen($value) < %d) {`, val)
       e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key);
       e.emitf(`}`)
 
