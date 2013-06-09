@@ -118,6 +118,11 @@ func (e *emitter) unindent() {
 }
 
 func (e *emitter) addUse(use string) {
+  for _, u := range e.uses {
+    if u == use {
+      return
+    }
+  }
   e.uses = append(e.uses, use)
 }
 
@@ -224,7 +229,10 @@ func generateObject(e *emitter, varname, result string, fields []*Field) error {
       if err := generateValidators(e, f); err != nil {
         return fmt.Errorf("generate validators failed: %s", err)
       }
-      e.emitf(`$%s[%s] = $%s[%s];`, result, f.Key, varname, f.Key)
+
+      if f.Kind != "Array" && f.Kind != "Object" {
+        e.emitf(`$%s[%s] = $value;`, result, f.Key)
+      }
     }
     e.emitf("")
   }
@@ -247,7 +255,10 @@ func generateArray(e *emitter, varname, result string, fields []*Field) error {
       if err := generateValidators(e, f); err != nil {
         return fmt.Errorf("generate validators failed: %s", err)
       }
-      e.emitf(`$%s[%s] = $value;`, result, f.Key)
+
+      if f.Kind != "Array" && f.Kind != "Object" {
+        e.emitf(`$%s[%s] = $value;`, result, f.Key)
+      }
     }
     e.emitf("")
   }
@@ -295,7 +306,7 @@ func generateField(e *emitter, f *Field, varname, result string) error {
   case "Object":
     e.emitf(`$value = $%s[%s];`, varname, f.Key)
     e.emitf(`if (!is_array($value)) {`)
-    e.emitf(`  return self::error($data, 'key ' . %s . ' is not a string');`, f.Key);
+    e.emitf(`  return self::error($data, 'key ' . %s . ' is not an object');`, f.Key);
     e.emitf(`}`)
     e.emitf(`$%s[%s] = array();`, result, f.Key)
     e.emitf("")
@@ -305,7 +316,20 @@ func generateField(e *emitter, f *Field, varname, result string) error {
     if err := generateObject(e, name, res, f.Fields); err != nil {
       return fmt.Errorf("generate object failed: %s", err)
     }
-    e.emitf(`$value = $%s;`, res)
+
+  case "Array":
+    e.emitf(`$value = $%s[%s];`, varname, f.Key)
+    e.emitf(`if (!is_array($value)) {`)
+    e.emitf(`  return self::error($data, 'key ' . %s . ' is not an array');`, f.Key);
+    e.emitf(`}`)
+    e.emitf(`$%s[%s] = array();`, result, f.Key)
+    e.emitf("")
+
+    name := fmt.Sprintf("%s[%s]", varname, f.Key)
+    res := fmt.Sprintf("%s[%s]", result, f.Key)
+    if err := generateArray(e, name, res, f.Fields); err != nil {
+      return fmt.Errorf("generate array failed: %s", err)
+    }
 
   case "Conditional":
     if len(f.Condition) == 0 {
@@ -406,6 +430,11 @@ func generateValidators(e *emitter, f *Field) error {
       }
       e.emitf(`if (%s) {`, v.Value)
       e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the custom validation');`, f.Key);
+      e.emitf(`}`)
+
+    case "Positive":
+      e.emitf(`if ($value < 0) {`)
+      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the positive validation');`, f.Key);
       e.emitf(`}`)
 
     default:
