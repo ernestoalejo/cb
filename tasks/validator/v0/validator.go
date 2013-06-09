@@ -178,7 +178,7 @@ use Log;
 class %s {
 
   public static function validateJson() {
-    return self::validate(Input::json()->all());
+    return self::validateData(Input::json()->all());
   }
 
   public static function error($data, $msg) {
