@@ -381,6 +381,16 @@ func generateValidators(e *emitter, f *Field) error {
       e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key);
       e.emitf(`}`)
 
+    case "MinLengthOptional":
+      val, err := strconv.ParseInt(v.Value, 10, 64)
+      if err != nil {
+        return fmt.Errorf("cannot parse minlength number: %s", err)
+      }
+
+      e.emitf(`if ($value !== '' && strlen($value) < %d) {`, val)
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key);
+      e.emitf(`}`)
+
     case "Email":
       e.emitf(`if (filter_var($value, FILTER_VALIDATE_EMAIL) === false) {`)
       e.emitf(`  self::error($data, 'key ' . %s . ' breaks the email validation');`, f.Key);
