@@ -300,6 +300,14 @@ func generateField(e *emitter, f *Field, varname, result string) error {
 
   case "Boolean":
     e.emitf(`$value = $%s[%s];`, varname, f.Key)
+    e.emitf(`if (is_string($value)) {`)
+    e.emitf(`  if ($value === 'true' || $value === '1' || $value === 'on') {`)
+    e.emitf(`    $value = true;`);
+    e.emitf(`  }`)
+    e.emitf(`  if ($value === 'false' || $value === '0' || $value === 'off') {`)
+    e.emitf(`    $value = false;`);
+    e.emitf(`  }`)
+    e.emitf(`}`)
     e.emitf(`if (!is_bool($value)) {`)
     e.emitf(`  return self::error($data, 'key ' . %s . ' is not a boolean');`, f.Key);
     e.emitf(`}`)
