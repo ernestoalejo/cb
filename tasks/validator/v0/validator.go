@@ -187,15 +187,15 @@ class %s {
     Log::error($msg);
     Log::debug($caller['file'] . '::' . $caller['line']);
     Log::debug(var_export($data, TRUE));
-    return false;
+    App::abort(403);
   }
 
-  public static function validate($data) {
+  public static function validateDate($data) {
     $valid = array();
     $store = array();
 
     if (!is_array($data)) {
-      return self::error($data, 'root is not an array');
+      self::error($data, 'root is not an array');
     }
 
 %s
@@ -203,6 +203,7 @@ class %s {
       Log::warning('$valid is not evaluated to true');
       Log::debug(var_export($data, TRUE));
       Log::debug(var_export($valid, TRUE));
+      App::abort(403);
     }
     return $valid;
   }
@@ -280,7 +281,7 @@ func generateField(e *emitter, f *Field, varname, result string) error {
     e.emitf(`  $value = strval($value);`)
     e.emitf(`}`)
     e.emitf(`if (!is_string($value)) {`)
-    e.emitf(`  return self::error($data, 'key ' . %s . ' is not a string');`, f.Key);
+    e.emitf(`  self::error($data, 'key ' . %s . ' is not a string');`, f.Key);
     e.emitf(`}`)
 
   case "Integer":
@@ -290,12 +291,12 @@ func generateField(e *emitter, f *Field, varname, result string) error {
     e.emitf(`}`)
     e.emitf(`if (is_string($value)) {`)
     e.emitf(`  if (!ctype_digit($value)) {`)
-    e.emitf(`    return self::error($data, 'key ' . %s . ' is not a valid int');`, f.Key);
+    e.emitf(`    self::error($data, 'key ' . %s . ' is not a valid int');`, f.Key);
     e.emitf(`  }`)
     e.emitf(`  $value = intval($value);`)
     e.emitf(`}`)
     e.emitf(`if (!is_int($value)) {`)
-    e.emitf(`  return self::error($data, 'key ' . %s . ' is not an int');`, f.Key);
+    e.emitf(`  self::error($data, 'key ' . %s . ' is not an int');`, f.Key);
     e.emitf(`}`)
 
   case "Boolean":
@@ -309,13 +310,13 @@ func generateField(e *emitter, f *Field, varname, result string) error {
     e.emitf(`  }`)
     e.emitf(`}`)
     e.emitf(`if (!is_bool($value)) {`)
-    e.emitf(`  return self::error($data, 'key ' . %s . ' is not a boolean');`, f.Key);
+    e.emitf(`  self::error($data, 'key ' . %s . ' is not a boolean');`, f.Key);
     e.emitf(`}`)
 
   case "Object":
     e.emitf(`$value = $%s[%s];`, varname, f.Key)
     e.emitf(`if (!is_array($value)) {`)
-    e.emitf(`  return self::error($data, 'key ' . %s . ' is not an object');`, f.Key);
+    e.emitf(`  self::error($data, 'key ' . %s . ' is not an object');`, f.Key);
     e.emitf(`}`)
     e.emitf(`$%s[%s] = array();`, result, f.Key)
     e.emitf("")
@@ -329,7 +330,7 @@ func generateField(e *emitter, f *Field, varname, result string) error {
   case "Array":
     e.emitf(`$value = $%s[%s];`, varname, f.Key)
     e.emitf(`if (!is_array($value)) {`)
-    e.emitf(`  return self::error($data, 'key ' . %s . ' is not an array');`, f.Key);
+    e.emitf(`  self::error($data, 'key ' . %s . ' is not an array');`, f.Key);
     e.emitf(`}`)
     e.emitf(`$%s[%s] = array();`, result, f.Key)
     e.emitf("")
@@ -376,12 +377,12 @@ func generateValidators(e *emitter, f *Field) error {
       }
 
       e.emitf(`if (!strlen($value) < %d) {`, val)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key);
       e.emitf(`}`)
 
     case "Email":
       e.emitf(`if (filter_var($value, FILTER_VALIDATE_EMAIL) === false) {`)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the email validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the email validation');`, f.Key);
       e.emitf(`}`)
 
     case "DbPresent":
@@ -390,7 +391,7 @@ func generateValidators(e *emitter, f *Field) error {
       }
       e.addUse(v.Value)
       e.emitf(`if (!%s::find($value)) {`, v.Value)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the dbpresent validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the dbpresent validation');`, f.Key);
       e.emitf(`}`)
 
     case "DbPresentNullable":
@@ -399,7 +400,7 @@ func generateValidators(e *emitter, f *Field) error {
       }
       e.addUse(v.Value)
       e.emitf(`if ($value !== '' && $value !== '0' && !%s::find($value)) {`, v.Value)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the dbpresent validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the dbpresent validation');`, f.Key);
       e.emitf(`}`)
 
     case "In":
@@ -408,19 +409,19 @@ func generateValidators(e *emitter, f *Field) error {
       }
       val := strings.Join(strings.Split(v.Value, ","), `', '`)
       e.emitf(`if (!in_array($value, array('%s'), TRUE)) {`, val)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the in validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the in validation');`, f.Key);
       e.emitf(`}`)
 
     case "Date":
       e.emitf(`$str = explode('/', $value);`)
       e.emitf(`if (count($str) !== 3 || !checkdate($str[1], $str[0], $str[2])) {`)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key);
       e.emitf(`}`)
 
     case "OptionalDate":
       e.emitf(`$str = explode('/', $value);`)
       e.emitf(`if (count($str) === 3 && !checkdate($str[1], $str[0], $str[2])) {`)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key);
       e.emitf(`}`)
 
     case "Before":
@@ -431,7 +432,7 @@ func generateValidators(e *emitter, f *Field) error {
       e.emitf(`$str = explode('/', $value);`)
       e.emitf(`if (count($str) === 3 &&
           DateTime::createFromFormat('d/m/Y', $value) >= new DateTime('%s')) {`, v.Value)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the before validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the before validation');`, f.Key);
       e.emitf(`}`)
 
     case "Custom":
@@ -439,12 +440,12 @@ func generateValidators(e *emitter, f *Field) error {
         e.addUse(u)
       }
       e.emitf(`if (%s) {`, v.Value)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the custom validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the custom validation');`, f.Key);
       e.emitf(`}`)
 
     case "Positive":
       e.emitf(`if ($value < 0) {`)
-      e.emitf(`  return self::error($data, 'key ' . %s . ' breaks the positive validation');`, f.Key);
+      e.emitf(`  self::error($data, 'key ' . %s . ' breaks the positive validation');`, f.Key);
       e.emitf(`}`)
 
     default:
