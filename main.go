@@ -66,7 +66,7 @@ func isNoConfigTask(t string) bool {
 
 	case "init":
 		return true
-		
+
 	case "init:client":
 		return true
 	}

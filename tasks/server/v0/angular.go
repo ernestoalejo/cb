@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strconv"
 	"time"
@@ -137,23 +138,33 @@ func (p *Proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 
 // ==================================================================
 
+func serveFile(w http.ResponseWriter, req *http.Request, name string) {
+	f, err := os.Open(name)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	http.ServeContent(w, req, name, time.Time{}, f)
+}
+
 func appHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, filepath.Join("app", r.URL.Path))
+	serveFile(w, r, filepath.Join("app", r.URL.Path))
 	return nil
 }
 
 func testHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, filepath.Join("test", "e2e", "runner.html"))
+	serveFile(w, r, filepath.Join("test", "e2e", "runner.html"))
 	return nil
 }
 
 func scenariosHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, filepath.Join("test", "e2e", r.URL.Path))
+	serveFile(w, r, filepath.Join("test", "e2e", r.URL.Path))
 	return nil
 }
 
 func angularScenarioHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, filepath.Join("app", "components",
+	serveFile(w, r, filepath.Join("app", "components",
 		"bower-angular", r.URL.Path))
 	return nil
 }
