@@ -33,6 +33,16 @@ var (
       mv ../public/$base ../app/views
       @generateCacheMapping
     `,
+		"php_html": `
+      mv ../public_html/index.php temp/index.php
+      mv ../public_html/.htaccess temp/.htaccess
+      rm -rf ../public_html
+      cp -r dist ../public_html
+      mv temp/index.php ../public_html/index.php
+      mv temp/.htaccess ../public_html/.htaccess
+      mv ../public_html/$base ../app/views
+      @generateCacheMapping
+    `,
 	}
 
 	macros = map[string]Macro{
