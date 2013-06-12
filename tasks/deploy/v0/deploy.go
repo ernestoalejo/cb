@@ -32,6 +32,7 @@ var (
       mv temp/.htaccess ../public/.htaccess
       mv ../public/$base ../app/views
       @generateCacheMapping
+      mv dist/cache-mapping.json ../app/storage/cache-mapping.json
     `,
 		"php_html": `
       mv ../public_html/index.php temp/index.php
