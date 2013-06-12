@@ -42,6 +42,7 @@ var (
       mv temp/.htaccess ../public_html/.htaccess
       mv ../public_html/$base ../app/views
       @generateCacheMapping
+      mv dist/cache-mapping.json ../app/storage/cache-mapping.json
     `,
 	}
 
