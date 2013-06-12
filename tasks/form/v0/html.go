@@ -57,6 +57,8 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	switch fieldType {
 	case "email":
 		fallthrough
+	case "number":
+		fallthrough
 	case "text":
 		field = &InputField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
