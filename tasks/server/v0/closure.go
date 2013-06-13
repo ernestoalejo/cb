@@ -49,7 +49,7 @@ func server_closure(c *config.Config, q *registry.Queue) error {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) error {
-	http.ServeFile(w, r, "base.html")
+	http.ServeFile(w, r, configs.GetRequired("base"))
 	return nil
 }
 

@@ -196,7 +196,7 @@ func clientBaseTest(w http.ResponseWriter, r *http.Request) error {
 }
 
 func clientBase(w http.ResponseWriter, r *http.Request, test bool) error {
-	baseFile := filepath.Join("app", "base.html")
+	baseFile := configs.GetRequired("base")
 	t, err := template.New("base").Delims(`{%`, `%}`).ParseFiles(baseFile)
 	if err != nil {
 		return fmt.Errorf("template parsing failed: %s", err)
