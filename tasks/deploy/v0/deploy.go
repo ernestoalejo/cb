@@ -2,8 +2,8 @@ package v0
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
-  "path/filepath"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
