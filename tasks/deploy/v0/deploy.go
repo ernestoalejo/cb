@@ -3,6 +3,7 @@ package v0
 import (
 	"fmt"
 	"strings"
+  "path/filepath"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
@@ -16,18 +17,18 @@ var (
 		"gae": `
       rm -rf ../static
       cp -r dist ../static
-      rm -f ../templates/base.html
-      mv ../static/$base ../templates
+      rm -f ../templates/$basename
+      mv ../static/$basename ../templates
     `,
 		"php": `
     	rm -rf ../deploy
     	mkdir ../deploy
     	cp -r dist ../deploy/public_html
-    	cp -r ../app ../deploy
+      rsync -aq --exclude=app/storage/ ../app ../deploy
     	cp -r ../bootstrap ../deploy
     	cp -r ../vendor ../deploy
-    	rm -rf ../deploy/app/views
-    	mv ../deploy/public_html/laravel-templates ../deploy/app/views
+    	rm ../deploy/app/views/$basename
+    	mv ../deploy/public_html/$basename ../deploy/app/views/$basename
     `,
 	}
 )
@@ -39,7 +40,7 @@ func init() {
 }
 
 func deploy(c *config.Config, q *registry.Queue) error {
-	base := c.GetRequired("base")
+	basename := filepath.Base(c.GetRequired("base"))
 	name := strings.Split(q.CurTask, ":")[1]
 	commands := strings.Split(deployCommands[name], "\n")
 	for _, command := range commands {
@@ -50,7 +51,7 @@ func deploy(c *config.Config, q *registry.Queue) error {
 		}
 
 		// Replace some variables in the commands
-		command = strings.Replace(command, "$base", base, -1)
+		command = strings.Replace(command, "$basename", basename, -1)
 
 		// Execute it
 		cmd := strings.Split(command, " ")
