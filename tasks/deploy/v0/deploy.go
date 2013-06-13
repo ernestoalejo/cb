@@ -1,11 +1,7 @@
 package v0
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
@@ -24,19 +20,15 @@ var (
       mv ../static/$base ../templates
     `,
 		"php": `
-      mv ../public/index.php temp/index.php
-      mv ../public/.htaccess temp/.htaccess
-      rm -rf ../public
-      cp -r dist ../public
-      mv temp/index.php ../public/index.php
-      mv temp/.htaccess ../public/.htaccess
-      mv ../public/$base ../app/views
-      @generateCacheMapping
+    	rm -rf ../deploy
+    	mkdir ../deploy
+    	cp -r dist ../deploy/public_html
+    	cp -r ../app ../deploy
+    	cp -r ../bootstrap ../deploy
+    	cp -r ../vendor ../deploy
+    	rm -rf ../deploy/app/views
+    	mv ../deploy/public_html/laravel-templates ../deploy/app/views
     `,
-	}
-
-	macros = map[string]Macro{
-		"generateCacheMapping": generateCacheMapping,
 	}
 )
 
@@ -57,18 +49,6 @@ func deploy(c *config.Config, q *registry.Queue) error {
 			continue
 		}
 
-		// Execute macros
-		if command[0] == '@' && macros[command[1:]] != nil {
-			var err error
-			command, err = macros[command[1:]]()
-			if err != nil {
-				return fmt.Errorf("macro %s failed: %s", command[1:], err)
-			}
-			if len(command) == 0 {
-				continue
-			}
-		}
-
 		// Replace some variables in the commands
 		command = strings.Replace(command, "$base", base, -1)
 
@@ -81,22 +61,4 @@ func deploy(c *config.Config, q *registry.Queue) error {
 		}
 	}
 	return nil
-}
-
-func generateCacheMapping() (string, error) {
-	changes := utils.LoadChanges()
-	f, err := os.Create(filepath.Join("dist", "cache-mapping.json"))
-	if err != nil {
-		return "", fmt.Errorf("create mapping failed: %s", err)
-	}
-	defer f.Close()
-	if err := json.NewEncoder(f).Encode(changes); err != nil {
-		return "", fmt.Errorf("encode mapping failed: %s", err)
-	}
-
-	if *config.Verbose {
-		log.Println("write cache mapping file in `dist/cache-mapping.json`")
-	}
-
-	return "", nil
 }
