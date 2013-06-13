@@ -28,7 +28,7 @@ var (
     	cp -r ../bootstrap ../deploy
     	cp -r ../vendor ../deploy
     	rm ../deploy/app/views/$basename
-    	mv ../deploy/public_html/$basename ../deploy/app/views/$basename
+    	mv temp/$basename ../deploy/app/views/$basename
     `,
 	}
 )
