@@ -21,16 +21,23 @@ var (
       mv ../static/$basename ../templates
     `,
 		"php": `
+      rm -rf temp/deploy
+      mkdir temp/deploy
+      cp -r dist temp/deploy/public_html
+      rsync -aq --exclude=app/storage/ ../app temp/deploy
+      cp -r ../bootstrap temp/deploy
+      cp -r ../vendor temp/deploy
+      rm temp/deploy/app/views/$basename
+      mv temp/$basename temp/deploy/app/views/$basename
+      @copyModTimes
     	rm -rf ../deploy
-    	mkdir ../deploy
-    	cp -r dist ../deploy/public_html
-      rsync -aq --exclude=app/storage/ ../app ../deploy
-    	cp -r ../bootstrap ../deploy
-    	cp -r ../vendor ../deploy
-    	rm ../deploy/app/views/$basename
-    	mv temp/$basename ../deploy/app/views/$basename
+      mv temp/deploy ..
     `,
 	}
+
+  macros = map[string]Macro{
+    "copyModTimes": copyModTimes,
+  }
 )
 
 func init() {
@@ -50,6 +57,18 @@ func deploy(c *config.Config, q *registry.Queue) error {
 			continue
 		}
 
+    // Execute macros
+    if command[0] == '@' && macros[command[1:]] != nil {
+      var err error
+      command, err = macros[command[1:]]()
+      if err != nil {
+        return fmt.Errorf("macro %s failed: %s", command[1:], err)
+      }
+      if len(command) == 0 {
+        continue
+      }
+    }
+
 		// Replace some variables in the commands
 		command = strings.Replace(command, "$basename", basename, -1)
 
@@ -62,4 +81,10 @@ func deploy(c *config.Config, q *registry.Queue) error {
 		}
 	}
 	return nil
+}
+
+func copyModTimes() (string, error) {
+
+
+  return "", nil
 }
