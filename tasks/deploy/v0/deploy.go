@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+  "os"
+  "io/ioutil"
+  "crypto/sha1"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
@@ -84,7 +87,62 @@ func deploy(c *config.Config, q *registry.Queue) error {
 }
 
 func copyModTimes() (string, error) {
+  walkFn := func(path string, info os.FileInfo, err error) error {
+    if err != nil {
+      return fmt.Errorf("recursive walk failed: %s", err)
+    }
+    if info.IsDir() {
+      return nil
+    }
 
+    newPath := filepath.Join("temp", path[2:])
+    if _, err := os.Stat(newPath); err != nil {
+      if os.IsNotExist(err) {
+        return nil
+      }
+      return fmt.Errorf("stat error: %s", err)
+    }
+
+    h1, err := hashFile(path)
+    if err != nil {
+      return fmt.Errorf("first hash failed: %s", err)
+    }
+    h2, err := hashFile(newPath)
+    if err != nil {
+      return fmt.Errorf("second hash failed: %s", err)
+    }
+
+    if h1 == h2 {
+      if err := os.Chtimes(newPath, info.ModTime(), info.ModTime()); err != nil {
+        return fmt.Errorf("change times failed: %s", err)
+      }
+    }
+    
+    return nil
+  }
+  if err := filepath.Walk("../deploy", walkFn); err != nil {
+    return "", fmt.Errorf("walk failed: %s", err)
+  }
 
   return "", nil
+}
+
+func hashFile(path string) (string, error) {
+  f, err := os.Open(path)
+  if err != nil {
+    return "", fmt.Errorf("open failed: %s", err)
+  }
+  defer f.Close()
+
+  content, err := ioutil.ReadAll(f)
+  if err != nil {
+    return "", fmt.Errorf("read failed: %s", err)
+  }
+
+  h := sha1.New()
+  if _, err := h.Write(content); err != nil {
+    return "", fmt.Errorf("write failed: %s", err)
+  }
+
+  return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
