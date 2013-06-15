@@ -33,7 +33,7 @@ func prepare_dist(c *config.Config, q *registry.Queue) error {
 			}
 			return fmt.Errorf("stat failed: %s", err)
 		}
-		
+
 		output, err := utils.Exec("cp", []string{"-r", from, to})
 		if err != nil {
 			fmt.Println(output)
