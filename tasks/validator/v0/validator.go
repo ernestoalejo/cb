@@ -182,6 +182,10 @@ class %s {
     return self::validateData(Input::json()->all());
   }
 
+  public static function validateInput() {
+    return self::validateData(Input::all());
+  }
+
   public static function error($data, $msg) {
     $bt = debug_backtrace();
     $caller = array_shift($bt);
