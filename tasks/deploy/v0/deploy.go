@@ -31,6 +31,8 @@ var (
       rsync -aq --exclude=app/storage/ ../app temp/deploy
       cp -r ../bootstrap temp/deploy
       cp -r ../vendor temp/deploy
+      rm -r temp/deploy/app/views
+      mv temp/laravel-templates temp/deploy/app/views
       rm temp/deploy/app/views/$basename
       mv temp/$basename temp/deploy/app/views/$basename
       @copyModTimes
