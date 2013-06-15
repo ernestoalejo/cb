@@ -459,6 +459,14 @@ func generateValidators(e *emitter, f *Field) error {
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the positive validation');`, f.Key)
 			e.emitf(`}`)
 
+		case "Match":
+			if v.Value == "" {
+				return fmt.Errorf("Match filter needs a regexp as value")
+			}
+			e.emitf(`if (!preg_match('%s', $value)) {`, v.Value)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the match validation');`, f.Key)
+			e.emitf(`}`)
+
 		default:
 			return fmt.Errorf("`%s` is not a valid validator name", v.Name)
 		}
