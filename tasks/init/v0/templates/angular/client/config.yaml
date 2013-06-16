@@ -55,7 +55,6 @@ dist:
   - scripts/ie.js
   - scripts/test.js
   - scripts/{{ .AppName }}.js
-  - static
   - styles/{{ .AppName }}.css
 
 ngtemplates:
