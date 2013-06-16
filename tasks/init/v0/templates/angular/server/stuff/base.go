@@ -27,9 +27,10 @@ func TestBase(r *app.Request) error {
 	return emitBase(r, true)
 }
 
+/*
 type TestData struct {
 	Example int
-}
+}*/
 
 func emitBase(r *app.Request, test bool) error {
 	globalData := []*ModuleData{}
@@ -45,5 +46,5 @@ func emitBase(r *app.Request, test bool) error {
 		DevServer: appengine.IsDevAppServer(),
 		Analytics: conf.ANALYTICS,
 	}
-	return r.TemplateBase([]string{"base"}, data)
+	return r.Template([]string{"base"}, data)
 }
