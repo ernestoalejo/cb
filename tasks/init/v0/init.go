@@ -22,12 +22,12 @@ const SELF_PKG = "github.com/ernestokarim/cb/tasks/init/v0/templates"
 // List of files that must be passed through the template system
 var needTemplates = map[string]bool{
 	"angular/app.yaml":                             true,
-	"angular/client/app/base.html":                 true,
 	"angular/client/bower.json":                    true,
 	"angular/client/config.yaml":                   true,
 	"angular/client/config/karma-compiled.conf.js": true,
 	"angular/component.json":                       true,
 	"angular/conf/sample-conf.go":                  true,
+	"angular/templates/base.html":                  true,
 	"closure/base.html":                            true,
 }
 
@@ -143,7 +143,13 @@ func copyFiles(c *config.Config, appname, src, dest, root string) error {
 func copyFile(c *config.Config, appname, srcPath, destPath, rel, root string) error {
 	var content []byte
 	if needTemplates[rel] {
-		t, err := template.ParseFiles(srcPath)
+		t := template.New(filepath.Base(srcPath))
+		if rel == "angular/templates/base.html" {
+			t = t.Delims(`{%`, `%}`)
+		}
+
+		var err error
+		t, err = t.ParseFiles(srcPath)
 		if err != nil {
 			return fmt.Errorf("parse template failed: %s", err)
 		}
