@@ -21,14 +21,18 @@ var (
 			rm -rf temp/deploy
 			mkdir temp/deploy
 			cp -r dist temp/deploy/static
+      cp -r ../static temp/deploy
+      cp ../app.yaml temp/deploy
+      @copyYamlFiles
+      cp ../Makefile temp/deploy
+      cp -r ../conf temp/deploy
+      cp -r ../server temp/deploy
+      mv temp/gae-templates temp/deploy/templates
+      rm temp/deploy/templates/$basename
+      mv temp/$basename temp/deploy/templates/$basename
+    	rm -rf ../deploy
+      mv temp/deploy ..
 		`,
-
-		/*`
-		  rm -rf ../static
-		  cp -r dist ../static
-		  rm -f ../templates/$basename
-		  mv ../static/$basename ../templates
-		`,*/
 		"php": `
       rm -rf temp/deploy
       mkdir temp/deploy
@@ -48,7 +52,8 @@ var (
 	}
 
 	macros = map[string]Macro{
-		"copyModTimes": copyModTimes,
+		"copyModTimes":  copyModTimes,
+		"copyYamlFiles": copyYamlFiles,
 	}
 )
 
@@ -154,4 +159,32 @@ func hashFile(path string) (string, error) {
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+func copyYamlFiles() (string, error) {
+	files := []string{
+		"index.yaml",
+		"queue.yaml",
+		"dos.yaml",
+		"cron.yaml",
+		"backends.yaml",
+	}
+	for _, file := range files {
+		file = "../" + file
+
+		if _, err := os.Stat(file); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return "", fmt.Errorf("stat file failed: %s", err)
+		}
+
+		output, err := utils.Exec("cp", []string{file, "temp/deploy"})
+		if err != nil {
+			fmt.Println(output)
+			return "", fmt.Errorf("copy file error: %s", err)
+		}
+	}
+
+	return "", nil
 }
