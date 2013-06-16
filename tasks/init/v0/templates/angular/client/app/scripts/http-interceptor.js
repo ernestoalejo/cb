@@ -8,19 +8,19 @@ m.config(function($httpProvider) {
 });
 
 
-m.factory('httpInterceptor', function($q, GlobalMsg) {
+m.factory('httpInterceptor', function($q, GlobalMsg, ErrorRegister) {
   var total_ = 0;
 
   function error_() {
     total_--;
-    GlobalMsg.set('');
+    GlobalMsg.hideLoading();
     ErrorRegister.set('http-error');
   }
 
   return {
     'request': function(config) {
       total_++;
-      GlobalMsg.set('loading');
+      GlobalMsg.showLoading();
       return config || $q.when(config);
     },
 
@@ -31,8 +31,8 @@ m.factory('httpInterceptor', function($q, GlobalMsg) {
 
     'response': function(response) {
       total_--;
-      if (total_ == 0 && GlobalMsg.get() == 'loading') {
-        GlobalMsg.set('');
+      if (total_ <= 0 && GlobalMsg.isLoading()) {
+        GlobalMsg.hideLoading();
       }
       return response || $q.when(response);
     },

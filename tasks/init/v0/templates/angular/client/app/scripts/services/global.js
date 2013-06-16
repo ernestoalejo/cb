@@ -5,38 +5,46 @@ var m = angular.module('services.global', []);
 
 
 m.factory('GlobalMsg', function($timeout) {
-  var msg_ = '', tm = null, type_ = 'success';
-  
+  var $globalMsg_ = $('#global-msg');
+  var $notifications_ = $('#notifications');
+  var last_;
+
   return {
-    set: function(msg, type) {
-      msg_ = msg;
-      type_ = type ? type : 'success';
-      this.cleanTimer();
+    // Manage the loading message visibility
+    showLoading: function() {
+      $globalMsg_.show();
+    },
+    hideLoading: function() {
+      $globalMsg_.hide();
+    },
+    isLoading: function() {
+      return $globalMsg_.is(':visible');
     },
 
-    cleanTimer: function(msg, timer) {
-      if (tm) {
-        $timeout.cancel(tm);
-        tm = null;
+    // Create a new temporary message in the top-right corner of the page
+    create: function(msg, type) {
+      last_ = {msg: msg, type: type};
+
+      type = type || 'info';
+      if ($notifications_.notify) {  // for tests
+        var not = $notifications_.notify({
+          message: {text: msg},
+          type: type,
+          fadeOut: {
+            enabled: true,
+            delay: 10000
+          }
+        });
+        not.$note.find('.close').click(function(e) {
+          e.preventDefault();
+        });
+        not.show();
       }
     },
 
-    setTemp: function(msg, type) {
-      this.cleanTimer();
-      this.set(msg, type);
-
-      var that = this;
-      tm = $timeout(function() {
-        that.set('');
-      }, 10000);
-    },
-
-    get: function() {
-      return msg_;
-    },
-
-    getClass: function() {
-      return 'label-' + type_;
+    // Useful for testing messages
+    getLast: function() {
+      return last_;
     }
   };
 });

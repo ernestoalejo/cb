@@ -31,45 +31,6 @@ m.controller('NotFoundCtrl', function($http, $location) {
 });
 
 
-m.controller('GlobalMsgCtrl', function($scope, GlobalMsg) {
-  $scope.gm = GlobalMsg;
-
-  $scope.close = function() {
-    GlobalMsg.set('');
-  };
-});
-
-
-m.controller('FeedbackCtrl', function($scope, $http, GlobalMsg) {
-  $scope.open = function() {
-    $scope.dlgOpened = true;
-  };
-
-  $scope.close = function() {
-    $scope.dlgOpened = false;
-  };
-
-  $scope.dlgOpened = false;
-  $scope.opts = {
-    backdropFade: true,
-    dialogFade: true
-  };
-
-  $scope.send = function() {
-    $scope.dlgOpened = false;
-
-    var msg = $scope.message;
-    $scope.message = '';
-
-    $http.post('/_/feedback', {message: msg}).success(function() {
-      GlobalMsg.setTemp('Hemos recibido tu mensaje correctamente', 'success');
-    }).error(function() {
-      $scope.message = msg;
-    });
-  };
-});
-
-
 m.controller('ErrorCtrl', function($scope, ErrorRegister) {
   $scope.ErrorRegister = ErrorRegister;
   $scope.close = function() {

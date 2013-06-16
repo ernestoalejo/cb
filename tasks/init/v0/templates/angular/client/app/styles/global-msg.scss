@@ -1,0 +1,16 @@
+
+
+// Loading message showed at the top of the page.
+#global-msg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  z-index: 100000;
+  padding-top: 35px;
+
+  .label {
+    padding: 7px 25px;
+  }
+}

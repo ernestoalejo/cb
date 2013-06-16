@@ -1,32 +1,6 @@
 'use strict';
 
 
-describe('Controller: GlobalMsgCtrl', function() {
-  beforeEach(module('controllers.global'));
-
-  var scope, GlobalMsg;
-  beforeEach(inject(function($injector) {
-    GlobalMsg = $injector.get('GlobalMsg');
-
-    var $controller = $injector.get('$controller');
-    var $rootScope = $injector.get('$rootScope');
-
-    scope = $rootScope.$new();
-    $controller('GlobalMsgCtrl', {$scope: scope});
-  }));
-
-  it('should save the service in the scope', function() {
-    expect(scope.gm).toBe(GlobalMsg);
-  });
-
-  it('should clean the message on close', function() {
-    GlobalMsg.set('testing');
-    scope.close();
-    expect(GlobalMsg.get()).toBe('');
-  });
-});
-
-
 describe('Controller: AppCtrl', function() {
   beforeEach(module('controllers.global'));
 
@@ -93,64 +67,6 @@ describe('Controller: NotFoundCtrl', function() {
   it('should reset the form & show a message on success', function() {
     $httpBackend.expectPOST('/_/not-found').respond({});
     $httpBackend.flush();
-  });
-});
-
-
-describe('Controller: FeedbackCtrl', function() {
-  beforeEach(module('controllers.global'));
-
-  var scope, GlobalMsg, $httpBackend;
-  beforeEach(inject(function($injector) {
-    GlobalMsg = $injector.get('GlobalMsg');
-    $httpBackend = $injector.get('$httpBackend');
-
-    var $controller = $injector.get('$controller');
-    var $rootScope = $injector.get('$rootScope');
-
-    scope = $rootScope.$new();
-    $controller('FeedbackCtrl', {$scope: scope});
-  }));
-
-  it('should open/close the dialog', function() {
-    expect(scope.dlgOpened).toBeFalsy();
-    scope.open();
-    expect(scope.dlgOpened).toBeTruthy();
-    scope.close();
-    expect(scope.dlgOpened).toBeFalsy();
-  });
-
-  it('should have the correct options', function() {
-    expect(scope.opts).toEqualData({
-      backdropFade: true,
-      dialogFade: true
-    });
-  });
-
-  it('should reset the form & show a message on success', function() {
-    $httpBackend.expectPOST('/_/feedback').respond({});
-
-    scope.message = 'testing';
-    scope.send();
-
-    expect(scope.message).toBe('');
-    $httpBackend.flush();
-
-    expect(GlobalMsg.get()).toBe('Hemos recibido tu mensaje correctamente');
-    expect(GlobalMsg.getClass()).toBe('label-success');
-  });
-
-  it('should put the message again in the textarea on fail', function() {
-    $httpBackend.expectPOST('/_/feedback').respond(function() {
-      return [403, {}];
-    });
-
-    scope.message = 'testing';
-    scope.send();
-
-    expect(scope.message).toBe('');
-    $httpBackend.flush();
-    expect(scope.message).toBe('testing');
   });
 });
 

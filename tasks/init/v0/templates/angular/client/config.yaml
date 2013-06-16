@@ -16,10 +16,11 @@ watch:
     paths:
       - app/components/bootstrap/less/*.less
       - app/styles/bootstrap/*.less
+      - app/styles/font-awesome/*.less
 
   - task: sass
     paths:
-      - app/styles/*.scss
+      - app/styles/**/*.scss
 
 cacherev:
   dirs:
