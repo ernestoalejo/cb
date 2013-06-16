@@ -3,7 +3,7 @@ package stuff
 import (
 	"html/template"
 
-	"github.com/ernestokarim/gaelib/v1/app"
+	"github.com/ernestokarim/gaelib/v2/app"
 	"github.com/gorilla/mux"
 
 	"conf"

@@ -1,6 +1,6 @@
 
 {{ if .ClientOnly }}clientonly: true
-{{end}}base: base.html{{ if not .ClientOnly }}
+{{end}}base: ../templates/base.html{{ if not .ClientOnly }}
 deploy: gae{{end}}
 
 recess:
@@ -33,6 +33,7 @@ cacherev:
     - styles
     - views
     - base.html
+    - laravel-templates
 
 htmlmin:
   - source: app/views
@@ -42,9 +43,10 @@ htmlmin:
 
 prepare_dist:
   - app
+  - ../templates/base.html
+  - ../templates -> gae-templates
 
 dist:
-  - base.html
   - components/jquery/jquery.min.js
   - favicon.ico
   - fonts

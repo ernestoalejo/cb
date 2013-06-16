@@ -20,7 +20,7 @@ PROJECT_PATH = `pwd`
 PYTHON = python
 GAE_PATH = ~/google_appengine
 APPCFG = @echo $(PASSWORD) | $(PYTHON) $(GAE_PATH)/appcfg.py --email=$(EMAIL) --passin
-DEV_APPSERVER = @$(PYTHON) $(GAE_PATH)/dev_appserver.py --datastore_path=/tmp/datastore --dev_appserver_log_level debug
+DEV_APPSERVER = @$(PYTHON) $(GAE_PATH)/dev_appserver.py --datastore_path=/tmp/datastore
 
 # The URLs to access the remote app.
 REMOTE_API_URL = http://python.$(PROJECT).appspot.com/_ah/remote_api

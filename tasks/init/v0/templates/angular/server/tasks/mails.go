@@ -9,8 +9,8 @@ import (
 
 	"appengine"
 
-	"github.com/ernestokarim/gaelib/v1/app"
-	"github.com/ernestokarim/gaelib/v1/mail"
+	"github.com/ernestokarim/gaelib/v2/app"
+	"github.com/ernestokarim/gaelib/v2/mail"
 )
 
 type ErrorMailData struct {

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/ernestokarim/gaelib/v1/app"
+	"github.com/ernestokarim/gaelib/v2/app"
 
 	"server/stuff"
 	"server/tasks"
@@ -19,7 +19,6 @@ func init() {
 		"::/e2e":                      stuff.TestBase,
 		"::/google{id:[^/]{16}}.html": stuff.GoogleVerification,
 
-		"POST::/_/feedback":  stuff.Feedback,
 		"POST::/_/not-found": stuff.ErrNotFound,
 		"POST::/_/reporter":  stuff.ErrorReporter,
 

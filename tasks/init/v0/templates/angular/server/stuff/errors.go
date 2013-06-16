@@ -3,7 +3,7 @@ package stuff
 import (
 	"fmt"
 
-	"github.com/ernestokarim/gaelib/v1/app"
+	"github.com/ernestokarim/gaelib/v2/app"
 )
 
 type ErrorReporterData struct {
