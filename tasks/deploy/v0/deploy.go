@@ -27,7 +27,9 @@ var (
       rm -rf temp/deploy
       mkdir temp/deploy
       cp -r dist temp/deploy/public_html
-      cp -r ../public_html temp/deploy
+      mv temp/deploy/public_html/static temp/public_html
+      cp -r temp/public_html temp/deploy
+      rm -rf temp/public_html
       rsync -aq --exclude=app/storage/ ../app temp/deploy
       cp -r ../bootstrap temp/deploy
       cp -r ../vendor temp/deploy
