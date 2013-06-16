@@ -33,7 +33,7 @@ cacherev:
     - styles
     - views
     - base.html
-    - laravel-templates
+    - gae-templates
 
 htmlmin:
   - source: app/views
