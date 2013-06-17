@@ -14,8 +14,6 @@ var m = angular.module('app', [
 
 
 m.config(function($routeProvider, $locationProvider) {
-  $locationProvider.hashPrefix('!');
-
   $routeProvider
       .when('/', {
         templateUrl: '/views/home/home.html',
