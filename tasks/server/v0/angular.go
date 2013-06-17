@@ -63,7 +63,6 @@ func server_angular(c *config.Config, q *registry.Queue) error {
 		"/fonts/":      appHandler,
 		"/images/":     appHandler,
 		"/components/": appHandler,
-		"/favicon.ico": appHandler,
 		"/views/":      appHandler,
 	}
 	if !serverCompiled {
