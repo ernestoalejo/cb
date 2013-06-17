@@ -78,6 +78,8 @@ env_variables:
 # Avoid upload some backup and unused files
 skip_files:
 - old
+- deploy
+- client
 - ^(.*/)?app\.yaml
 - ^(.*/)?app\.yml
 - ^(.*/)?index\.yaml
