@@ -9,10 +9,10 @@ import (
 )
 
 func init() {
-	registry.NewUserTask("form:html", 0, form_html)
+	registry.NewUserTask("form", 0, form)
 }
 
-func form_html(c *config.Config, q *registry.Queue) error {
+func form(c *config.Config, q *registry.Queue) error {
 	data, filename, err := loadData()
 	if err != nil {
 		return fmt.Errorf("read data failed: %s", err)
