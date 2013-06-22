@@ -2,10 +2,12 @@ package v0
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
+	"github.com/kylelemons/go-gypsy/yaml"
 )
 
 func init() {
@@ -13,10 +15,18 @@ func init() {
 }
 
 func form(c *config.Config, q *registry.Queue) error {
-	data, filename, err := loadData()
-	if err != nil {
-		return fmt.Errorf("read data failed: %s", err)
+	filename := q.NextTask()
+	if filename == "" {
+		return fmt.Errorf("validator filename not passed as an argument")
 	}
+	q.RemoveNextTask()
+
+	path := filepath.Join("forms", filename+".yaml")
+	f, err := yaml.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read form failed: %s", err)
+	}
+	data := config.NewConfig(f)
 
 	form := &Form{
 		Filename:   filename,
