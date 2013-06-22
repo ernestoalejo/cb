@@ -21,8 +21,7 @@ func form(c *config.Config, q *registry.Queue) error {
 	}
 	q.RemoveNextTask()
 
-	path := filepath.Join("forms", filename)
-	f, err := yaml.ReadFile(path)
+	f, err := yaml.ReadFile(filename)
 	if err != nil {
 		return fmt.Errorf("read form failed: %s", err)
 	}
