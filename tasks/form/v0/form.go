@@ -2,7 +2,6 @@ package v0
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
