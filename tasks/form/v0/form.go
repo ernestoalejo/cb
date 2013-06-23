@@ -107,6 +107,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			Id:          name,
 			Name:        data.GetDefault("fields[%d].label", "", idx),
+			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 		}
 
 	case "select":

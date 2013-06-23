@@ -222,16 +222,18 @@ type DateField struct {
 	Values      map[string]string
 	DateOptions string
 	Class       []string
+	PlaceHolder string
 }
 
 func (f *DateField) Build(form *Form) string {
 	attrs := map[string]string{
-		"type":     "text",
-		"id":       fmt.Sprintf("%s%s", form.Name, f.Id),
-		"name":     fmt.Sprintf("%s%s", form.Name, f.Id),
-		"class":    strings.Join(f.Class, " "),
-		"ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.Id),
-		"bs-date":  f.DateOptions,
+		"type":        "text",
+		"id":          fmt.Sprintf("%s%s", form.Name, f.Id),
+		"name":        fmt.Sprintf("%s%s", form.Name, f.Id),
+		"class":       strings.Join(f.Class, " "),
+		"ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+		"bs-date":     f.DateOptions,
+		"placeholder": f.PlaceHolder,
 	}
 
 	controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
