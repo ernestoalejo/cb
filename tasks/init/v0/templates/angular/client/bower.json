@@ -2,7 +2,7 @@
   "name": "{{.AppName}}",
   "version": "0.0.0",
   "dependencies": {
-    "angular-bootstrap": "~0.3.0",
+    "angular-bootstrap": "~0.4.0",
     "bootstrap": "~2.3.2",
     "bootstrap-notify": "0.1.0",
     "bower-angular": "git@github.com:ernestokarim/bower-angular.git#~1.1.5",
