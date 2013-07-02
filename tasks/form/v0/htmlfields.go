@@ -258,6 +258,7 @@ type SelectField struct {
 	Class                         []string
 	Attrs                         map[string]string
 	BlankId, BlankLabel           string
+	Watch                         string
 }
 
 func (f *SelectField) Build(form *Form) string {
@@ -267,6 +268,10 @@ func (f *SelectField) Build(form *Form) string {
 		"class":    strings.Join(f.Class, " "),
 		"ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.Id),
 		"style":    "display: none;",
+	}
+
+	if len(f.Watch) > 0 {
+		attrs["select-watch"] = f.Watch
 	}
 
 	controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)

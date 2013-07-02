@@ -122,6 +122,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 			OriginId:    data.GetDefault("fields[%d].originId", "id", idx),
 			OriginLabel: data.GetDefault("fields[%d].originLabel", "label", idx),
 			Name:        data.GetDefault("fields[%d].label", "", idx),
+			Watch:       data.GetDefault("fields[%d].watch", "", idx),
 		}
 
 	case "checkbox":
