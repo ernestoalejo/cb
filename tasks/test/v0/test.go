@@ -23,7 +23,7 @@ func test(c *config.Config, q *registry.Queue) error {
 		args = append(args, "--no-colors")
 	}
 	args = append(args, "config/karma.conf.js")
-	
+
 	if err := utils.ExecCopyOutput("karma", args); err != nil {
 		return fmt.Errorf("exec failed: %s", err)
 	}
@@ -34,7 +34,7 @@ func test_subl(c *config.Config, q *registry.Queue) error {
 	args := []string{
 		"start",
 		"--reporters", "dots",
-		"--no-colors", "config/karma.conf.js"
+		"--no-colors", "config/karma.conf.js",
 	}
 
 	if err := utils.ExecCopyOutput("karma", args); err != nil {
