@@ -24,7 +24,7 @@ func unused(c *config.Config, q *registry.Queue) error {
 			return fmt.Errorf("recursive walk error: %s", err)
 		}
 		if !info.IsDir() && filepath.Ext(path) == ".js" {
-			args := []string{path, "--ignore-params", "_"}
+			args := []string{path, "--ignore-params", "_,_2,_3,_4,_5"}
 			output, err := utils.Exec("unused", args)
 			if err != nil {
 				fmt.Println(output)
