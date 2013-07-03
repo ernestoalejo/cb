@@ -23,7 +23,7 @@ func lint(c *config.Config, q *registry.Queue) error {
 		output, err := utils.Exec("gjslint", args)
 		if err != nil {
 			fmt.Println(output)
-			return fmt.Errorf("linter error error: %s", err)
+			return fmt.Errorf("linter error: %s", err)
 		}
 	}
 	return nil

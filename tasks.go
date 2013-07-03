@@ -25,6 +25,7 @@ import (
 	_ "github.com/ernestokarim/cb/tasks/server/v0"
 	_ "github.com/ernestokarim/cb/tasks/soy/v0"
 	_ "github.com/ernestokarim/cb/tasks/test/v0"
+	_ "github.com/ernestokarim/cb/tasks/unused/v0"
 	_ "github.com/ernestokarim/cb/tasks/validator/v0"
 	_ "github.com/ernestokarim/cb/tasks/watch/v0"
 )
