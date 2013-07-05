@@ -385,6 +385,26 @@ func generateValidators(e *emitter, f *Field) error {
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key)
 			e.emitf(`}`)
 
+		case "MaxLength":
+			val, err := strconv.ParseInt(v.Value, 10, 64)
+			if err != nil {
+				return fmt.Errorf("cannot parse maxlength number: %s", err)
+			}
+
+			e.emitf(`if (strlen($value) > %d) {`, val)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the maxlength validation');`, f.Key)
+			e.emitf(`}`)
+
+		case "Length":
+			val, err := strconv.ParseInt(v.Value, 10, 64)
+			if err != nil {
+				return fmt.Errorf("cannot parse length number: %s", err)
+			}
+
+			e.emitf(`if (strlen($value) != %d) {`, val)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the length validation');`, f.Key)
+			e.emitf(`}`)
+
 		case "MinLengthOptional":
 			val, err := strconv.ParseInt(v.Value, 10, 64)
 			if err != nil {
