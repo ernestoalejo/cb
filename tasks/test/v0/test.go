@@ -35,6 +35,7 @@ func test_subl(c *config.Config, q *registry.Queue) error {
 		"start",
 		"--reporters", "dots",
 		"--no-colors", "config/karma.conf.js",
+		"--single-run",
 	}
 
 	if err := utils.ExecCopyOutput("karma", args); err != nil {
