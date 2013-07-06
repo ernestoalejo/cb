@@ -40,7 +40,7 @@ func server_closure(c *config.Config, q *registry.Queue) error {
 		"/test/list": testListHandler,
 	})
 	log.Printf("%sserving app at http://localhost:9810/...%s\n",
-		colors.YELLOW, colors.RESET)
+		colors.Yellow, colors.Reset)
 	if err := http.ListenAndServe(":9810", nil); err != nil {
 		return fmt.Errorf("server listener failed: %s", err)
 	}

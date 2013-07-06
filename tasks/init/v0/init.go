@@ -89,7 +89,7 @@ func init_task(c *config.Config, q *registry.Queue) error {
 	}
 	if !closureMode {
 		fmt.Printf("Don't forget to run %s`bower install`%s inside the client folder\n",
-			colors.RED, colors.RESET)
+			colors.Red, colors.Reset)
 	}
 	return nil
 }

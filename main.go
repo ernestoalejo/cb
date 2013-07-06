@@ -12,7 +12,7 @@ import (
 
 func main() {
 	if err := run(); err != nil {
-		log.Fatalf("%s%s%s\n", colors.RED, err, colors.RESET)
+		log.Fatalf("%s%s%s\n", colors.Red, err, colors.Reset)
 	}
 }
 

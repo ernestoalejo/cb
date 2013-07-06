@@ -59,13 +59,13 @@ func (l *responseLogger) WriteHeader(s int) {
 func writeLog(req *http.Request, ts time.Time, status, size int) {
 	var color string
 	if status == 200 || status == 304 {
-		color = colors.GREEN
+		color = colors.Green
 	}
 	if status == 500 || status == 403 || status == 404 || status == 0 {
-		color = colors.RED
+		color = colors.Red
 	}
 	log.Printf("%s[%d] %s %s (%d)%s\n", color, status, req.Method,
-		req.RequestURI, size, colors.RESET)
+		req.RequestURI, size, colors.Reset)
 }
 
 // LoggingHandler return a http.Handler that wraps h and logs requests to out in

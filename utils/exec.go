@@ -16,7 +16,7 @@ import (
 // we do.
 func Exec(app string, args []string) (string, error) {
 	if *config.Verbose {
-		log.Printf("%sEXEC%s %s %+v\n", colors.YELLOW, colors.RESET,
+		log.Printf("%sEXEC%s %s %+v\n", colors.Yellow, colors.Reset,
 			app, args)
 	}
 
@@ -33,7 +33,7 @@ func Exec(app string, args []string) (string, error) {
 // a permanent app and see the output right as it is produced.
 func ExecCopyOutput(app string, args []string) error {
 	if *config.Verbose {
-		log.Printf("%sEXEC %s %s %+v\n", colors.YELLOW, colors.RESET,
+		log.Printf("%sEXEC %s %s %+v\n", colors.Yellow, colors.Reset,
 			app, args)
 	}
 
