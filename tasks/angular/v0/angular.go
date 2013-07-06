@@ -14,7 +14,7 @@ import (
 )
 
 // Pointer to this package (to locate the templates)
-const SELF_PKG = "github.com/ernestokarim/cb/tasks/angular/v0/templates"
+const selfPkg = "github.com/ernestokarim/cb/tasks/angular/v0/templates"
 
 var (
 	buf = bufio.NewReader(os.Stdin)
@@ -112,7 +112,7 @@ func writeFile(path string, tmpl string, data interface{}) error {
 	}
 	defer f.Close()
 
-	tmpl = filepath.Join(utils.PackagePath(SELF_PKG), tmpl)
+	tmpl = filepath.Join(utils.PackagePath(selfPkg), tmpl)
 	t, err := template.ParseFiles(tmpl)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)

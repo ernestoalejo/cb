@@ -6,9 +6,10 @@ import (
 	"path/filepath"
 )
 
+// WalkFunc is the type all callbacks should implement when walking a path.
 type WalkFunc func(path string, info os.FileInfo) error
 
-// Represents a list of folders & files. It can match the
+// Walker represents a list of folders & files. It can match the
 // path, the name or the ext. If any of them is '*' it will
 // be matched against anything. Recursive is enabled when a '**'
 // appears as the last element of the path.
@@ -25,6 +26,7 @@ type Walker struct {
 	Recursive       bool
 }
 
+// NewWalker creates a new walker for the dir path (see Walker docs for formats).
 func NewWalker(dir string) *Walker {
 	w := &Walker{}
 
@@ -50,6 +52,8 @@ func NewWalker(dir string) *Walker {
 	return w
 }
 
+// Walk calls the walkFn callback for each file or folder that
+// matches the walker path.
 func (w *Walker) Walk(walkFn WalkFunc) error {
 	fn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {

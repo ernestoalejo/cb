@@ -20,7 +20,7 @@ import (
 	"github.com/ernestokarim/cb/watcher"
 )
 
-const SELF_PKG = "github.com/ernestokarim/cb/tasks/server/v0/templates"
+const selfPkg = "github.com/ernestokarim/cb/tasks/server/v0/templates"
 
 func init() {
 	registry.NewTask("server:closure", 0, server_closure)
@@ -110,7 +110,7 @@ func compileHandler(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "closure.js"))
+	tmplPath := utils.PackagePath(filepath.Join(selfPkg, "closure.js"))
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)
@@ -168,7 +168,7 @@ func testListHandler(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("walk tests failed: %s", err)
 	}
 
-	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test-list.html"))
+	tmplPath := utils.PackagePath(filepath.Join(selfPkg, "test-list.html"))
 	tmpl, err := htmltmpl.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)
@@ -186,7 +186,7 @@ func testAllHandler(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("walk tests failed: %s", err)
 	}
 
-	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test-all.html"))
+	tmplPath := utils.PackagePath(filepath.Join(selfPkg, "test-all.html"))
 	tmpl, err := htmltmpl.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)
@@ -205,7 +205,7 @@ func unitTestHandler(w http.ResponseWriter, r *http.Request) error {
 		return nil
 	}
 
-	tmplPath := utils.PackagePath(filepath.Join(SELF_PKG, "test.html"))
+	tmplPath := utils.PackagePath(filepath.Join(selfPkg, "test.html"))
 	tmpl, err := htmltmpl.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)

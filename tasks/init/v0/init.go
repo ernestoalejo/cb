@@ -17,7 +17,7 @@ import (
 )
 
 // Pointer to this package (to locate the templates)
-const SELF_PKG = "github.com/ernestokarim/cb/tasks/init/v0/templates"
+const selfPkg = "github.com/ernestokarim/cb/tasks/init/v0/templates"
 
 // List of files that must be passed through the template system
 var needTemplates = map[string]bool{
@@ -55,14 +55,14 @@ func init_closure(c *config.Config, q *registry.Queue) error {
 func init_task(c *config.Config, q *registry.Queue) error {
 	var path string
 	if !closureMode {
-		path = filepath.Join(SELF_PKG, "angular")
+		path = filepath.Join(selfPkg, "angular")
 
 		if clientOnly {
 			path = filepath.Join(path, "client")
 		}
 	}
 	if closureMode {
-		path = filepath.Join(SELF_PKG, "closure")
+		path = filepath.Join(selfPkg, "closure")
 	}
 
 	cur, err := os.Getwd()
@@ -106,7 +106,7 @@ func copyFiles(c *config.Config, appname, src, dest, root string) error {
 		fullsrc := filepath.Join(src, entry.Name())
 		fulldest := filepath.Join(dest, entry.Name())
 
-		rel, err := filepath.Rel(utils.PackagePath(SELF_PKG), fullsrc)
+		rel, err := filepath.Rel(utils.PackagePath(selfPkg), fullsrc)
 		if err != nil {
 			return fmt.Errorf("rel failed: %s", err)
 		}
