@@ -51,7 +51,7 @@ func service(c *config.Config, q *registry.Queue) error {
 func controller(c *config.Config, q *registry.Queue) error {
 	name := q.NextTask()
 	if name == "" {
-		return fmt.Errorf("first arg should be the name of the service")
+		return fmt.Errorf("first arg should be the name of the controller")
 	}
 	q.RemoveNextTask()
 	if !strings.Contains(name, "Ctrl") {
@@ -59,7 +59,7 @@ func controller(c *config.Config, q *registry.Queue) error {
 	}
 	module := q.NextTask()
 	if module == "" {
-		return fmt.Errorf("second arg should be the module of the service")
+		return fmt.ErroPcrf("second arg should be the module of the controller")
 	}
 	q.RemoveNextTask()
 	route := q.NextTask()
