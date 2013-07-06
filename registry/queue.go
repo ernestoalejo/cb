@@ -29,8 +29,8 @@ func (q *Queue) RunWithTimer(c *config.Config) error {
 	if err := q.Run(c); err != nil {
 		return fmt.Errorf("run queue failed: %s", err)
 	}
-	log.Printf("%sFinished in %.3f seconds%s", colors.GREEN,
-		time.Since(start).Seconds(), colors.RESET)
+	log.Printf("%sFinished in %.3f seconds%s", colors.Green,
+		time.Since(start).Seconds(), colors.Reset)
 	return nil
 }
 
@@ -67,10 +67,10 @@ func (q *Queue) Run(c *config.Config) error {
 
 		if *config.Verbose {
 			log.Printf("%s[%2d] Running %s@%d...%s\n",
-				colors.BLUE, len(q.tasks), task, version, colors.RESET)
+				colors.Blue, len(q.tasks), task, version, colors.Reset)
 		} else {
 			log.Printf("%s[%2d] Running %s%s\n",
-				colors.BLUE, len(q.tasks), task, colors.RESET)
+				colors.Blue, len(q.tasks), task, colors.Reset)
 		}
 
 		q.CurTask = task

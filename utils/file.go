@@ -12,19 +12,22 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
-func WriteFile(name, content string) error {
-	if err := os.MkdirAll(filepath.Dir(name), 0755); err != nil {
+// WriteFile creates the needed directory structure to write the whole content
+// string inside a file with the specified path.
+func WriteFile(path, content string) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
 		return fmt.Errorf("cannot prepare the folders: %s", err)
 	}
 
-	if err := ioutil.WriteFile(name, []byte(content), 0755); err != nil {
+	if err := ioutil.WriteFile(path, []byte(content), 0755); err != nil {
 		return fmt.Errorf("write file failed: %s", err)
 	}
 
 	return nil
 }
 
-// Copy a file, from srcPath to destPath
+// CopyFile creates a new destPath file copying manually all the contents
+// of the srcPath original file.
 func CopyFile(srcPath, destPath string) error {
 	if *config.Verbose {
 		log.Printf("copy file `%s`\n", srcPath)
@@ -49,7 +52,7 @@ func CopyFile(srcPath, destPath string) error {
 	return nil
 }
 
-// Read a file line by line and return the list of them
+// ReadLines read a file line by line using a buffer and return the list.
 func ReadLines(path string) ([]string, error) {
 	f, err := os.Open(path)
 	if err != nil {

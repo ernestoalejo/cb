@@ -9,6 +9,7 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
+// Ask the user a yes/no question by console.
 func Ask(q string) bool {
 	q = q + " [y/N]: "
 
@@ -16,7 +17,7 @@ func Ask(q string) bool {
 	for {
 		var ans string
 		if !*config.AlwaysY && !*config.AlwaysN {
-			fmt.Fprintf(os.Stderr, "%s%s%s", colors.YELLOW, q, colors.RESET)
+			fmt.Fprintf(os.Stderr, "%s%s%s", colors.Yellow, q, colors.Reset)
 
 			var err error
 			ans, err = buf.ReadString('\n')
@@ -33,7 +34,7 @@ func Ask(q string) bool {
 			return false
 		}
 
-		fmt.Fprintf(os.Stderr, "%sanswer y or n%s\n", colors.RED, colors.RESET)
+		fmt.Fprintf(os.Stderr, "%sanswer y or n%s\n", colors.Red, colors.Reset)
 	}
 	panic("should not reach here")
 }

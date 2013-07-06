@@ -14,7 +14,7 @@ import (
 )
 
 // Pointer to this package (to locate the templates)
-const SELF_PKG = "github.com/ernestokarim/cb/tasks/angular/v0/templates"
+const selfPkg = "github.com/ernestokarim/cb/tasks/angular/v0/templates"
 
 var (
 	buf = bufio.NewReader(os.Stdin)
@@ -26,17 +26,16 @@ func init() {
 }
 
 func service(c *config.Config, q *registry.Queue) error {
-	fmt.Printf(" - Name of the service: ")
-	name, err := getLine()
-	if err != nil {
-		return fmt.Errorf("read name failed: %s", err)
+	name := q.NextTask()
+	if name == "" {
+		return fmt.Errorf("first arg should be the name of the service")
 	}
-
-	fmt.Printf(" - Module of the service: ")
-	module, err := getLine()
-	if err != nil {
-		return fmt.Errorf("read module failed: %s", err)
+	q.RemoveNextTask()
+	module := q.NextTask()
+	if module == "" {
+		return fmt.Errorf("second arg should be the module of the service")
 	}
+	q.RemoveNextTask()
 
 	data := &ServiceData{name, module}
 	if err := writeServiceFile(data); err != nil {
@@ -50,27 +49,21 @@ func service(c *config.Config, q *registry.Queue) error {
 }
 
 func controller(c *config.Config, q *registry.Queue) error {
-	fmt.Printf(" - Name of the controller: ")
-	name, err := getLine()
-	if err != nil {
-		return fmt.Errorf("read name failed: %s", err)
+	name := q.NextTask()
+	if name == "" {
+		return fmt.Errorf("first arg should be the name of the service")
 	}
-
-	fmt.Printf(" - Module of the controller: ")
-	module, err := getLine()
-	if err != nil {
-		return fmt.Errorf("read module failed: %s", err)
-	}
-
-	fmt.Printf(" - Route of the controller: ")
-	route, err := getLine()
-	if err != nil {
-		return fmt.Errorf("read route failed: %s", err)
-	}
-
+	q.RemoveNextTask()
 	if !strings.Contains(name, "Ctrl") {
 		name = name + "Ctrl"
 	}
+	module := q.NextTask()
+	if module == "" {
+		return fmt.Errorf("second arg should be the module of the service")
+	}
+	q.RemoveNextTask()
+	route := q.NextTask()
+	q.RemoveNextTask()
 
 	data := &ControllerData{name, module, route}
 	if err := writeControllerFile(data); err != nil {
@@ -82,29 +75,16 @@ func controller(c *config.Config, q *registry.Queue) error {
 	if err := writeControllerViewFile(data); err != nil {
 		return fmt.Errorf("write view failed: %s", err)
 	}
-	if err := writeControllerRouteFile(data); err != nil {
-		return fmt.Errorf("write route failed: %s", err)
+	if route != "" {
+		if err := writeControllerRouteFile(data); err != nil {
+			return fmt.Errorf("write route failed: %s", err)
+		}
 	}
 
 	return nil
 }
 
 // ==================================================================
-
-func getLine() (string, error) {
-	for {
-		line, err := buf.ReadString('\n')
-		if err != nil {
-			return "", fmt.Errorf("read line failed: %s", err)
-		}
-
-		line = strings.TrimSpace(line)
-		if line != "" {
-			return line, nil
-		}
-	}
-	panic("should not reach here")
-}
 
 type FileData struct {
 	Data   interface{}
@@ -132,7 +112,7 @@ func writeFile(path string, tmpl string, data interface{}) error {
 	}
 	defer f.Close()
 
-	tmpl = filepath.Join(utils.PackagePath(SELF_PKG), tmpl)
+	tmpl = filepath.Join(utils.PackagePath(selfPkg), tmpl)
 	t, err := template.ParseFiles(tmpl)
 	if err != nil {
 		return fmt.Errorf("parse template failed: %s", err)

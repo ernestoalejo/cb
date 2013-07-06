@@ -11,11 +11,12 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
-// Execute a new command and return the output and an error
-// if present
+// Exec runs a new command and return the output and an error if present.
+// It's probably the core of cb as we use external tools for almost anything
+// we do.
 func Exec(app string, args []string) (string, error) {
 	if *config.Verbose {
-		log.Printf("%sEXEC%s %s %+v\n", colors.YELLOW, colors.RESET,
+		log.Printf("%sEXEC%s %s %+v\n", colors.Yellow, colors.Reset,
 			app, args)
 	}
 
@@ -27,9 +28,12 @@ func Exec(app string, args []string) (string, error) {
 	return string(output), err
 }
 
+// ExecCopyOutput runs a new command and keeps copying the output to stdout
+// until it finish. It's used in commands like `cb test` where we need to run
+// a permanent app and see the output right as it is produced.
 func ExecCopyOutput(app string, args []string) error {
 	if *config.Verbose {
-		log.Printf("%sEXEC %s %s %+v\n", colors.YELLOW, colors.RESET,
+		log.Printf("%sEXEC %s %s %+v\n", colors.Yellow, colors.Reset,
 			app, args)
 	}
 

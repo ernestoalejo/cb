@@ -15,21 +15,21 @@ import (
 )
 
 func init() {
-	registry.NewUserTask("validator", 0, validator)
+	registry.NewUserTask("validator", 0, validatorTask)
 }
 
-type Field struct {
+type field struct {
 	Key, Kind, Store, Condition string
-	Validators                  []*Validator
-	Fields                      []*Field
+	Validators                  []*validator
+	Fields                      []*field
 }
 
-type Validator struct {
+type validator struct {
 	Name, Value string
 	Uses        []string
 }
 
-func validator(c *config.Config, q *registry.Queue) error {
+func validatorTask(c *config.Config, q *registry.Queue) error {
 	filename := q.NextTask()
 	if filename == "" {
 		return fmt.Errorf("validator filename not passed as an argument")
@@ -61,17 +61,17 @@ func validator(c *config.Config, q *registry.Queue) error {
 
 // ==================================================================
 
-func parseFields(data *config.Config, spec string) []*Field {
-	fields := []*Field{}
+func parseFields(data *config.Config, spec string) []*field {
+	fields := []*field{}
 
 	size := data.CountRequired("%s", spec)
 	for i := 0; i < size; i++ {
-		field := &Field{
+		field := &field{
 			Key:        data.GetDefault("%s[%d].key", "", spec, i),
 			Kind:       data.GetRequired("%s[%d].kind", spec, i),
 			Store:      data.GetDefault("%s[%d].store", "", spec, i),
 			Condition:  data.GetDefault("%s[%d].condition", "", spec, i),
-			Validators: make([]*Validator, 0),
+			Validators: make([]*validator, 0),
 		}
 
 		if field.Kind == "Array" || field.Kind == "Object" || field.Kind == "Conditional" {
@@ -81,7 +81,7 @@ func parseFields(data *config.Config, spec string) []*Field {
 
 		validatorsSize := data.CountDefault("%s[%d].validators", spec, i)
 		for j := 0; j < validatorsSize; j++ {
-			v := &Validator{
+			v := &validator{
 				Name:  data.GetRequired("%s[%d].validators[%d].name", spec, i, j),
 				Value: data.GetDefault("%s[%d].validators[%d].value", "", spec, i, j),
 			}
@@ -135,7 +135,7 @@ func (e *emitter) emitf(format string, a ...interface{}) {
 	fmt.Fprintln(e.f)
 }
 
-func (e *emitter) arrayId() int {
+func (e *emitter) arrayID() int {
 	id := e.id
 	e.id++
 	return id
@@ -143,7 +143,7 @@ func (e *emitter) arrayId() int {
 
 // ==================================================================
 
-func generator(filename, name, namespace, root string, fields []*Field) error {
+func generator(filename, name, namespace, root string, fields []*field) error {
 	f, err := os.Create(filepath.Join(filepath.Dir(filename), name+".php"))
 	if err != nil {
 		return fmt.Errorf("cannot create dest file: %s", err)
@@ -219,7 +219,7 @@ class %s {
 	return nil
 }
 
-func generateObject(e *emitter, varname, result string, fields []*Field) error {
+func generateObject(e *emitter, varname, result string, fields []*field) error {
 	for _, f := range fields {
 		f.Key = "'" + f.Key + "'"
 
@@ -246,8 +246,8 @@ func generateObject(e *emitter, varname, result string, fields []*Field) error {
 	return nil
 }
 
-func generateArray(e *emitter, varname, result string, fields []*Field) error {
-	id := e.arrayId()
+func generateArray(e *emitter, varname, result string, fields []*field) error {
+	id := e.arrayID()
 	e.emitf("$size%d = count($%s);", id, varname)
 	e.emitf("for ($i%d = 0; $i%d < $size%d; $i%d++) {", id, id, id, id)
 	e.indent()
@@ -275,7 +275,7 @@ func generateArray(e *emitter, varname, result string, fields []*Field) error {
 	return nil
 }
 
-func generateField(e *emitter, f *Field, varname, result string) error {
+func generateField(e *emitter, f *field, varname, result string) error {
 	switch f.Kind {
 	case "String":
 		e.emitf(`$value = $%s[%s];`, varname, f.Key)
@@ -372,7 +372,7 @@ func generateField(e *emitter, f *Field, varname, result string) error {
 	return nil
 }
 
-func generateValidators(e *emitter, f *Field) error {
+func generateValidators(e *emitter, f *field) error {
 	for _, v := range f.Validators {
 		switch v.Name {
 		case "MinLength":

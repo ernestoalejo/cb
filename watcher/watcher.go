@@ -16,6 +16,8 @@ var (
 	walkersMutex = &sync.Mutex{}
 )
 
+// Dirs add a new set of directories &files to the watched ones under
+// the key name identification.
 func Dirs(dirs []string, key string) error {
 	walkersMutex.Lock()
 	defer walkersMutex.Unlock()
@@ -36,6 +38,8 @@ func Dirs(dirs []string, key string) error {
 	return nil
 }
 
+// CheckModified returns true if the set of directories identified by the key
+// name is dirty (has new files or has been modified).
 func CheckModified(key string) (bool, error) {
 	modified := false
 	for _, w := range walkers[key] {
@@ -58,7 +62,7 @@ func checkWatcher(key string, w *utils.Walker) (bool, error) {
 
 	m := false
 	fn := func(path string, info os.FileInfo) error {
-		modified, err := cache.Modified(cache.KEY_WATCH, path)
+		modified, err := cache.Modified(cache.KeyWatch, path)
 		if err != nil {
 			return fmt.Errorf("modified check failed: %s", err)
 		}
