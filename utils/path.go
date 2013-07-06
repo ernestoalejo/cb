@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func PackagePath(import_path string) string {
-	req := filepath.Clean(import_path)
+func PackagePath(importPath string) string {
+	req := filepath.Clean(importPath)
 	if req == "." {
 		panic("bad source path")
 	}
