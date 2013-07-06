@@ -9,6 +9,7 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
+// Ask the user a yes/no question by console.
 func Ask(q string) bool {
 	q = q + " [y/N]: "
 

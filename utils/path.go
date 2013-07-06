@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+//
 func PackagePath(importPath string) string {
 	req := filepath.Clean(importPath)
 	if req == "." {
