@@ -59,7 +59,7 @@ func controller(c *config.Config, q *registry.Queue) error {
 	}
 	module := q.NextTask()
 	if module == "" {
-		return fmt.ErroPcrf("second arg should be the module of the controller")
+		return fmt.Errorf("second arg should be the module of the controller")
 	}
 	q.RemoveNextTask()
 	route := q.NextTask()
