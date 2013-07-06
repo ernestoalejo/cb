@@ -45,7 +45,7 @@ func newSource(c *config.Config, path string) (*Source, error) {
 	defer sourcesMutex.Unlock()
 
 	src := sources[path]
-	if m, err := cache.Modified(cache.KEY_DEPS, path); err != nil {
+	if m, err := cache.Modified(cache.KeyDeps, path); err != nil {
 		return nil, fmt.Errorf("cache check failed: %s", err)
 	} else if !m {
 		src.Cached = true

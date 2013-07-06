@@ -62,7 +62,7 @@ func checkWatcher(key string, w *utils.Walker) (bool, error) {
 
 	m := false
 	fn := func(path string, info os.FileInfo) error {
-		modified, err := cache.Modified(cache.KEY_WATCH, path)
+		modified, err := cache.Modified(cache.KeyWatch, path)
 		if err != nil {
 			return fmt.Errorf("modified check failed: %s", err)
 		}
