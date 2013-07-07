@@ -3,6 +3,7 @@ package v0
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -92,6 +93,10 @@ type FileData struct {
 }
 
 func writeFile(path string, tmpl string, data interface{}) error {
+	if *config.Verbose {
+		log.Printf("write file %s\n", path)
+	}
+
 	exists := true
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {

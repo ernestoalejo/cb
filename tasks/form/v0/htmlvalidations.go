@@ -16,6 +16,7 @@ func initValidator(name, value, msg string) *Validator {
 		"dateBefore": dateBefore,
 		"user":       user,
 		"validDate":  validDate,
+		"match":      match,
 	}
 	if m[name] == nil {
 		return nil
@@ -77,5 +78,13 @@ func validDate(name, value, msg string) *Validator {
 		Attrs:   map[string]string{"valid-date": ""},
 		Message: msg,
 		Error:   "validDate",
+	}
+}
+
+func match(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{"match": value},
+		Message: msg,
+		Error:   "match",
 	}
 }
