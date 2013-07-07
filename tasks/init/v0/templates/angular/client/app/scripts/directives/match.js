@@ -9,6 +9,10 @@ m.directive('match', function() {
     require: 'ngModel',
     link: function(scope, elm, attr, ctrl) {
       var widget = elm.controller('form')[attr.match];
+      if (!widget) {
+        throw new Error('field ' + attr.match + ' is not present in form');
+      }
+
       widget.$parsers.push(function(value) {
         ctrl.$setValidity('match', value === ctrl.$viewValue);
         return value;

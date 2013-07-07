@@ -83,7 +83,7 @@ func validDate(name, value, msg string) *Validator {
 
 func match(name, value, msg string) *Validator {
 	return &Validator{
-		Attrs:   map[string]string{"match": value},
+		Attrs:   map[string]string{"match": "f" + value},
 		Message: msg,
 		Error:   "match",
 	}
