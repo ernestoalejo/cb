@@ -483,11 +483,19 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the positive validation');`, f.Key)
 			e.emitf(`}`)
 
-		case "Match":
+		case "RegExp":
 			if v.Value == "" {
-				return fmt.Errorf("Match filter needs a regexp as value")
+				return fmt.Errorf("Regexp filter needs a regexp as value")
 			}
 			e.emitf(`if (!preg_match('%s', $value)) {`, v.Value)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the regexp validation');`, f.Key)
+			e.emitf(`}`)
+
+		case "Match":
+			if v.Value == "" {
+				return fmt.Errorf("Match filter needs a field name as value")
+			}
+			e.emitf(`if ($value != $store['%s']) {`, v.Value)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the match validation');`, f.Key)
 			e.emitf(`}`)
 
