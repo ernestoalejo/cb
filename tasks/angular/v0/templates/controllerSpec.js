@@ -6,10 +6,7 @@ describe('Controller: {{ .Data.Name }}', function() {
   beforeEach(module('controllers.{{ .Data.Module }}'));
 
   var scope;
-  beforeEach(inject(function($injector) {
-    var $controller = $injector.get('$controller');
-    var $rootScope = $injector.get('$rootScope');
-
+  beforeEach(inject(function($controller, $rootScope) {
     scope = $rootScope.$new();
     $controller('{{ .Data.Name }}', {$scope: scope});
   }));
