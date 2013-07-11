@@ -29,7 +29,7 @@ type Form struct {
 	ObjName string
 
 	Fields     []formField
-	Validators map[string][]*Validator
+	Validators map[string][]*validator
 }
 
 func (f *Form) Build() string {

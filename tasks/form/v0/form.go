@@ -32,7 +32,7 @@ func form(c *config.Config, q *registry.Queue) error {
 		Submit:     data.GetDefault("submitfunc", "submit"),
 		TrySubmit:  data.GetDefault("trySubmitfunc", "trySubmit"),
 		ObjName:    data.GetDefault("objname", "data"),
-		Validators: make(map[string][]*Validator),
+		Validators: make(map[string][]*validator),
 	}
 
 	fields := data.CountDefault("fields")
@@ -140,8 +140,8 @@ func parseField(data *config.Config, idx int) (formField, error) {
 	return field, nil
 }
 
-func parseValidators(data *config.Config, idx int) []*Validator {
-	validators := []*Validator{}
+func parseValidators(data *config.Config, idx int) []*validator {
+	validators := []*validator{}
 
 	nvalidators := data.CountDefault("fields[%d].validators", idx)
 	for i := 0; i < nvalidators; i++ {
