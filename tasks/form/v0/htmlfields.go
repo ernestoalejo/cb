@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type Field interface {
+type formField interface {
 	Build(form *Form) string
 }
 
@@ -28,7 +28,7 @@ type Form struct {
 	// with the values of the form
 	ObjName string
 
-	Fields     []Field
+	Fields     []formField
 	Validators map[string][]*Validator
 }
 
@@ -108,7 +108,7 @@ func buildControl(form *Form, id, name, help string) (map[string]string, string)
 
 // ==================================================================
 
-type InputField struct {
+type inputField struct {
 	ID, Name    string
 	Help        string
 	Type        string
@@ -118,7 +118,7 @@ type InputField struct {
 	Attrs map[string]string
 }
 
-func (f *InputField) Build(form *Form) string {
+func (f *inputField) Build(form *Form) string {
 	if f.Type == "" {
 		panic("input type should not be empty: " + f.ID)
 	}
@@ -142,13 +142,13 @@ func (f *InputField) Build(form *Form) string {
 
 // ==================================================================
 
-type SubmitField struct {
+type submitField struct {
 	Label       string
 	CancelUrl   string
 	CancelLabel string
 }
 
-func (f *SubmitField) Build(form *Form) string {
+func (f *submitField) Build(form *Form) string {
 	cancel := ""
 	if f.CancelLabel != "" && f.CancelUrl != "" {
 		cancel = fmt.Sprintf("\n"+`&nbsp;&nbsp;&nbsp;<a href="%s" class="btn">%s</a>`,
@@ -165,7 +165,7 @@ func (f *SubmitField) Build(form *Form) string {
 
 // ==================================================================
 
-type TextAreaField struct {
+type textAreaField struct {
 	ID, Name    string
 	Help        string
 	Class       []string
@@ -173,7 +173,7 @@ type TextAreaField struct {
 	PlaceHolder string
 }
 
-func (f *TextAreaField) Build(form *Form) string {
+func (f *textAreaField) Build(form *Form) string {
 	attrs := map[string]string{
 		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
 		"name":        fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -192,13 +192,13 @@ func (f *TextAreaField) Build(form *Form) string {
 
 // ==================================================================
 
-type RadioBtnField struct {
+type radioBtnField struct {
 	ID, Name string
 	Help     string
 	Values   map[string]string
 }
 
-func (f *RadioBtnField) Build(form *Form) string {
+func (f *radioBtnField) Build(form *Form) string {
 	_, control := buildControl(form, f.ID, f.Name, f.Help)
 	model := fmt.Sprintf("%s.%s", form.ObjName, f.ID)
 
@@ -216,7 +216,7 @@ func (f *RadioBtnField) Build(form *Form) string {
 
 // ==================================================================
 
-type DateField struct {
+type dateField struct {
 	ID, Name    string
 	Help        string
 	Values      map[string]string
@@ -225,7 +225,7 @@ type DateField struct {
 	PlaceHolder string
 }
 
-func (f *DateField) Build(form *Form) string {
+func (f *dateField) Build(form *Form) string {
 	attrs := map[string]string{
 		"type":        "text",
 		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -251,7 +251,7 @@ func (f *DateField) Build(form *Form) string {
 
 // ==================================================================
 
-type SelectField struct {
+type selectField struct {
 	ID, Name                      string
 	Help                          string
 	Origin, OriginID, OriginLabel string
@@ -261,7 +261,7 @@ type SelectField struct {
 	Watch                         string
 }
 
-func (f *SelectField) Build(form *Form) string {
+func (f *selectField) Build(form *Form) string {
 	attrs := map[string]string{
 		"id":       fmt.Sprintf("%s%s", form.Name, f.ID),
 		"name":     fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -294,12 +294,12 @@ func (f *SelectField) Build(form *Form) string {
 
 // ==================================================================
 
-type CheckboxField struct {
+type checkboxField struct {
 	ID, Name string
 	Help     string
 }
 
-func (f *CheckboxField) Build(form *Form) string {
+func (f *checkboxField) Build(form *Form) string {
 	attrs := map[string]string{
 		"type":     "checkbox",
 		"id":       fmt.Sprintf("%s%s", form.Name, f.ID),

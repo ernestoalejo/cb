@@ -58,10 +58,10 @@ func form(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func parseField(data *config.Config, idx int) (Field, error) {
+func parseField(data *config.Config, idx int) (formField, error) {
 	name := data.GetRequired("fields[%d].name", idx)
 	fieldType := data.GetRequired("fields[%d].type", idx)
-	var field Field
+	var field formField
 	switch fieldType {
 	case "email":
 		fallthrough
@@ -70,7 +70,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "password":
 		fallthrough
 	case "text":
-		field = &InputField{
+		field = &inputField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			ID:          name,
@@ -80,7 +80,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		}
 
 	case "textarea":
-		field = &TextAreaField{
+		field = &textAreaField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			ID:          name,
@@ -90,12 +90,12 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		}
 
 	case "submit":
-		field = &SubmitField{
+		field = &submitField{
 			Label: data.GetDefault("fields[%d].label", "", idx),
 		}
 
 	case "radiobtn":
-		field = &RadioBtnField{
+		field = &radioBtnField{
 			Help:   data.GetDefault("fields[%d].help", "", idx),
 			ID:     name,
 			Name:   data.GetDefault("fields[%d].label", "", idx),
@@ -103,7 +103,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		}
 
 	case "date":
-		field = &DateField{
+		field = &dateField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
@@ -113,7 +113,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		}
 
 	case "select":
-		field = &SelectField{
+		field = &selectField{
 			Attrs:       parseAttrs(data, idx),
 			BlankID:     data.GetDefault("fields[%d].blank.id", "", idx),
 			BlankLabel:  data.GetDefault("fields[%d].blank.label", "", idx),
@@ -128,7 +128,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		}
 
 	case "checkbox":
-		field = &CheckboxField{
+		field = &checkboxField{
 			ID:   name,
 			Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
