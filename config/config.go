@@ -12,14 +12,19 @@ import (
 
 var errNotFound = fmt.Errorf("not found")
 
+// Config wrapper to access settins.
 type Config struct {
 	f *yaml.File
 }
 
+// NewConfig creates a new config wrapper from a YAML file. Used to load
+// specific config files (forms, validations, ...)
 func NewConfig(f *yaml.File) *Config {
 	return &Config{f}
 }
 
+// Load the basic config files for all task. It prepares some common transforms
+// in the data too.
 func Load() (*Config, error) {
 	if _, err := os.Stat("config.yaml"); err != nil {
 		if os.IsNotExist(err) {
@@ -39,6 +44,7 @@ func Load() (*Config, error) {
 	return c, nil
 }
 
+// GetRequired returns a string from config or panic if it's not there.
 func (c *Config) GetRequired(format string, a ...interface{}) string {
 	s, err := c.f.Get(fmt.Sprintf(format, a...))
 	if err != nil {
@@ -50,6 +56,7 @@ func (c *Config) GetRequired(format string, a ...interface{}) string {
 	return s
 }
 
+// GetDefault returns a string from config or the default value if it's not there.
 func (c *Config) GetDefault(format, def string, a ...interface{}) string {
 	s, err := c.f.Get(fmt.Sprintf(format, a...))
 	if err != nil {
@@ -64,6 +71,7 @@ func (c *Config) GetDefault(format, def string, a ...interface{}) string {
 	return s
 }
 
+// GetInt returns an int from config or the default value if it's not there.
 func (c *Config) GetInt(format string, def int, a ...interface{}) int {
 	s := c.GetDefault(fmt.Sprintf(format, a...), fmt.Sprintf("%d", def))
 	n, err := strconv.ParseInt(s, 10, 64)
@@ -73,17 +81,21 @@ func (c *Config) GetInt(format string, def int, a ...interface{}) int {
 	return int(n)
 }
 
-func (c *Config) GetBoolDefault(spec string) bool {
-	b, err := c.f.GetBool(spec)
+// GetBoolDefault returns a boolean from config or the default value if it's
+// not there.
+func (c *Config) GetBoolDefault(format string, def bool, a ...interface{}) bool {
+	b, err := c.f.GetBool(fmt.Sprintf(format, a...))
 	if err != nil {
 		if IsNotFound(err) {
-			return false
+			return def
 		}
 		panic(err)
 	}
 	return b
 }
 
+// CountDefault returns the size of the list, or zero if it's not in the
+// config file.
 func (c *Config) CountDefault(format string, a ...interface{}) int {
 	cnt, err := c.f.Count(fmt.Sprintf(format, a...))
 	if err != nil {
@@ -95,6 +107,7 @@ func (c *Config) CountDefault(format string, a ...interface{}) int {
 	return cnt
 }
 
+// CountRequired returns the size of the list, or panics if it's not there.
 func (c *Config) CountRequired(format string, a ...interface{}) int {
 	cnt, err := c.f.Count(fmt.Sprintf(format, a...))
 	if err != nil {
@@ -103,6 +116,8 @@ func (c *Config) CountRequired(format string, a ...interface{}) int {
 	return cnt
 }
 
+// GetListRequired returns a list of strings from the config file panicing if
+// there is no list there.
 func (c *Config) GetListRequired(format string, a ...interface{}) []string {
 	spec := fmt.Sprintf(format, a...)
 	items := []string{}
@@ -113,6 +128,8 @@ func (c *Config) GetListRequired(format string, a ...interface{}) []string {
 	return items
 }
 
+// GetListDefault returns a list of strings from the config file or an empty
+// list if there are no results.
 func (c *Config) GetListDefault(format string, a ...interface{}) []string {
 	spec := fmt.Sprintf(format, a...)
 	items := []string{}
@@ -123,6 +140,7 @@ func (c *Config) GetListDefault(format string, a ...interface{}) []string {
 	return items
 }
 
+// Render is helper to render the config file to the output.
 func (c *Config) Render() {
 	if c.f.Root == nil {
 		fmt.Println(nil)
@@ -176,6 +194,8 @@ func fixPath(p string) (string, error) {
 	return strings.Replace(p, "~", home, -1), nil
 }
 
+// IsNotFound returns true if the error references a config key not found in
+// the file while performing some extract operation.
 func IsNotFound(err error) bool {
 	return strings.Contains(err.Error(), "not found")
 }

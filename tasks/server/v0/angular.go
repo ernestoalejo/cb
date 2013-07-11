@@ -71,7 +71,7 @@ func serverAngular(c *config.Config, q *registry.Queue) error {
 		}
 	}
 
-	clientOnly := c.GetBoolDefault("clientonly")
+	clientOnly := c.GetBoolDefault("clientonly", false)
 	if clientOnly && serveConfig.base {
 		urls["/"] = clientBaseHandler
 		urls["/e2e"] = clientBaseTest

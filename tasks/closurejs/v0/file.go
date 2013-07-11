@@ -42,7 +42,7 @@ func getFile(c *config.Config) (*file, error) {
 		externs: c.GetListDefault("closurejs.externs"),
 		inputs:  c.GetListRequired("closurejs.inputs"),
 		defines: getDefines(c),
-		debug:   c.GetBoolDefault("closurejs.debug"),
+		debug:   c.GetBoolDefault("closurejs.debug", false),
 		dest:    filepath.Join("temp", "scripts", c.GetRequired("closurejs.dest")),
 	}
 

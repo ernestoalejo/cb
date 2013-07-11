@@ -1,5 +1,6 @@
 package colors
 
+// List of available colors in the system
 var (
 	Reset       = ""
 	Bold        = ""
