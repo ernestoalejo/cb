@@ -13,7 +13,7 @@ import (
 	"github.com/ernestokarim/cb/utils"
 )
 
-type Macro func() (string, error)
+type macro func() (string, error)
 
 var (
 	deployCommands = map[string]string{
@@ -51,7 +51,7 @@ var (
     `,
 	}
 
-	macros = map[string]Macro{
+	macros = map[string]macro{
 		"copyModTimes":  copyModTimes,
 		"copyYamlFiles": copyYamlFiles,
 	}

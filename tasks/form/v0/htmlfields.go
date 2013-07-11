@@ -6,10 +6,10 @@ import (
 )
 
 type formField interface {
-	Build(form *Form) string
+	Build(form *formInfo) string
 }
 
-type Form struct {
+type formInfo struct {
 	// The original data file of this form
 	Filename string
 
@@ -32,7 +32,7 @@ type Form struct {
 	Validators map[string][]*validator
 }
 
-func (f *Form) Build() string {
+func (f *formInfo) Build() string {
 	results := []string{}
 	for _, field := range f.Fields {
 		results = append(results, field.Build(f))
@@ -46,7 +46,7 @@ func (f *Form) Build() string {
 
 // ==================================================================
 
-func buildControl(form *Form, id, name, help string) (map[string]string, string) {
+func buildControl(form *formInfo, id, name, help string) (map[string]string, string) {
 	var errs, messages string
 	attrs := map[string]string{}
 
@@ -118,7 +118,7 @@ type inputField struct {
 	Attrs map[string]string
 }
 
-func (f *inputField) Build(form *Form) string {
+func (f *inputField) Build(form *formInfo) string {
 	if f.Type == "" {
 		panic("input type should not be empty: " + f.ID)
 	}
@@ -144,15 +144,15 @@ func (f *inputField) Build(form *Form) string {
 
 type submitField struct {
 	Label       string
-	CancelUrl   string
+	CancelURL   string
 	CancelLabel string
 }
 
-func (f *submitField) Build(form *Form) string {
+func (f *submitField) Build(form *formInfo) string {
 	cancel := ""
-	if f.CancelLabel != "" && f.CancelUrl != "" {
+	if f.CancelLabel != "" && f.CancelURL != "" {
 		cancel = fmt.Sprintf("\n"+`&nbsp;&nbsp;&nbsp;<a href="%s" class="btn">%s</a>`,
-			f.CancelUrl, f.CancelLabel)
+			f.CancelURL, f.CancelLabel)
 	}
 
 	return fmt.Sprintf(`
@@ -173,7 +173,7 @@ type textAreaField struct {
 	PlaceHolder string
 }
 
-func (f *textAreaField) Build(form *Form) string {
+func (f *textAreaField) Build(form *formInfo) string {
 	attrs := map[string]string{
 		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
 		"name":        fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -198,7 +198,7 @@ type radioBtnField struct {
 	Values   map[string]string
 }
 
-func (f *radioBtnField) Build(form *Form) string {
+func (f *radioBtnField) Build(form *formInfo) string {
 	_, control := buildControl(form, f.ID, f.Name, f.Help)
 	model := fmt.Sprintf("%s.%s", form.ObjName, f.ID)
 
@@ -225,7 +225,7 @@ type dateField struct {
 	PlaceHolder string
 }
 
-func (f *dateField) Build(form *Form) string {
+func (f *dateField) Build(form *formInfo) string {
 	attrs := map[string]string{
 		"type":        "text",
 		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -261,7 +261,7 @@ type selectField struct {
 	Watch                         string
 }
 
-func (f *selectField) Build(form *Form) string {
+func (f *selectField) Build(form *formInfo) string {
 	attrs := map[string]string{
 		"id":       fmt.Sprintf("%s%s", form.Name, f.ID),
 		"name":     fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -299,7 +299,7 @@ type checkboxField struct {
 	Help     string
 }
 
-func (f *checkboxField) Build(form *Form) string {
+func (f *checkboxField) Build(form *formInfo) string {
 	attrs := map[string]string{
 		"type":     "checkbox",
 		"id":       fmt.Sprintf("%s%s", form.Name, f.ID),

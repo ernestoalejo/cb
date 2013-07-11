@@ -15,7 +15,7 @@ import (
 
 func init() {
 	registry.NewTask("closurejs", 0, closurejs)
-	registry.NewTask("closurejs:build", 0, build_closurejs)
+	registry.NewTask("closurejs:build", 0, buildClosureJS)
 }
 
 func closurejs(c *config.Config, q *registry.Queue) error {
@@ -80,7 +80,7 @@ func closurejs(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func build_closurejs(c *config.Config, q *registry.Queue) error {
+func buildClosureJS(c *config.Config, q *registry.Queue) error {
 	compiler := c.GetRequired("closure.compiler")
 	library := c.GetRequired("closure.library")
 

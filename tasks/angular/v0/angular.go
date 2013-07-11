@@ -38,7 +38,7 @@ func service(c *config.Config, q *registry.Queue) error {
 	}
 	q.RemoveNextTask()
 
-	data := &ServiceData{name, module}
+	data := &serviceData{name, module}
 	if err := writeServiceFile(data); err != nil {
 		return fmt.Errorf("write service failed: %s", err)
 	}
@@ -66,7 +66,7 @@ func controller(c *config.Config, q *registry.Queue) error {
 	route := q.NextTask()
 	q.RemoveNextTask()
 
-	data := &ControllerData{name, module, route}
+	data := &controllerData{name, module, route}
 	if err := writeControllerFile(data); err != nil {
 		return fmt.Errorf("write controller failed: %s", err)
 	}
@@ -87,7 +87,7 @@ func controller(c *config.Config, q *registry.Queue) error {
 
 // ==================================================================
 
-type FileData struct {
+type fileData struct {
 	Data   interface{}
 	Exists bool
 }
@@ -123,7 +123,7 @@ func writeFile(path string, tmpl string, data interface{}) error {
 		return fmt.Errorf("parse template failed: %s", err)
 	}
 
-	if err := t.Execute(f, &FileData{data, exists}); err != nil {
+	if err := t.Execute(f, &fileData{data, exists}); err != nil {
 		return fmt.Errorf("execute template failed: %s", err)
 	}
 
@@ -132,18 +132,18 @@ func writeFile(path string, tmpl string, data interface{}) error {
 
 // ==================================================================
 
-type ServiceData struct {
+type serviceData struct {
 	Name, Module string
 }
 
-func writeServiceFile(data *ServiceData) error {
+func writeServiceFile(data *serviceData) error {
 	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + ".js"
 	p := filepath.Join("app", "scripts", "services", filename)
 	return writeFile(p, "service.js", data)
 }
 
-func writeServiceTestFile(data *ServiceData) error {
+func writeServiceTestFile(data *serviceData) error {
 	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + "Spec.js"
 	p := filepath.Join("test", "unit", "services", filename)
@@ -152,25 +152,25 @@ func writeServiceTestFile(data *ServiceData) error {
 
 // ==================================================================
 
-type ControllerData struct {
+type controllerData struct {
 	Name, Module, Route string
 }
 
-func writeControllerFile(data *ControllerData) error {
+func writeControllerFile(data *controllerData) error {
 	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + ".js"
 	p := filepath.Join("app", "scripts", "controllers", filename)
 	return writeFile(p, "controller.js", data)
 }
 
-func writeControllerTestFile(data *ControllerData) error {
+func writeControllerTestFile(data *controllerData) error {
 	parts := strings.Split(data.Module, ".")
 	filename := parts[len(parts)-1] + "Spec.js"
 	p := filepath.Join("test", "unit", "controllers", filename)
 	return writeFile(p, "controllerSpec.js", data)
 }
 
-func writeControllerViewFile(data *ControllerData) error {
+func writeControllerViewFile(data *controllerData) error {
 	parts := strings.Split(data.Module, ".")
 	name := parts[len(parts)-1]
 	filename := strings.ToLower(data.Name[:len(data.Name)-4]) + ".html"
@@ -178,7 +178,7 @@ func writeControllerViewFile(data *ControllerData) error {
 	return writeFile(p, "view.html", data)
 }
 
-func writeControllerRouteFile(data *ControllerData) error {
+func writeControllerRouteFile(data *controllerData) error {
 	path := filepath.Join("app", "scripts", "app.js")
 	lines, err := utils.ReadLines(path)
 	if err != nil {

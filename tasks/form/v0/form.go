@@ -26,7 +26,7 @@ func form(c *config.Config, q *registry.Queue) error {
 	}
 	data := config.NewConfig(f)
 
-	form := &Form{
+	form := &formInfo{
 		Filename:   filename,
 		Name:       data.GetDefault("formname", "f"),
 		Submit:     data.GetDefault("submitfunc", "submit"),

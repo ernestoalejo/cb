@@ -13,11 +13,11 @@ import (
 )
 
 func init() {
-	registry.NewTask("dist:prepare", 0, prepare_dist)
-	registry.NewTask("dist:copy", 0, copy_dist)
+	registry.NewTask("dist:prepare", 0, prepareDist)
+	registry.NewTask("dist:copy", 0, copyDist)
 }
 
-func prepare_dist(c *config.Config, q *registry.Queue) error {
+func prepareDist(c *config.Config, q *registry.Queue) error {
 	dirs := c.GetListRequired("prepare_dist")
 	for _, from := range dirs {
 		to := "temp"
@@ -43,7 +43,7 @@ func prepare_dist(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func copy_dist(c *config.Config, q *registry.Queue) error {
+func copyDist(c *config.Config, q *registry.Queue) error {
 	dirs := c.GetListRequired("dist")
 
 	changes := utils.LoadChanges()
