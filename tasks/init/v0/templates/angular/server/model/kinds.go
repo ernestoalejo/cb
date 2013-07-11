@@ -1,5 +1,6 @@
 package model
 
 const (
-	KIND_SESSION = "Session"
+	// KindSession represents a gorilla session in datastore.
+	KindSession = "Session"
 )

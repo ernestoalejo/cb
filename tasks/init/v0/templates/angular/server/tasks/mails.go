@@ -13,12 +13,13 @@ import (
 	"github.com/ernestokarim/gaelib/v2/mail"
 )
 
-type ErrorMailData struct {
+type errorMailData struct {
 	Error string
 }
 
+// ErrorMail sends an error alert mail to the admins
 func ErrorMail(r *app.Request) error {
-	data := new(ErrorMailData)
+	data := new(errorMailData)
 	if err := r.LoadData(data); err != nil {
 		return fmt.Errorf("load data failed: %s", err)
 	}
@@ -43,12 +44,13 @@ func ErrorMail(r *app.Request) error {
 
 // ==================================================================
 
-type MailData struct {
+type mailData struct {
 	Mail string
 }
 
+// Mail sends an arbitrary email
 func Mail(r *app.Request) error {
-	data := new(MailData)
+	data := new(mailData)
 	if err := r.LoadData(data); err != nil {
 		return fmt.Errorf("load data failed: %s", err)
 	}
@@ -61,36 +63,6 @@ func Mail(r *app.Request) error {
 
 	if err := mail.SendGrid(r, m); err != nil {
 		return fmt.Errorf("send grid failed: %s", err)
-	}
-	return nil
-}
-
-// ==================================================================
-
-type FeedbackMailData struct {
-	Message string
-}
-
-func FeedbackMail(r *app.Request) error {
-	data := new(FeedbackMailData)
-	if err := r.LoadData(data); err != nil {
-		return fmt.Errorf("load data failed: %s", err)
-	}
-
-	appid := appengine.AppID(r.C)
-	for _, admin := range conf.ADMIN_EMAILS {
-		m := &mail.Mail{
-			To:        admin,
-			ToName:    "Admin",
-			From:      fmt.Sprintf("feedback@%s.appspotmail.com", appid),
-			FromName:  "Feedback",
-			Subject:   fmt.Sprintf("Feedback of %s", appid),
-			Templates: []string{"mails/feedback"},
-			Data:      data,
-		}
-		if err := mail.SendGrid(r, m); err != nil {
-			return fmt.Errorf("send grid failed: %s", err)
-		}
 	}
 	return nil
 }

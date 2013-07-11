@@ -37,22 +37,22 @@ var (
 )
 
 func init() {
-	registry.NewUserTask("init", 0, init_task)
-	registry.NewUserTask("init:closure", 0, init_closure)
-	registry.NewUserTask("init:client", 0, init_client)
+	registry.NewUserTask("init", 0, initTask)
+	registry.NewUserTask("init:closure", 0, initClosure)
+	registry.NewUserTask("init:client", 0, initClient)
 }
 
-func init_client(c *config.Config, q *registry.Queue) error {
+func initClient(c *config.Config, q *registry.Queue) error {
 	clientOnly = true
-	return init_task(c, q)
+	return initTask(c, q)
 }
 
-func init_closure(c *config.Config, q *registry.Queue) error {
+func initClosure(c *config.Config, q *registry.Queue) error {
 	closureMode = true
-	return init_task(c, q)
+	return initTask(c, q)
 }
 
-func init_task(c *config.Config, q *registry.Queue) error {
+func initTask(c *config.Config, q *registry.Queue) error {
 	var path string
 	if !closureMode {
 		path = filepath.Join(selfPkg, "angular")

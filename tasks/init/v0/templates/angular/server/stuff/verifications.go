@@ -9,9 +9,10 @@ import (
 	"conf"
 )
 
+// GoogleVerification handles the Google Webmaster Tools site verification.
 func GoogleVerification(r *app.Request) error {
 	id := mux.Vars(r.Req)["id"]
-	for _, v := range conf.GOOGLE_VERIFICATION {
+	for _, v := range conf.GoogleVerification {
 		if v == id {
 			d := map[string]interface{}{"Id": v}
 			return r.Template([]string{"verification/google"}, d)
@@ -20,10 +21,11 @@ func GoogleVerification(r *app.Request) error {
 	return app.NotFound()
 }
 
+// BingVerification handles the Bing Webmaster Tools site verification.
 func BingVerification(r *app.Request) error {
-	if conf.BING_VERIFICATION != "" {
+	if conf.BingVerification != "" {
 		d := map[string]interface{}{
-			"Id": conf.BING_VERIFICATION,
+			"Id": conf.BingVerification,
 			"Lt": template.HTML("<"),
 		}
 		return r.Template([]string{"verifications/bing"}, d)

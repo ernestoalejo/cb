@@ -7,44 +7,52 @@ import (
 )
 
 var (
-	// Google Webmasters Tools verification codes.
-	GOOGLE_VERIFICATION = []string{}
+	// GoogleVerification code for webmasters tools.
+	GoogleVerification = []string{}
 
-	// Bin Webmasters Tools verification code
-	BING_VERIFICATION = ""
+	// BingVerification code for webmasters tools.
+	BingVerification = ""
 
-	// Google Analytics account code.
-	ANALYTICS = ""
+	// Analytics is the Google tracking code.
+	Analytics = ""
 
-	// SendGrid configurations.
-	SENDGRID_API  = ""
-	SENDGRID_USER = ""
-	SENDGRID_KEY  = ""
+	// SendGridAPI URL.
+	SendGridAPI = ""
 
-	// Secret name & key used for sessions
-	SESSION_NAME   = "SID"
-	SESSION_SECRET = ""
+	// SendGridUser is the username of the account.
+	SendGridUser = ""
 
-	// Secret key for the XSRF tokens
-	XSRF_SECRET = ""
+	// SendGridKey is the password of the account.
+	SendGridKey = ""
 
-	// List of emails of the admins.
-	ADMIN_EMAILS = []string{}
+	// SessionName used for sessions
+	SessionName = "SID"
 
-	// Hosts
-	PRODUCTION_HOST = "{{ .AppName }}.appspot.com"
-	LOCAL_HOST      = "localhost:8080"
+	// SessionSecret used for sessions
+	SessionSecret = ""
 
-	// The canonical url of the home page without final slash.
+	// XSRFSecret generates secure keys for the client transmissions.
+	XSRFSecret = ""
+
+	// AdminEmails is the list of emails
+	AdminEmails = []string{}
+
+	// ProductionHost for example myapp.appspot.com or domain.com
+	ProductionHost = "{{ .AppName }}.appspot.com"
+
+	// LocalHost for example localhost:8080
+	LocalHost = "localhost:8080"
+
+	// Canonical url of the home page without final slash.
 	// It gets filled in the init() function.
-	CANONICAL = "http://"
+	Canonical = "http://"
 )
 
 func init() {
 	devServer := appengine.IsDevAppServer()
 	if devServer {
-		CANONICAL += LOCAL_HOST
+		Canonical += LocalHost
 	} else {
-		CANONICAL += PRODUCTION_HOST
+		Canonical += ProductionHost
 	}
 }
