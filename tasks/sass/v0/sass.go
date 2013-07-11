@@ -12,14 +12,14 @@ import (
 
 func init() {
 	registry.NewTask("sass", 0, func(c *config.Config, q *registry.Queue) error {
-		return exec_sass(c, q, "dev")
+		return execSass(c, q, "dev")
 	})
 	registry.NewTask("sass:build", 0, func(c *config.Config, q *registry.Queue) error {
-		return exec_sass(c, q, "prod")
+		return execSass(c, q, "prod")
 	})
 }
 
-func exec_sass(c *config.Config, q *registry.Queue, mode string) error {
+func execSass(c *config.Config, q *registry.Queue, mode string) error {
 	files, err := sassFromConfig(c, mode)
 	if err != nil {
 		return fmt.Errorf("read config failed")
@@ -51,11 +51,11 @@ func exec_sass(c *config.Config, q *registry.Queue, mode string) error {
 	return nil
 }
 
-type SassFile struct {
+type sassFile struct {
 	Src, Dest string
 }
 
-func sassFromConfig(c *config.Config, mode string) ([]*SassFile, error) {
+func sassFromConfig(c *config.Config, mode string) ([]*sassFile, error) {
 	var from string
 	if len(c.GetDefault("closure.library", "")) == 0 {
 		if mode == "dev" {
@@ -65,12 +65,12 @@ func sassFromConfig(c *config.Config, mode string) ([]*SassFile, error) {
 		}
 	}
 
-	files := []*SassFile{}
+	files := []*sassFile{}
 	size := c.CountRequired("sass")
 	for i := 0; i < size; i++ {
 		src := filepath.Join(from, "styles", c.GetRequired("sass[%d].source", i))
 		dest := filepath.Join("temp", "styles", c.GetRequired("sass[%d].dest", i))
-		files = append(files, &SassFile{src, dest})
+		files = append(files, &sassFile{src, dest})
 	}
 	return files, nil
 }

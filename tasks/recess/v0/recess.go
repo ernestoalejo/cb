@@ -12,14 +12,14 @@ import (
 
 func init() {
 	registry.NewTask("recess", 0, func(c *config.Config, q *registry.Queue) error {
-		return exec_recess(c, q, "dev")
+		return execRecess(c, q, "dev")
 	})
 	registry.NewTask("recess:build", 0, func(c *config.Config, q *registry.Queue) error {
-		return exec_recess(c, q, "prod")
+		return execRecess(c, q, "prod")
 	})
 }
 
-func exec_recess(c *config.Config, q *registry.Queue, mode string) error {
+func execRecess(c *config.Config, q *registry.Queue, mode string) error {
 	files, err := lessFromConfig(c, mode)
 	if err != nil {
 		return fmt.Errorf("read config failed: %s", err)
@@ -52,11 +52,11 @@ func exec_recess(c *config.Config, q *registry.Queue, mode string) error {
 	return nil
 }
 
-type LessFile struct {
+type lessFile struct {
 	Src, Dest string
 }
 
-func lessFromConfig(c *config.Config, mode string) ([]*LessFile, error) {
+func lessFromConfig(c *config.Config, mode string) ([]*lessFile, error) {
 	var from string
 	if mode == "dev" {
 		from = "app"
@@ -64,12 +64,12 @@ func lessFromConfig(c *config.Config, mode string) ([]*LessFile, error) {
 		from = "temp"
 	}
 
-	files := []*LessFile{}
+	files := []*lessFile{}
 	size := c.CountRequired("recess")
 	for i := 0; i < size; i++ {
 		src := filepath.Join(from, "styles", c.GetRequired("recess[%d].source", i))
 		dest := filepath.Join("temp", "styles", c.GetRequired("recess[%d].dest", i))
-		files = append(files, &LessFile{src, dest})
+		files = append(files, &lessFile{src, dest})
 	}
 	return files, nil
 }
