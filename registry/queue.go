@@ -11,19 +11,24 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
+// Queue of tasks to execute.
 type Queue struct {
 	tasks   []string
 	CurTask string
 }
 
+// AddTask to the queue.
 func (q *Queue) AddTask(t string) {
 	q.tasks = append(q.tasks, t)
 }
 
+// AddTasks take a list to add them to the queue.
 func (q *Queue) AddTasks(tasks []string) {
 	q.tasks = append(q.tasks, tasks...)
 }
 
+// RunWithTimer executes all the tasks of the queue timing them at the
+// same time and printing the result at the end.
 func (q *Queue) RunWithTimer(c *config.Config) error {
 	start := time.Now()
 	if err := q.Run(c); err != nil {
@@ -34,6 +39,7 @@ func (q *Queue) RunWithTimer(c *config.Config) error {
 	return nil
 }
 
+// Run executes all the tasks of the queue without timing them or printing anything.
 func (q *Queue) Run(c *config.Config) error {
 	for len(q.tasks) > 0 {
 		var t string
@@ -81,6 +87,8 @@ func (q *Queue) Run(c *config.Config) error {
 	return nil
 }
 
+// ExecTasks add and executes directly the list of tasks passed as an argument
+// splitted by spaces.
 func (q *Queue) ExecTasks(tasks string, c *config.Config) error {
 	lst := strings.Split(tasks, " ")
 	for _, task := range lst {
@@ -92,6 +100,7 @@ func (q *Queue) ExecTasks(tasks string, c *config.Config) error {
 	return nil
 }
 
+// NextTask returns the name of the next task (aka a task argument).
 func (q *Queue) NextTask() string {
 	if len(q.tasks) > 0 {
 		return q.tasks[0]
@@ -99,6 +108,8 @@ func (q *Queue) NextTask() string {
 	return ""
 }
 
+// RemoveNextTask deletes the name of the next task from the queue. It should
+// be used with NextTask to find and remove task arguments from the command line.
 func (q *Queue) RemoveNextTask() {
 	if q.NextTask() != "" {
 		q.tasks = q.tasks[1:]

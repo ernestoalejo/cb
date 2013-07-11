@@ -8,6 +8,8 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
+// Task is the function declaration all tasks of cb should implement
+// to appear in the executable list.
 type Task func(c *config.Config, q *Queue) error
 
 var (
@@ -15,7 +17,7 @@ var (
 	userTasks = map[string]bool{}
 )
 
-// Register a new task in the system
+// NewTask registers a new task in the system
 func NewTask(name string, version int, f Task) {
 	m := tasks[name]
 	if m == nil {
@@ -29,12 +31,13 @@ func NewTask(name string, version int, f Task) {
 	tasks[name] = m
 }
 
-// Create a new task that users can call from console
+// NewUserTask creates a new task intended for users, so they can call it from console
 func NewUserTask(name string, version int, f Task) {
 	userTasks[name] = true
 	NewTask(name, version, f)
 }
 
+// PrintTasks act as helper for the usage string printing all known tasks.
 func PrintTasks() {
 	system := []string{}
 	user := []string{}
