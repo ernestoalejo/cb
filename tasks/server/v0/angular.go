@@ -19,16 +19,16 @@ import (
 )
 
 var (
-	proxyUrl       *url.URL
+	proxyURL       *url.URL
 	serverCompiled bool
 )
 
 func init() {
-	registry.NewTask("server:angular", 0, server_angular)
-	registry.NewTask("server:angular:compiled", 0, server_angular_compiled)
+	registry.NewTask("server:angular", 0, serverAngular)
+	registry.NewTask("server:angular:compiled", 0, serverAngularCompiled)
 }
 
-func server_angular(c *config.Config, q *registry.Queue) error {
+func serverAngular(c *config.Config, q *registry.Queue) error {
 	configs = c
 	queue = q
 
@@ -44,12 +44,12 @@ func server_angular(c *config.Config, q *registry.Queue) error {
 		log.Printf("proxy url: %s (serve base: %+v)\n", serveConfig.url, serveConfig.base)
 	}
 
-	proxyUrl, err = url.Parse(serveConfig.url)
+	proxyURL, err = url.Parse(serveConfig.url)
 	if err != nil {
 		return fmt.Errorf("parse proxied url failed: %s", err)
 	}
-	proxy := httputil.NewSingleHostReverseProxy(proxyUrl)
-	proxy.Transport = &Proxy{}
+	p := httputil.NewSingleHostReverseProxy(proxyURL)
+	p.Transport = &proxy{}
 
 	urls := map[string]handler{
 		"/scenarios/":          scenariosHandler,
@@ -76,7 +76,7 @@ func server_angular(c *config.Config, q *registry.Queue) error {
 		urls["/"] = clientBaseHandler
 		urls["/e2e"] = clientBaseTest
 	} else {
-		http.Handle("/", proxy)
+		http.Handle("/", p)
 	}
 	registerUrls(urls)
 
@@ -88,21 +88,21 @@ func server_angular(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func server_angular_compiled(c *config.Config, q *registry.Queue) error {
+func serverAngularCompiled(c *config.Config, q *registry.Queue) error {
 	serverCompiled = true
-	return server_angular(c, q)
+	return serverAngular(c, q)
 }
 
 // ==================================================================
 
-type Proxy struct{}
+type proxy struct{}
 
-func (p *Proxy) RoundTrip(r *http.Request) (*http.Response, error) {
+func (p *proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 	// Debug / Production settings switch
 	if !serverCompiled {
 		r.Header.Set("X-Request-From", "cb")
 	}
-	r.Host = proxyUrl.Host
+	r.Host = proxyURL.Host
 
 	// Make the real request
 	resp, err := http.DefaultTransport.RoundTrip(r)

@@ -23,10 +23,10 @@ import (
 const selfPkg = "github.com/ernestokarim/cb/tasks/server/v0/templates"
 
 func init() {
-	registry.NewTask("server:closure", 0, server_closure)
+	registry.NewTask("server:closure", 0, serverClosure)
 }
 
-func server_closure(c *config.Config, q *registry.Queue) error {
+func serverClosure(c *config.Config, q *registry.Queue) error {
 	configs = c
 	queue = q
 

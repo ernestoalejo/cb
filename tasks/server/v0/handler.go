@@ -2,7 +2,7 @@
 // Modified for Client Builder.
 
 /*
-Package handlers is a collection of handlers for use with Go's net/http package.
+Package v0 is a collection of handlers for use with Go's net/http package.
 */
 package v0
 

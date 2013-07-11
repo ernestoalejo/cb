@@ -11,10 +11,10 @@ import (
 
 func init() {
 	registry.NewUserTask("test", 0, test)
-	registry.NewUserTask("test:subl", 0, test_subl)
-	registry.NewUserTask("test:*", 0, test_greedy)
+	registry.NewUserTask("test:subl", 0, testSubl)
+	registry.NewUserTask("test:*", 0, testGreedy)
 	registry.NewUserTask("e2e", 0, e2e)
-	registry.NewUserTask("e2e:compiled", 0, e2e_compiled)
+	registry.NewUserTask("e2e:compiled", 0, e2eCompiled)
 }
 
 func test(c *config.Config, q *registry.Queue) error {
@@ -30,7 +30,7 @@ func test(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func test_subl(c *config.Config, q *registry.Queue) error {
+func testSubl(c *config.Config, q *registry.Queue) error {
 	args := []string{
 		"start",
 		"--reporters", "dots",
@@ -44,7 +44,7 @@ func test_subl(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func test_greedy(c *config.Config, q *registry.Queue) error {
+func testGreedy(c *config.Config, q *registry.Queue) error {
 	args := []string{"start"}
 	if *config.NoColors {
 		args = append(args, "--no-colors")
@@ -63,7 +63,7 @@ func e2e(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func e2e_compiled(c *config.Config, q *registry.Queue) error {
+func e2eCompiled(c *config.Config, q *registry.Queue) error {
 	q.AddTask("server:angular:compiled")
 	return nil
 }
