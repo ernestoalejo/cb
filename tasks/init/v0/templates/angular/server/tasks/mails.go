@@ -25,7 +25,7 @@ func ErrorMail(r *app.Request) error {
 	}
 
 	appid := appengine.AppID(r.C)
-	for _, admin := range conf.ADMIN_EMAILS {
+	for _, admin := range conf.AdminEmails {
 		m := &mail.Mail{
 			To:        admin,
 			ToName:    "Admin",

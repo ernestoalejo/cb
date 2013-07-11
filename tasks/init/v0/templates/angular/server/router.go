@@ -22,8 +22,7 @@ func init() {
 		"POST::/_/not-found": stuff.ErrNotFound,
 		"POST::/_/reporter":  stuff.ErrorReporter,
 
-		"::/tasks/error-mail":    tasks.ErrorMail,
-		"::/tasks/feedback-mail": tasks.FeedbackMail,
-		"::/tasks/mail":          tasks.Mail,
+		"::/tasks/error-mail": tasks.ErrorMail,
+		"::/tasks/mail":       tasks.Mail,
 	})
 }
