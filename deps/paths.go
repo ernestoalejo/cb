@@ -6,6 +6,7 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
+// BaseJSPaths return the list of base paths where we can found Closure sources.
 func BaseJSPaths(c *config.Config) ([]string, error) {
 	library := c.GetRequired("closure.library")
 	templates := c.GetRequired("closure.templates")

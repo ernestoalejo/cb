@@ -22,7 +22,7 @@ var (
 	sourcesMutex = &sync.Mutex{}
 )
 
-// Represents a JS source
+// Source represents a JS source
 type Source struct {
 	// List of namespaces this file provides.
 	Provides []string

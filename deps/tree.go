@@ -12,6 +12,7 @@ import (
 	"github.com/ernestokarim/cb/config"
 )
 
+// Tree saves in memory the dependencies structure of a Closure compilation.
 type Tree struct {
 	sources  map[string]*Source
 	provides map[string]*Source
@@ -41,8 +42,8 @@ type Tree struct {
 	cached int
 }
 
-// Creates a new dependencies tree based on the files inside several hard-coded
-// root folders.
+// NewTree creates a new dependencies tree based on the files inside several
+// hard-coded root folders.
 func NewTree(c *config.Config) (*Tree, error) {
 	t := &Tree{
 		sources:  map[string]*Source{},
@@ -128,6 +129,7 @@ func (t *Tree) addSource(path string) error {
 	return nil
 }
 
+// PrintStats output to the logs the internal stats of the deps graph.
 func (t *Tree) PrintStats() {
 	if t.deps == nil {
 		log.Printf("depstree: %d files providing a total of %d namespaces\n",
@@ -139,8 +141,8 @@ func (t *Tree) PrintStats() {
 	}
 }
 
-// Returns the provides list of a source file, or an error if it hasn't been
-// scanned previously into the tree
+// GetProvides returns the provides list of a source file, or an error if it
+// hasn't been scanned previously into the tree
 func (t *Tree) GetProvides(path string) ([]string, error) {
 	src, ok := t.sources[path]
 	if !ok {
@@ -149,14 +151,16 @@ func (t *Tree) GetProvides(path string) ([]string, error) {
 	return src.Provides, nil
 }
 
+// ResolveDependencies add and trace the dependencies of the namespaces including
+// them in the list of files that should be loaded with the app.
 func (t *Tree) ResolveDependencies(namespaces []string) error {
 	t.namespaces = append(t.namespaces, namespaces...)
 	return t.ResolveDependenciesNotInput(namespaces)
 }
 
-// Resolve the depedencies of these namespaces but don't include them in
-// the list of files that should be loaded with the app. Used to add tests
-// files that will be loaded independently.
+// ResolveDependenciesNotInput resolves the dependencies of these namespaces but don't
+// include them in the list of files that should be loaded with the app.
+// Used to add tests files that will be loaded independently from the rest.
 func (t *Tree) ResolveDependenciesNotInput(namespaces []string) error {
 	for _, ns := range namespaces {
 		if err := t.resolve(ns); err != nil {
@@ -197,6 +201,8 @@ func (t *Tree) resolve(namespace string) error {
 	return nil
 }
 
+// WriteDeps outputs a Closure list of imports for all the dependencies
+// of the tree.
 func (t *Tree) WriteDeps(f io.Writer) error {
 	paths, err := BaseJSPaths(t.c)
 	if err != nil {
