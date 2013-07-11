@@ -73,7 +73,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		field = &InputField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
-			Id:          name,
+			ID:          name,
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 			Type:        fieldType,
 			Name:        data.GetDefault("fields[%d].label", "", idx),
@@ -83,7 +83,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 		field = &TextAreaField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
-			Id:          name,
+			ID:          name,
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 			Rows:        data.GetInt("fields[%d].rows", 3, idx),
 			Name:        data.GetDefault("fields[%d].label", "", idx),
@@ -97,7 +97,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "radiobtn":
 		field = &RadioBtnField{
 			Help:   data.GetDefault("fields[%d].help", "", idx),
-			Id:     name,
+			ID:     name,
 			Name:   data.GetDefault("fields[%d].label", "", idx),
 			Values: extractRadioBtnValues(data, idx),
 		}
@@ -107,7 +107,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
-			Id:          name,
+			ID:          name,
 			Name:        data.GetDefault("fields[%d].label", "", idx),
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 		}
@@ -115,13 +115,13 @@ func parseField(data *config.Config, idx int) (Field, error) {
 	case "select":
 		field = &SelectField{
 			Attrs:       parseAttrs(data, idx),
-			BlankId:     data.GetDefault("fields[%d].blank.id", "", idx),
+			BlankID:     data.GetDefault("fields[%d].blank.id", "", idx),
 			BlankLabel:  data.GetDefault("fields[%d].blank.label", "", idx),
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
-			Id:          name,
+			ID:          name,
 			Origin:      data.GetRequired("fields[%d].origin", idx),
-			OriginId:    data.GetDefault("fields[%d].originId", "id", idx),
+			OriginID:    data.GetDefault("fields[%d].originID", "id", idx),
 			OriginLabel: data.GetDefault("fields[%d].originLabel", "label", idx),
 			Name:        data.GetDefault("fields[%d].label", "", idx),
 			Watch:       data.GetDefault("fields[%d].watch", "", idx),
@@ -129,7 +129,7 @@ func parseField(data *config.Config, idx int) (Field, error) {
 
 	case "checkbox":
 		field = &CheckboxField{
-			Id:   name,
+			ID:   name,
 			Name: data.GetDefault("fields[%d].label", "", idx),
 			Help: data.GetDefault("fields[%d].help", "", idx),
 		}

@@ -9,7 +9,7 @@ import (
 	"github.com/ernestokarim/cb/utils"
 )
 
-const VENDOR_PKG = "github.com/ernestokarim/cb/vendor"
+const selfPkg = "github.com/ernestokarim/cb/vendor"
 
 func init() {
 	registry.NewTask("htmlmin", 0, htmlmin)
@@ -29,7 +29,7 @@ func htmlmin(c *config.Config, q *registry.Queue) error {
 }
 
 func htmlcompressor(src, dest string) error {
-	base := utils.PackagePath(VENDOR_PKG)
+	base := utils.PackagePath(selfPkg)
 	jarFile := filepath.Join(base, "htmlcompressor-1.5.3.jar")
 
 	args := []string{

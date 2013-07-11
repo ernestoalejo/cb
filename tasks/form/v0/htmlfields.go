@@ -109,7 +109,7 @@ func buildControl(form *Form, id, name, help string) (map[string]string, string)
 // ==================================================================
 
 type InputField struct {
-	Id, Name    string
+	ID, Name    string
 	Help        string
 	Type        string
 	Class       []string
@@ -120,20 +120,20 @@ type InputField struct {
 
 func (f *InputField) Build(form *Form) string {
 	if f.Type == "" {
-		panic("input type should not be empty: " + f.Id)
+		panic("input type should not be empty: " + f.ID)
 	}
 
 	attrs := map[string]string{
 		"type":        f.Type,
-		"id":          fmt.Sprintf("%s%s", form.Name, f.Id),
-		"name":        fmt.Sprintf("%s%s", form.Name, f.Id),
+		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
+		"name":        fmt.Sprintf("%s%s", form.Name, f.ID),
 		"placeholder": f.PlaceHolder,
 		"class":       strings.Join(f.Class, " "),
-		"ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+		"ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.ID),
 	}
 	update(attrs, f.Attrs)
 
-	controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
+	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help)
 	update(attrs, controlAttrs)
 
 	ctrl := buildCtrl("<input", ">", attrs)
@@ -166,7 +166,7 @@ func (f *SubmitField) Build(form *Form) string {
 // ==================================================================
 
 type TextAreaField struct {
-	Id, Name    string
+	ID, Name    string
 	Help        string
 	Class       []string
 	Rows        int
@@ -175,15 +175,15 @@ type TextAreaField struct {
 
 func (f *TextAreaField) Build(form *Form) string {
 	attrs := map[string]string{
-		"id":          fmt.Sprintf("%s%s", form.Name, f.Id),
-		"name":        fmt.Sprintf("%s%s", form.Name, f.Id),
+		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
+		"name":        fmt.Sprintf("%s%s", form.Name, f.ID),
 		"placeholder": f.PlaceHolder,
 		"class":       strings.Join(f.Class, " "),
-		"ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+		"ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.ID),
 		"rows":        fmt.Sprintf("%d", f.Rows),
 	}
 
-	controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
+	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help)
 	update(attrs, controlAttrs)
 
 	ctrl := buildCtrl("<textarea", "></textarea>", attrs)
@@ -193,14 +193,14 @@ func (f *TextAreaField) Build(form *Form) string {
 // ==================================================================
 
 type RadioBtnField struct {
-	Id, Name string
+	ID, Name string
 	Help     string
 	Values   map[string]string
 }
 
 func (f *RadioBtnField) Build(form *Form) string {
-	_, control := buildControl(form, f.Id, f.Name, f.Help)
-	model := fmt.Sprintf("%s.%s", form.ObjName, f.Id)
+	_, control := buildControl(form, f.ID, f.Name, f.Help)
+	model := fmt.Sprintf("%s.%s", form.ObjName, f.ID)
 
 	ctrl := `<div class="btn-group">` + "\n"
 	for k, v := range f.Values {
@@ -217,7 +217,7 @@ func (f *RadioBtnField) Build(form *Form) string {
 // ==================================================================
 
 type DateField struct {
-	Id, Name    string
+	ID, Name    string
 	Help        string
 	Values      map[string]string
 	DateOptions string
@@ -228,15 +228,15 @@ type DateField struct {
 func (f *DateField) Build(form *Form) string {
 	attrs := map[string]string{
 		"type":        "text",
-		"id":          fmt.Sprintf("%s%s", form.Name, f.Id),
-		"name":        fmt.Sprintf("%s%s", form.Name, f.Id),
+		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
+		"name":        fmt.Sprintf("%s%s", form.Name, f.ID),
 		"class":       strings.Join(f.Class, " "),
-		"ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+		"ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.ID),
 		"bs-date":     f.DateOptions,
 		"placeholder": f.PlaceHolder,
 	}
 
-	controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
+	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help)
 	update(attrs, controlAttrs)
 
 	ctrl := buildCtrl("<input readonly", ">", attrs)
@@ -252,21 +252,21 @@ func (f *DateField) Build(form *Form) string {
 // ==================================================================
 
 type SelectField struct {
-	Id, Name                      string
+	ID, Name                      string
 	Help                          string
-	Origin, OriginId, OriginLabel string
+	Origin, OriginID, OriginLabel string
 	Class                         []string
 	Attrs                         map[string]string
-	BlankId, BlankLabel           string
+	BlankID, BlankLabel           string
 	Watch                         string
 }
 
 func (f *SelectField) Build(form *Form) string {
 	attrs := map[string]string{
-		"id":       fmt.Sprintf("%s%s", form.Name, f.Id),
-		"name":     fmt.Sprintf("%s%s", form.Name, f.Id),
+		"id":       fmt.Sprintf("%s%s", form.Name, f.ID),
+		"name":     fmt.Sprintf("%s%s", form.Name, f.ID),
 		"class":    strings.Join(f.Class, " "),
-		"ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+		"ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.ID),
 		"style":    "display: none;",
 	}
 
@@ -274,20 +274,20 @@ func (f *SelectField) Build(form *Form) string {
 		attrs["select-watch"] = f.Watch
 	}
 
-	controlAttrs, control := buildControl(form, f.Id, f.Name, f.Help)
+	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help)
 	update(attrs, controlAttrs)
 	if f.Attrs != nil {
 		update(attrs, f.Attrs)
 	}
 
 	ctrl := buildCtrl("<select", ">", attrs)
-	if len(f.BlankId) > 0 {
+	if len(f.BlankID) > 0 {
 		ctrl += "\n        "
-		ctrl += fmt.Sprintf(`<option value="%s">%s</option>`, f.BlankId, f.BlankLabel)
+		ctrl += fmt.Sprintf(`<option value="%s">%s</option>`, f.BlankID, f.BlankLabel)
 	}
 	ctrl += fmt.Sprintf("\n        "+
 		`<option ng-repeat="item in %s" value="{{item.%s}}">{{item.%s}}</option>`,
-		f.Origin, f.OriginId, f.OriginLabel)
+		f.Origin, f.OriginID, f.OriginLabel)
 	ctrl += "\n      </select>"
 	return fmt.Sprintf(control, ctrl)
 }
@@ -295,16 +295,16 @@ func (f *SelectField) Build(form *Form) string {
 // ==================================================================
 
 type CheckboxField struct {
-	Id, Name string
+	ID, Name string
 	Help     string
 }
 
 func (f *CheckboxField) Build(form *Form) string {
 	attrs := map[string]string{
 		"type":     "checkbox",
-		"id":       fmt.Sprintf("%s%s", form.Name, f.Id),
-		"name":     fmt.Sprintf("%s%s", form.Name, f.Id),
-		"ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.Id),
+		"id":       fmt.Sprintf("%s%s", form.Name, f.ID),
+		"name":     fmt.Sprintf("%s%s", form.Name, f.ID),
+		"ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.ID),
 	}
 
 	ctrl := buildCtrl("<input", ">", attrs)
