@@ -174,6 +174,7 @@ func generator(filename, name, namespace, root string, fields []*field) error {
 use App;
 use Input;
 use Log;
+use Str;
 %s
 
 class %s {
