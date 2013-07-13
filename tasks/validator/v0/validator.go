@@ -375,13 +375,17 @@ func generateField(e *emitter, f *field, varname, result string) error {
 func generateValidators(e *emitter, f *field) error {
 	for _, v := range f.Validators {
 		switch v.Name {
+		case "Required":
+			e.emitf(`if (Str::length($value) == 0) {`)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the required validation');`, f.Key)
+			e.emitf(`}`)
+
 		case "MinLength":
 			val, err := strconv.ParseInt(v.Value, 10, 64)
 			if err != nil {
 				return fmt.Errorf("cannot parse minlength number: %s", err)
 			}
-
-			e.emitf(`if (strlen($value) < %d) {`, val)
+			e.emitf(`if (Str::length($value) < %d) {`, val)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key)
 			e.emitf(`}`)
 
@@ -390,8 +394,7 @@ func generateValidators(e *emitter, f *field) error {
 			if err != nil {
 				return fmt.Errorf("cannot parse maxlength number: %s", err)
 			}
-
-			e.emitf(`if (strlen($value) > %d) {`, val)
+			e.emitf(`if (Str::length($value) > %d) {`, val)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the maxlength validation');`, f.Key)
 			e.emitf(`}`)
 
@@ -400,8 +403,7 @@ func generateValidators(e *emitter, f *field) error {
 			if err != nil {
 				return fmt.Errorf("cannot parse length number: %s", err)
 			}
-
-			e.emitf(`if (strlen($value) != %d) {`, val)
+			e.emitf(`if (Str::length($value) != %d) {`, val)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the length validation');`, f.Key)
 			e.emitf(`}`)
 
@@ -410,8 +412,7 @@ func generateValidators(e *emitter, f *field) error {
 			if err != nil {
 				return fmt.Errorf("cannot parse minlength number: %s", err)
 			}
-
-			e.emitf(`if ($value !== '' && strlen($value) < %d) {`, val)
+			e.emitf(`if ($value !== '' && Str::length($value) < %d) {`, val)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key)
 			e.emitf(`}`)
 
