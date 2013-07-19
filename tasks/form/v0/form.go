@@ -69,7 +69,17 @@ func parseField(data *config.Config, idx int) (formField, error) {
 		fallthrough
 	case "password":
 		fallthrough
+	case "file":
+		fallthrough
 	case "text":
+		attrs := map[string]string{}
+		c := data.CountDefault("fields[%d].attrs", idx)
+		for i := 0; i < c; i++ {
+			name := data.GetRequired("fields[%d].attrs[%d].name", idx, i)
+			value := data.GetRequired("fields[%d].attrs[%d].value", idx, i)
+			attrs[name] = value
+		}
+
 		field = &inputField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
@@ -77,6 +87,7 @@ func parseField(data *config.Config, idx int) (formField, error) {
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 			Type:        fieldType,
 			Name:        data.GetDefault("fields[%d].label", "", idx),
+			Attrs:       attrs,
 		}
 
 	case "textarea":
