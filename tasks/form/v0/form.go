@@ -90,6 +90,12 @@ func parseField(data *config.Config, idx int) (formField, error) {
 			Attrs:       attrs,
 		}
 
+	case "hidden":
+		field = &hiddenField{
+			ID:    name,
+			Value: data.GetRequired("fields[%d].value", idx),
+		}
+
 	case "textarea":
 		field = &textAreaField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),

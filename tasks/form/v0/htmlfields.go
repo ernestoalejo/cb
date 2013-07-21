@@ -165,6 +165,18 @@ func (f *submitField) Build(form *formInfo) string {
 
 // ==================================================================
 
+type hiddenField struct {
+	ID, Value string
+}
+
+func (f *hiddenField) Build(form *formInfo) string {
+	return fmt.Sprintf(`
+  <input type="hidden" name="%s" id="%s" value="%s">
+  `, f.ID, f.ID, f.Value)
+}
+
+// ==================================================================
+
 type textAreaField struct {
 	ID, Name    string
 	Help        string
