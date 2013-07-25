@@ -128,7 +128,7 @@ func (p *proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse the redirect url: %s", err)
 		}
-		location.Host = "localhost:9810"
+		location.Host = fmt.Sprintf("localhost:%d", *config.Port)
 		resp.Header.Set("Location", location.String())
 	}
 
