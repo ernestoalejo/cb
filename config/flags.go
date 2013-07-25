@@ -19,4 +19,7 @@ var (
 
 	// NoColors remove the colored output.
 	NoColors = flag.Bool("no-color", false, "don't use colors in the output")
+
+	// Port for the server tasks
+	Port = flag.Int("port", 9810, "server port")
 )
