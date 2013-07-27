@@ -179,7 +179,7 @@ func (p *proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse the redirect url: %s", err)
 		}
-		location.Host = r.Host
+		location.Host = fmt.Sprintf("%s:%d", r.Host, *config.Port)
 		resp.Header.Set("Location", location.String())
 	}
 
