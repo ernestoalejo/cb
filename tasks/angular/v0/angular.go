@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"unicode"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
@@ -38,7 +39,11 @@ func service(c *config.Config, q *registry.Queue) error {
 	}
 	q.RemoveNextTask()
 
-	data := &serviceData{name, module}
+	data := &serviceData{
+		Name:     name,
+		Module:   module,
+		Filename: filepath.Join(strings.Split(module, ".")...),
+	}
 	if err := writeServiceFile(data); err != nil {
 		return fmt.Errorf("write service failed: %s", err)
 	}
@@ -66,7 +71,13 @@ func controller(c *config.Config, q *registry.Queue) error {
 	route := q.NextTask()
 	q.RemoveNextTask()
 
-	data := &controllerData{name, module, route}
+	data := &controllerData{
+		Name:     name,
+		Module:   module,
+		Route:    route,
+		Filename: filepath.Join(strings.Split(module, ".")...),
+		AppPath:  c.GetDefault("paths.app", filepath.Join("app", "scripts", "app.js")),
+	}
 	if err := writeControllerFile(data); err != nil {
 		return fmt.Errorf("write controller failed: %s", err)
 	}
@@ -133,54 +144,59 @@ func writeFile(path string, tmpl string, data interface{}) error {
 // ==================================================================
 
 type serviceData struct {
-	Name, Module string
+	Name, Module, Filename string
 }
 
 func writeServiceFile(data *serviceData) error {
-	parts := strings.Split(data.Module, ".")
-	filename := parts[len(parts)-1] + ".js"
-	p := filepath.Join("app", "scripts", "services", filename)
+	p := filepath.Join("app", "scripts", "services", data.Filename+".js")
 	return writeFile(p, "service.js", data)
 }
 
 func writeServiceTestFile(data *serviceData) error {
-	parts := strings.Split(data.Module, ".")
-	filename := parts[len(parts)-1] + "Spec.js"
-	p := filepath.Join("test", "unit", "services", filename)
+	p := filepath.Join("test", "unit", "services", data.Filename+"Spec.js")
 	return writeFile(p, "serviceSpec.js", data)
 }
 
 // ==================================================================
 
 type controllerData struct {
-	Name, Module, Route string
+	Name, Module, Route, Filename string
+	AppPath                       string
+
+	// Filled by writeControllerViewFile, not the constructor
+	ViewName string
 }
 
 func writeControllerFile(data *controllerData) error {
-	parts := strings.Split(data.Module, ".")
-	filename := parts[len(parts)-1] + ".js"
-	p := filepath.Join("app", "scripts", "controllers", filename)
+	p := filepath.Join("app", "scripts", "controllers", data.Filename+".js")
 	return writeFile(p, "controller.js", data)
 }
 
 func writeControllerTestFile(data *controllerData) error {
-	parts := strings.Split(data.Module, ".")
-	filename := parts[len(parts)-1] + "Spec.js"
-	p := filepath.Join("test", "unit", "controllers", filename)
+	p := filepath.Join("test", "unit", "controllers", data.Filename+"Spec.js")
 	return writeFile(p, "controllerSpec.js", data)
 }
 
 func writeControllerViewFile(data *controllerData) error {
-	parts := strings.Split(data.Module, ".")
-	name := parts[len(parts)-1]
-	filename := strings.ToLower(data.Name[:len(data.Name)-4]) + ".html"
-	p := filepath.Join("app", "views", name, filename)
+	name := data.Name[:len(data.Name)-4]
+	filename := ""
+	for i, c := range name {
+		if unicode.IsUpper(c) {
+			if i != 0 {
+				filename += "-"
+			}
+			c = unicode.ToLower(c)
+		}
+		filename = fmt.Sprintf("%s%c", filename, c)
+	}
+	data.ViewName = filepath.Join("views", data.Filename, filename+".html")
+
+	p := filepath.Join("app", data.ViewName)
 	return writeFile(p, "view.html", data)
 }
 
 func writeControllerRouteFile(data *controllerData) error {
-	path := filepath.Join("app", "scripts", "app.js")
-	lines, err := utils.ReadLines(path)
+	lines, err := utils.ReadLines(data.AppPath)
 	if err != nil {
 		return fmt.Errorf("read lines failed: %s", err)
 	}
@@ -193,14 +209,9 @@ func writeControllerRouteFile(data *controllerData) error {
 				return fmt.Errorf(".otherwise line found twice, write " +
 					"the route manually in app.js")
 			}
-
-			parts := strings.Split(data.Module, ".")
-			name := parts[len(parts)-1]
-			filename := strings.ToLower(data.Name[:len(data.Name)-4]) + ".html"
-
 			newlines = append(newlines, []string{
 				fmt.Sprintf("      .when('%s', {\n", data.Route),
-				fmt.Sprintf("        templateUrl: '/views/%s/%s',\n", name, filename),
+				fmt.Sprintf("        templateUrl: '/%s',\n", data.ViewName),
 				fmt.Sprintf("        controller: '%s'\n", data.Name),
 				"      })\n",
 			}...)
@@ -213,7 +224,7 @@ func writeControllerRouteFile(data *controllerData) error {
 			"route manually")
 	}
 
-	if err := utils.WriteFile(path, strings.Join(newlines, "")); err != nil {
+	if err := utils.WriteFile(data.AppPath, strings.Join(newlines, "")); err != nil {
 		return fmt.Errorf("write file failed: %s", err)
 	}
 
