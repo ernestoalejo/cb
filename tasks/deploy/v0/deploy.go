@@ -77,13 +77,14 @@ func deploy(c *config.Config, q *registry.Queue) error {
 		// Execute macros
 		if command[0] == '@' && macros[command[1:]] != nil {
 			var err error
-			command, err = macros[command[1:]]()
+			cmd, err := macros[command[1:]]()
 			if err != nil {
 				return fmt.Errorf("macro %s failed: %s", command[1:], err)
 			}
-			if len(command) == 0 {
+			if len(cmd) == 0 {
 				continue
 			}
+			command = cmd
 		}
 
 		// Replace some variables in the commands
@@ -101,6 +102,12 @@ func deploy(c *config.Config, q *registry.Queue) error {
 }
 
 func copyModTimes() (string, error) {
+	if _, err := os.Stat("../deploy"); err != nil && os.IsNotExist(err) {
+		return "", nil
+	} else if err != nil {
+		return "", fmt.Errorf("cannot stat deploy folder: %s", err)
+	}
+
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("recursive walk failed: %s", err)
