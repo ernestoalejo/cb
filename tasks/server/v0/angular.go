@@ -174,7 +174,7 @@ func (p *proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 	writeLog(r, zero, resp.StatusCode, int(size))
 
 	// Rewrite the location header to the new host if present
-	if resp.StatusCode == 302 {
+	if resp.StatusCode == 302 || resp.StatusCode == 301 {
 		location, err := url.Parse(resp.Header.Get("Location"))
 		if err != nil {
 			return nil, fmt.Errorf("cannot parse the redirect url: %s", err)
