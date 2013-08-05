@@ -252,6 +252,9 @@ func generateArray(e *emitter, varname, result string, fields []*field) error {
 	e.emitf("$size%d = count($%s);", id, varname)
 	e.emitf("for ($i%d = 0; $i%d < $size%d; $i%d++) {", id, id, id, id)
 	e.indent()
+	e.emitf(`if (!isset($%s[$i%d])) {`, varname, id)
+	e.emitf(`  self::error($data, 'array has not key ' . $i%d);`, id)
+	e.emitf(`}`)
 
 	for _, f := range fields {
 		f.Key = fmt.Sprintf("$i%d", id)
