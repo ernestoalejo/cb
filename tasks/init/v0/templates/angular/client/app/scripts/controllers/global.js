@@ -2,7 +2,6 @@
 
 
 var m = angular.module('controllers.global', [
-  'services.global'
 ]);
 
 
