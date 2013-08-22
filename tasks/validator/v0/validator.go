@@ -233,12 +233,12 @@ func generateObject(e *emitter, varname, result string, fields []*field) error {
 		if err := generateField(e, f, varname, result); err != nil {
 			return fmt.Errorf("generate field failed: %s", err)
 		}
-		if f.Kind != "Conditional" {
+		if f.Kind != "Conditional" && f.Kind != "Array" {
 			if err := generateValidators(e, f); err != nil {
 				return fmt.Errorf("generate validators failed: %s", err)
 			}
 
-			if f.Kind != "Array" && f.Kind != "Object" {
+			if f.Kind != "Object" {
 				e.emitf(`$%s[%s] = $value;`, result, f.Key)
 			}
 		}
@@ -262,12 +262,12 @@ func generateArray(e *emitter, varname, result string, fields []*field) error {
 		if err := generateField(e, f, varname, result); err != nil {
 			return fmt.Errorf("generate field failed: %s", err)
 		}
-		if f.Kind != "Conditional" {
+		if f.Kind != "Conditional" && f.Kind != "Array" {
 			if err := generateValidators(e, f); err != nil {
 				return fmt.Errorf("generate validators failed: %s", err)
 			}
 
-			if f.Kind != "Array" && f.Kind != "Object" {
+			if f.Kind != "Object" {
 				e.emitf(`$%s[%s] = $value;`, result, f.Key)
 			}
 		}
@@ -343,6 +343,10 @@ func generateField(e *emitter, f *field, varname, result string) error {
 		e.emitf(`}`)
 		e.emitf(`$%s[%s] = array();`, result, f.Key)
 		e.emitf("")
+
+		if err := generateValidators(e, f); err != nil {
+			return fmt.Errorf("generate validators failed: %s", err)
+		}
 
 		name := fmt.Sprintf("%s[%s]", varname, f.Key)
 		res := fmt.Sprintf("%s[%s]", result, f.Key)
@@ -502,6 +506,15 @@ func generateValidators(e *emitter, f *field) error {
 			}
 			e.emitf(`if ($value != $store['%s']) {`, v.Value)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the match validation');`, f.Key)
+			e.emitf(`}`)
+
+		case "MinCount":
+			val, err := strconv.ParseInt(v.Value, 10, 64)
+			if err != nil {
+				return fmt.Errorf("cannot parse mincount number: %s", err)
+			}
+			e.emitf(`if (count($value) < %d) {`, val)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the mincount validation');`, f.Key)
 			e.emitf(`}`)
 
 		default:
