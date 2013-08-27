@@ -13,6 +13,7 @@ func initValidator(name, value, msg string) *validator {
 		"minlength":  minLength,
 		"maxlength":  maxLength,
 		"email":      email,
+		"url":        url,
 		"dateBefore": dateBefore,
 		"user":       user,
 		"validDate":  validDate,
@@ -53,6 +54,14 @@ func email(name, value, msg string) *validator {
 		Attrs:   map[string]string{},
 		Message: msg,
 		Error:   "email",
+	}
+}
+
+func url(name, value, msg string) *validator {
+	return &validator{
+		Attrs:   map[string]string{},
+		Message: msg,
+		Error:   "url",
 	}
 }
 
