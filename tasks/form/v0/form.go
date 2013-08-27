@@ -71,6 +71,8 @@ func parseField(data *config.Config, idx int) (formField, error) {
 		fallthrough
 	case "file":
 		fallthrough
+	case "url":
+		fallthrough
 	case "text":
 		attrs := map[string]string{}
 		c := data.CountDefault("fields[%d].attrs", idx)
