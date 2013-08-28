@@ -425,12 +425,12 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`}`)
 
 		case "Email":
-			e.emitf(`if (!preg_match('%s', $value) === false) {`, `/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/`)
+			e.emitf(`if (!preg_match('%s', $value)) {`, `/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/`)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the email validation');`, f.Key)
 			e.emitf(`}`)
 
 		case "Url":
-			e.emitf(`if (!preg_match('%s', $value) === false) {`,
+			e.emitf(`if (!preg_match('%s', $value)) {`,
 				`/^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/`)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the url validation');`, f.Key)
 			e.emitf(`}`)
