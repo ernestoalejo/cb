@@ -131,7 +131,7 @@ func (e *emitter) emitf(format string, a ...interface{}) {
 	for i := 0; i < e.indentation; i++ {
 		fmt.Fprint(e.f, " ")
 	}
-	fmt.Fprintf(e.f, fmt.Sprintf(format, a...))
+	fmt.Fprint(e.f, fmt.Sprintf(format, a...))
 	fmt.Fprintln(e.f)
 }
 
@@ -425,12 +425,13 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`}`)
 
 		case "Email":
-			e.emitf(`if (!preg_match('/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/', $value) === false) {`)
+			e.emitf(`if (!preg_match('%s', $value) === false) {`, `/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/`)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the email validation');`, f.Key)
 			e.emitf(`}`)
 
 		case "Url":
-			e.emitf(`if (!preg_match('/^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/', $value) === false) {`)
+			e.emitf(`if (!preg_match('%s', $value) === false) {`,
+				`/^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/`)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the email validation');`, f.Key)
 			e.emitf(`}`)
 
