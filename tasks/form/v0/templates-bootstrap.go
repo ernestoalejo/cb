@@ -32,4 +32,12 @@ func init() {
       {{ .ValErrors }}
     </p>
   `)
+	registerTemplate(mode, "checkbox-field", `
+  <div class="control-group"><div class="controls">
+    <label class="checkbox">
+      {{ .Ctrl }}
+      {{ .Name }}
+    </label>
+  </div></div>
+  `)
 }

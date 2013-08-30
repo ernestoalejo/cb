@@ -318,12 +318,8 @@ func (f *checkboxField) Build(form *formInfo) string {
 	}
 
 	ctrl := buildCtrl("<input", ">", attrs)
-	return fmt.Sprintf(`
-  <div class="control-group"><div class="controls">
-    <label class="checkbox">
-      %s
-      %s
-    </label>
-  </div></div>
-  `, ctrl, f.Name)
+	return runTemplate("checkbox-field", map[string]interface{}{
+		"Name": f.Name,
+		"Ctrl": ctrl,
+	})
 }
