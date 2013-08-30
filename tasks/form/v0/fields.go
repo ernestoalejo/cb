@@ -78,10 +78,12 @@ func buildControl(form *formInfo, id, label, help string) (map[string]string, st
 			valErrors += "\n          " + val.Message + "\n        </span>\n"
 		}
 
-		messages = fmt.Sprintf("\n      "+`<p class="help-block error" `+
-			`ng-show="%s.val && (%s%s.$invalid%s)">`+"\n", form.Name, form.Name, fid, showErrs)
-		messages += valErrors
-		messages += "      </p>"
+		messages = runTemplate("error-messages", map[string]interface{}{
+			"Name":       form.Name,
+			"Id":         fid,
+			"ShowErrors": showErrs,
+			"ValErrors":  valErrors,
+		})
 	}
 	if len(errs) > 0 {
 		errs = fmt.Sprintf("(%s)", errs[:len(errs)-4])

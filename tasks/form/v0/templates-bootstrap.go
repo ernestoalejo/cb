@@ -27,4 +27,9 @@ func init() {
     %s{{ .Messages }}
   </div>
   `)
+	registerTemplate(mode, "error-messages", `
+    <p class="help-block error" ng-show="{{ .Name }}.val && ({{ .Name }}{{ .Id }}.$invalid{{ .ShowErrors }})">
+      {{ .ValErrors }}
+    </p>
+  `)
 }

@@ -21,11 +21,15 @@ func init() {
   <div class="row">
     <div class="col-md-12 field-box" ng-class="{{ .Name }}.val && {{ .Errs }} && 'error'">
       <label for="{{ .Name }}{{ .Id }}">{{ .Label }}</label>
-      %s
-      <div class="clearfix">&nbsp;</div>{{ .Messages }}
+      %s{{ .Messages }}
     </div>
   </div>
   `
 	registerTemplate(mode, "field", fieldTemplate)
 	registerTemplate(mode, "field-nolabel", fieldTemplate)
+	registerTemplate(mode, "error-messages", `
+    <p class="form-errors" ng-show="{{ .Name }}.val && ({{ .Name }}{{ .Id }}.$invalid{{ .ShowErrors }})">
+      {{ .ValErrors }}
+    </p>
+  `)
 }
