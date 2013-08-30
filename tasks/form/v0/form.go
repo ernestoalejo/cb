@@ -10,10 +10,25 @@ import (
 )
 
 func init() {
-	registry.NewUserTask("form", 0, form)
+	registry.NewUserTask("form", 0, form_default)
+	registry.NewUserTask("form:*", 0, form)
+}
+
+func form_default(c *config.Config, q *registry.Queue) error {
+	return doForm(c, q, "bootstrap")
 }
 
 func form(c *config.Config, q *registry.Queue) error {
+	parts := strings.Split(q.CurTask, ":")
+	return doForm(c, q, parts[1])
+}
+
+func doForm(c *config.Config, q *registry.Queue, mode string) error {
+	templateMode = mode
+	if templateMode != "bootstrap" && templateMode != "detail" {
+		return fmt.Errorf("unrecognized template mode")
+	}
+
 	filename := q.NextTask()
 	if filename == "" {
 		return fmt.Errorf("validator filename not passed as an argument")
