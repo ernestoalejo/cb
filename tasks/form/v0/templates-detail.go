@@ -28,9 +28,8 @@ func init() {
 	registerTemplate(mode, "field", fieldTemplate)
 	registerTemplate(mode, "field-nolabel", fieldTemplate)
 	registerTemplate(mode, "error-messages", `
-    <p class="form-errors" ng-show="{{ .Name }}.val && ({{ .Name }}{{ .Id }}.$invalid{{ .ShowErrors }})">
-      {{ .ValErrors }}
-    </p>
+      <p class="form-errors" ng-show="{{ .Name }}.val && ({{ .Name }}{{ .Id }}.$invalid{{ .ShowErrors }})">
+{{ .ValErrors }}      </p>
   `)
 	registerTemplate(mode, "checkbox-field", `
   <div class="row"><div class="col-md-12 field-box checkbox-field">
