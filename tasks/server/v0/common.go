@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"sync"
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
@@ -13,6 +14,8 @@ import (
 var (
 	configs *config.Config
 	queue   *registry.Queue
+
+	stylesMutex sync.Mutex
 )
 
 type httpHandler func(w http.ResponseWriter, r *http.Request)
@@ -34,6 +37,9 @@ func getHandler(f handler) httpHandler {
 }
 
 func stylesHandler(w http.ResponseWriter, r *http.Request) error {
+	stylesMutex.Lock()
+	defer stylesMutex.Unlock()
+
 	name := r.URL.Path[8:]
 	dests := []string{"sass", "recess"}
 	for _, dest := range dests {
@@ -49,6 +55,7 @@ func stylesHandler(w http.ResponseWriter, r *http.Request) error {
 			} else if !m {
 				break
 			}
+
 			if err := queue.ExecTasks(dest, configs); err != nil {
 				return fmt.Errorf("exec tasks failed: %s", err)
 			}
