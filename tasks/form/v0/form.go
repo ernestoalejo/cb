@@ -15,7 +15,7 @@ func init() {
 }
 
 func form_default(c *config.Config, q *registry.Queue) error {
-	return doForm(c, q, "bootstrap")
+	return doForm(c, q, "bootstrap3")
 }
 
 func form(c *config.Config, q *registry.Queue) error {
@@ -25,7 +25,7 @@ func form(c *config.Config, q *registry.Queue) error {
 
 func doForm(c *config.Config, q *registry.Queue, mode string) error {
 	templateMode = mode
-	if templateMode != "bootstrap" && templateMode != "detail" {
+	if templateMode != "bootstrap" && templateMode != "bootstrap3" {
 		return fmt.Errorf("unrecognized template mode")
 	}
 
@@ -99,6 +99,7 @@ func parseField(data *config.Config, idx int) (formField, error) {
 
 		field = &inputField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			Size:        strings.Split(data.GetDefault("fields[%d].size", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			ID:          name,
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
@@ -116,6 +117,7 @@ func parseField(data *config.Config, idx int) (formField, error) {
 	case "textarea":
 		field = &textAreaField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			Size:        strings.Split(data.GetDefault("fields[%d].size", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			ID:          name,
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
@@ -139,6 +141,7 @@ func parseField(data *config.Config, idx int) (formField, error) {
 	case "date":
 		field = &dateField{
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			Size:        strings.Split(data.GetDefault("fields[%d].size", "", idx), " "),
 			DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			ID:          name,
@@ -152,6 +155,7 @@ func parseField(data *config.Config, idx int) (formField, error) {
 			BlankID:     data.GetDefault("fields[%d].blank.id", "", idx),
 			BlankLabel:  data.GetDefault("fields[%d].blank.label", "", idx),
 			Class:       strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			Size:        strings.Split(data.GetDefault("fields[%d].size", "", idx), " "),
 			Help:        data.GetDefault("fields[%d].help", "", idx),
 			ID:          name,
 			Origin:      data.GetRequired("fields[%d].origin", idx),

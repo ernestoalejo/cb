@@ -25,7 +25,7 @@ func update(m map[string]string, s map[string]string) {
 }
 
 func buildCtrl(start, end string, attrs map[string]string) string {
-	tabs := 6
+	tabs := 10
 
 	ctrl := start
 	n := len(ctrl)

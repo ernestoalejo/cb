@@ -47,7 +47,7 @@ func (f *formInfo) Build() string {
 
 // ==================================================================
 
-func buildControl(form *formInfo, id, label, help string) (map[string]string, string) {
+func buildControl(form *formInfo, id, label, help, size string) (map[string]string, string) {
 	var errs, messages string
 	attrs := map[string]string{}
 
@@ -101,6 +101,7 @@ func buildControl(form *formInfo, id, label, help string) (map[string]string, st
 		"Messages": messages,
 		"Id":       id,
 		"Label":    label,
+		"Size":     size,
 	})
 }
 
@@ -111,12 +112,15 @@ type inputField struct {
 	Help        string
 	Type        string
 	Class       []string
+	Size        []string
 	PlaceHolder string
 
 	Attrs map[string]string
 }
 
 func (f *inputField) Build(form *formInfo) string {
+	f.Class = append(f.Class, "form-control")
+
 	if f.Type == "" {
 		panic("input type should not be empty: " + f.ID)
 	}
@@ -131,7 +135,7 @@ func (f *inputField) Build(form *formInfo) string {
 	}
 	update(attrs, f.Attrs)
 
-	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help)
+	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help, strings.Join(f.Size, " "))
 	update(attrs, controlAttrs)
 
 	ctrl := buildCtrl("<input", ">", attrs)
@@ -179,11 +183,14 @@ type textAreaField struct {
 	ID, Name    string
 	Help        string
 	Class       []string
+	Size        []string
 	Rows        int
 	PlaceHolder string
 }
 
 func (f *textAreaField) Build(form *formInfo) string {
+	f.Class = append(f.Class, "form-control")
+
 	attrs := map[string]string{
 		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
 		"name":        fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -193,7 +200,7 @@ func (f *textAreaField) Build(form *formInfo) string {
 		"rows":        fmt.Sprintf("%d", f.Rows),
 	}
 
-	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help)
+	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help, strings.Join(f.Size, " "))
 	update(attrs, controlAttrs)
 
 	ctrl := buildCtrl("<textarea", "></textarea>", attrs)
@@ -209,7 +216,7 @@ type radioBtnField struct {
 }
 
 func (f *radioBtnField) Build(form *formInfo) string {
-	_, control := buildControl(form, f.ID, f.Name, f.Help)
+	_, control := buildControl(form, f.ID, f.Name, f.Help, "")
 	model := fmt.Sprintf("%s.%s", form.ObjName, f.ID)
 
 	ctrl := `<div class="btn-group">` + "\n"
@@ -232,10 +239,13 @@ type dateField struct {
 	Values      map[string]string
 	DateOptions string
 	Class       []string
+	Size        []string
 	PlaceHolder string
 }
 
 func (f *dateField) Build(form *formInfo) string {
+	f.Class = append(f.Class, "form-control")
+
 	attrs := map[string]string{
 		"type":        "text",
 		"id":          fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -246,7 +256,7 @@ func (f *dateField) Build(form *formInfo) string {
 		"placeholder": f.PlaceHolder,
 	}
 
-	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help)
+	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help, strings.Join(f.Size, " "))
 	update(attrs, controlAttrs)
 
 	ctrl := buildCtrl("<input readonly", ">", attrs)
@@ -266,12 +276,15 @@ type selectField struct {
 	Help                          string
 	Origin, OriginID, OriginLabel string
 	Class                         []string
+	Size                          []string
 	Attrs                         map[string]string
 	BlankID, BlankLabel           string
 	Watch                         string
 }
 
 func (f *selectField) Build(form *formInfo) string {
+	f.Class = append(f.Class, "form-control")
+
 	attrs := map[string]string{
 		"id":       fmt.Sprintf("%s%s", form.Name, f.ID),
 		"name":     fmt.Sprintf("%s%s", form.Name, f.ID),
@@ -284,7 +297,7 @@ func (f *selectField) Build(form *formInfo) string {
 		attrs["select-watch"] = f.Watch
 	}
 
-	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help)
+	controlAttrs, control := buildControl(form, f.ID, f.Name, f.Help, strings.Join(f.Size, " "))
 	update(attrs, controlAttrs)
 	if f.Attrs != nil {
 		update(attrs, f.Attrs)
