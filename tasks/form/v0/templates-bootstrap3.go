@@ -11,7 +11,7 @@ func init() {
 	registerTemplate(mode, "submit-field", `
   <div class="form-group">
     <p>&nbsp;</p>
-    <div class="col-sm-offset-3 col-md-9">
+    <div class="col-sm-offset-3 col-md-9 col-lg-offset-2 col-lg-10">
       <button ng-click="{{ .TrySubmitFunc }}(); {{ .Name }}.val = true;" class="btn btn-primary"
         ng-disabled="{{ .Name }}.val && !{{ .Name }}.$valid">{{ .Label }}</button>{{ .Cancel }}
     </div>
@@ -19,8 +19,8 @@ func init() {
   `)
 	registerTemplate(mode, "field", `
   <div class="form-group" ng-class="{{ .Name }}.val && {{ .Errs }} && 'has-error'">
-    <label for="{{ .Name }}{{ .Id }}" class="control-label col-xs-3">{{ .Label }}</label>
-    <div class="col-xs-9">
+    <label for="{{ .Name }}{{ .Id }}" class="control-label col-xs-3 col-lg-2">{{ .Label }}</label>
+    <div class="col-xs-9 col-lg-10">
       <div class="row">
         <div class="{{ .Size }}">
           %s
@@ -31,7 +31,7 @@ func init() {
   `)
 	registerTemplate(mode, "field-nolabel", `
   <div class="form-group" ng-class="{{ .Name }}.val && {{ .Errs }} && 'has-error'">
-    <div class="col-sm-offset-3 col-md-9">
+    <div class="col-sm-offset-3 col-lg-offset-2 col-md-9 col-lg-10">
       <div class="row">
         <div class="{{ .Size }}">
           %s
@@ -46,7 +46,7 @@ func init() {
   `)
 	registerTemplate(mode, "checkbox-field", `
   <div class="form-group">
-    <div class="col-sm-offset-3 col-md-9">
+    <div class="col-sm-offset-3 col-lg-offset-2 col-md-9 col-lg-10">
       <div class="checkbox">
         <label>
           {{ .Ctrl }}
