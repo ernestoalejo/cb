@@ -40,4 +40,7 @@ func init() {
     </label>
   </div></div>
   `)
+	registerTemplate(mode, "static-field", `
+  <!-- NOT IMPLEMENTED -->
+  `)
 }

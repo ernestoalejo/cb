@@ -149,6 +149,14 @@ func parseField(data *config.Config, idx int) (formField, error) {
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 		}
 
+	case "static":
+		field = &staticField{
+			Class:   strings.Split(data.GetDefault("fields[%d].class", "", idx), " "),
+			Help:    data.GetDefault("fields[%d].help", "", idx),
+			Content: data.GetDefault("fields[%d].content", "", idx),
+			Name:    data.GetDefault("fields[%d].label", "", idx),
+		}
+
 	case "select":
 		field = &selectField{
 			Attrs:       parseAttrs(data, idx),

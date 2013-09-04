@@ -56,4 +56,12 @@ func init() {
     </div>
   </div>
   `)
+	registerTemplate(mode, "static-field", `
+  <div class="form-group">
+    <label class="control-label col-xs-3 col-lg-2">{{ .Label }}</label>
+    <div class="col-xs-9 col-lg-10">
+      {{ .Ctrl }}{{ .Content }}</p>
+    </div>
+  </div>
+  `)
 }

@@ -53,8 +53,7 @@ func buildControl(form *formInfo, id, label, help, size string) (map[string]stri
 
 	fid := fmt.Sprintf("['%s%s']", form.Name, id)
 	if len(form.Validators[id]) > 0 {
-
-		// Recorrer una primera vez las validaciones para construir el p.
+		// Recorrer una primera vez las validaciones para construir el <p>.
 		// Recorrerlas a la misma vez añadiendo errores y mensajes que luego
 		// se juntan al terminar con el verdadero mensaje.
 		var valErrors, showErrs string
@@ -334,5 +333,28 @@ func (f *checkboxField) Build(form *formInfo) string {
 	return runTemplate("checkbox-field", map[string]interface{}{
 		"Name": f.Name,
 		"Ctrl": ctrl,
+	})
+}
+
+// ==================================================================
+
+type staticField struct {
+	Name    string
+	Help    string
+	Content string
+	Class   []string
+}
+
+func (f *staticField) Build(form *formInfo) string {
+	f.Class = append(f.Class, "form-control-static")
+
+	attrs := map[string]string{
+		"class": strings.Join(f.Class, " "),
+	}
+
+	return runTemplate("static-field", map[string]interface{}{
+		"Label":   f.Name,
+		"Ctrl":    buildCtrl("<p", ">", attrs),
+		"Content": f.Content,
 	})
 }
