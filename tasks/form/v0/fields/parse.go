@@ -58,16 +58,22 @@ func Parse(data *config.Config, idx int) (Field, error) {
 		field = &submitField{
 			BaseField: base,
 		}
-		/*
-		   case "date":
-		     field = &dateField{
-		       BaseField: field,
-		       DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
-		       PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
-		     }*/
+	/*
+	   case "date":
+	     field = &dateField{
+	       BaseField: field,
+	       DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
+	       PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
+	     }*/
 
 	case "static":
 		field = &staticField{
+			BaseField: base,
+			Content:   data.GetDefault("fields[%d].content", "", idx),
+		}
+
+	case "custom":
+		field = &customField{
 			BaseField: base,
 			Content:   data.GetDefault("fields[%d].content", "", idx),
 		}
