@@ -9,6 +9,7 @@ import (
 	"github.com/ernestokarim/cb/tasks/form/v0/fields"
 	"github.com/ernestokarim/cb/tasks/form/v0/templates"
 	"github.com/ernestokarim/cb/tasks/form/v0/validators"
+	cbutils "github.com/ernestokarim/cb/utils"
 	"github.com/kylelemons/go-gypsy/yaml"
 )
 
@@ -43,7 +44,15 @@ func doForm(c *config.Config, q *registry.Queue, mode string) error {
 		return fmt.Errorf("parse form failed: %s", err)
 	}
 
-	fmt.Println(form.Build())
+	result := strings.Replace(form.Build(), "'", `'"'"'`, -1)
+	args := []string{
+		"-c", fmt.Sprintf(`echo -n '%s' | xsel -bi`, result),
+	}
+	output, err := cbutils.Exec("bash", args)
+	if err != nil {
+		fmt.Println(output)
+		return fmt.Errorf("bash error: %s", err)
+	}
 
 	return nil
 }

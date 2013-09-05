@@ -28,5 +28,6 @@ func (f *submitField) Build(form formData) string {
 	utils.UpdateMap(attrs, newAttrs)
 
 	ctrl := utils.BuildCtrlTag("<button", ">", attrs) + label + "</button>"
+	ctrl = "<p>&nbsp;</p>" + ctrl
 	return fmt.Sprintf(container, ctrl)
 }
