@@ -109,3 +109,117 @@ func parseAttrs(data *config.Config, idx int) map[string]string {
 
 	return m
 }
+
+/*
+
+// ==================================================================
+
+type dateField struct {
+  ID, Name    string
+  Help        string
+  Values      map[string]string
+  DateOptions string
+  Class       []string
+  Size        []string
+  PlaceHolder string
+}
+
+func (f *dateField) Build(form *formInfo) string {
+  f.Class = append(f.Class, "form-control")
+
+  attrs := map[string]string{
+    "type":        "text",
+    "id":          fmt.Sprintf("%s%s", form.Name, f.ID),
+    "name":        fmt.Sprintf("%s%s", form.Name, f.ID),
+    "class":       strings.Join(f.Class, " "),
+    "ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.ID),
+    "bs-date":     f.DateOptions,
+    "placeholder": f.PlaceHolder,
+  }
+
+  controlAttrs, control := buildControl(form, f.ID, f.Name, "", f.Help,
+    strings.Join(f.Size, " "))
+  update(attrs, controlAttrs)
+
+  ctrl := buildCtrlTag("<input readonly", ">", attrs)
+  ctrl = fmt.Sprintf(`
+      <div class="input-append date">
+        %s
+        <span class="add-on"><i class="icon-calendar"></i></span>
+      </div>
+  `, ctrl)
+  return fmt.Sprintf(control, ctrl)
+}
+
+// ==================================================================
+
+type selectField struct {
+  ID, Name                      string
+  Help                          string
+  Origin, OriginID, OriginLabel string
+  Class                         []string
+  Size                          []string
+  Attrs                         map[string]string
+  BlankID, BlankLabel           string
+  Watch                         string
+}
+
+func (f *selectField) Build(form *formInfo) string {
+  f.Class = append(f.Class, "form-control")
+
+  attrs := map[string]string{
+    "id":       fmt.Sprintf("%s%s", form.Name, f.ID),
+    "name":     fmt.Sprintf("%s%s", form.Name, f.ID),
+    "class":    strings.Join(f.Class, " "),
+    "ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.ID),
+    "style":    "display: none;",
+  }
+
+  if len(f.Watch) > 0 {
+    attrs["select-watch"] = f.Watch
+  }
+
+  controlAttrs, control := buildControl(form, f.ID, f.Name, "", f.Help,
+    strings.Join(f.Size, " "))
+  update(attrs, controlAttrs)
+  if f.Attrs != nil {
+    update(attrs, f.Attrs)
+  }
+
+  ctrl := buildCtrlTag("<select", ">", attrs)
+  if len(f.BlankID) > 0 {
+    ctrl += "\n        "
+    ctrl += fmt.Sprintf(`<option value="%s">%s</option>`, f.BlankID, f.BlankLabel)
+  }
+  ctrl += fmt.Sprintf("\n        "+
+    `<option ng-repeat="item in %s" value="{{item.%s}}">{{item.%s}}</option>`,
+    f.Origin, f.OriginID, f.OriginLabel)
+  ctrl += "\n      </select>"
+  return fmt.Sprintf(control, ctrl)
+}
+
+// ==================================================================
+
+type checkboxField struct {
+  ID, Name string
+  Help     string
+}
+
+func (f *checkboxField) Build(form *formInfo) string {
+  attrs := map[string]string{
+    "type":     "checkbox",
+    "id":       fmt.Sprintf("%s%s", form.Name, f.ID),
+    "name":     fmt.Sprintf("%s%s", form.Name, f.ID),
+    "ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.ID),
+  }
+
+  ctrl := buildCtrlTag("<input", ">", attrs)
+  return runTemplate("checkbox-field", map[string]interface{}{
+    "Name": f.Name,
+    "Ctrl": ctrl,
+  })
+}
+
+// ==================================================================
+
+*/
