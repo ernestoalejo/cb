@@ -1,14 +1,7 @@
-package v0
+package validators
 
-type validator struct {
-	Attrs   map[string]string
-	Message string
-	Error   string
-	User    bool
-}
-
-func initValidator(name, value, msg string) *validator {
-	m := map[string]func(name, value, msg string) *validator{
+func createValidator(name, value, msg string) *Validator {
+	m := map[string]func(name, value, msg string) *Validator{
 		"required":   required,
 		"minlength":  minLength,
 		"maxlength":  maxLength,
@@ -25,56 +18,56 @@ func initValidator(name, value, msg string) *validator {
 	return m[name](name, value, msg)
 }
 
-func required(name, value, msg string) *validator {
-	return &validator{
+func required(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{"required": ""},
 		Message: msg,
 		Error:   "required",
 	}
 }
 
-func minLength(name, value, msg string) *validator {
-	return &validator{
+func minLength(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{"ng-minlength": value},
 		Message: msg,
 		Error:   "minlength",
 	}
 }
 
-func maxLength(name, value, msg string) *validator {
-	return &validator{
+func maxLength(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{"ng-maxlength": value},
 		Message: msg,
 		Error:   "maxlength",
 	}
 }
 
-func email(name, value, msg string) *validator {
-	return &validator{
+func email(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{},
 		Message: msg,
 		Error:   "email",
 	}
 }
 
-func url(name, value, msg string) *validator {
-	return &validator{
+func url(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{},
 		Message: msg,
 		Error:   "url",
 	}
 }
 
-func dateBefore(name, value, msg string) *validator {
-	return &validator{
+func dateBefore(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{"date-before": value},
 		Message: msg,
 		Error:   "dateBefore",
 	}
 }
 
-func user(name, value, msg string) *validator {
-	return &validator{
+func user(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{},
 		Message: msg,
 		Error:   value,
@@ -82,16 +75,16 @@ func user(name, value, msg string) *validator {
 	}
 }
 
-func validDate(name, value, msg string) *validator {
-	return &validator{
+func validDate(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{"valid-date": ""},
 		Message: msg,
 		Error:   "validDate",
 	}
 }
 
-func match(name, value, msg string) *validator {
-	return &validator{
+func match(name, value, msg string) *Validator {
+	return &Validator{
 		Attrs:   map[string]string{"match": "f" + value},
 		Message: msg,
 		Error:   "match",
