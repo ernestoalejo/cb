@@ -9,11 +9,11 @@ import (
 )
 
 type BaseField struct {
-	ID, Name, Label string
-	Help            string
-	Class           []string
-	Size, LabelSize []string
-	Attrs           map[string]string
+	ID, Name, Label       string
+	Help                  string
+	Class                 []string
+	Size, LabelSize       []string
+	Attrs, ContainerAttrs map[string]string
 }
 
 func (f *BaseField) buildContainer(form formData) (map[string]string, string) {
@@ -61,13 +61,14 @@ func (f *BaseField) buildContainer(form formData) (map[string]string, string) {
 	}
 
 	return attrs, templates.Run("field", map[string]interface{}{
-		"Name":       form.GetName(),
-		"Messages":   messages,
-		"FieldId":    fid,
-		"Id":         f.ID,
-		"Label":      f.Label,
-		"LabelSize":  strings.Join(f.LabelSize, " "),
-		"Size":       strings.Join(f.Size, " "),
-		"ShowErrors": showErrs,
+		"Name":           form.GetName(),
+		"Messages":       messages,
+		"FieldId":        fid,
+		"Id":             f.ID,
+		"Label":          f.Label,
+		"LabelSize":      strings.Join(f.LabelSize, " "),
+		"Size":           strings.Join(f.Size, " "),
+		"ShowErrors":     showErrs,
+		"ContainerAttrs": utils.BuildAttrs(0, f.ContainerAttrs),
 	})
 }

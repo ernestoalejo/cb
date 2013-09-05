@@ -8,7 +8,7 @@ func init() {
 <form class="form-horizontal" name="{{ .Name }}" novalidate ng-init="{{ .Name }}.val = false;"
     ng-submit="{{ .Name }}.val = true; {{ .TrySubmit }}(); {{ .Name }}.$setPristine(); {{ .Name }}.$valid && {{.Submit }}()"><fieldset>{{ .Content }}</fieldset></form>`)
 	registerTemplate(mode, "field", `
-  <div class="form-group"{{ if .Messages }} ng-class="{{ .Name }}.val && ({{ .Name }}{{ .FieldId }}.$invalid{{ .ShowErrors }}) && 'has-error'"{{ end }}>{{ if .Label }}
+  <div class="form-group"{{ if .Messages }} ng-class="{{ .Name }}.val && ({{ .Name }}{{ .FieldId }}.$invalid{{ .ShowErrors }}) && 'has-error'"{{ end }}{{ .ContainerAttrs }}>{{ if .Label }}
     <label for="{{ .Name }}{{ .Id }}" class="control-label {{ .LabelSize }}">{{ .Label }}</label>{{ end }}
     <div class="{{ .Size }}">
       %s{{ .Messages }}

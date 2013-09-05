@@ -10,14 +10,15 @@ import (
 // Parse form fields
 func Parse(data *config.Config, idx int) (Field, error) {
 	base := &BaseField{
-		ID:        data.GetRequired("fields[%d].name", idx),
-		Name:      data.GetRequired("fields[%d].name", idx),
-		Label:     data.GetDefault("fields[%d].label", "", idx),
-		Help:      data.GetDefault("fields[%d].help", "", idx),
-		Class:     utils.SplitStrList(data.GetDefault("fields[%d].class", "", idx)),
-		Size:      utils.SplitStrList(data.GetDefault("fields[%d].size", "", idx)),
-		LabelSize: utils.SplitStrList(data.GetDefault("fields[%d].labelSize", "", idx)),
-		Attrs:     parseAttrs(data, idx),
+		ID:             data.GetRequired("fields[%d].name", idx),
+		Name:           data.GetRequired("fields[%d].name", idx),
+		Label:          data.GetDefault("fields[%d].label", "", idx),
+		Help:           data.GetDefault("fields[%d].help", "", idx),
+		Class:          utils.SplitStrList(data.GetDefault("fields[%d].class", "", idx)),
+		Size:           utils.SplitStrList(data.GetDefault("fields[%d].size", "", idx)),
+		LabelSize:      utils.SplitStrList(data.GetDefault("fields[%d].labelSize", "", idx)),
+		Attrs:          parseAttrs(data, "attrs", idx),
+		ContainerAttrs: parseAttrs(data, "containerAttrs", idx),
 	}
 
 	var field Field
@@ -85,11 +86,11 @@ func Parse(data *config.Config, idx int) (Field, error) {
 		       OriginLabel: data.GetDefault("fields[%d].originLabel", "label", idx),
 		       Watch:       data.GetDefault("fields[%d].watch", "", idx),
 		     }*/
-		/*
-		   case "checkbox":
-		     field = &checkboxField{
-		       BaseField: base,
-		     }*/
+
+	case "checkbox":
+		field = &checkboxField{
+			BaseField: base,
+		}
 
 	default:
 		return nil, fmt.Errorf("no field type %s in html mode", fieldType)
@@ -97,13 +98,13 @@ func Parse(data *config.Config, idx int) (Field, error) {
 	return field, nil
 }
 
-func parseAttrs(data *config.Config, idx int) map[string]string {
+func parseAttrs(data *config.Config, object string, idx int) map[string]string {
 	m := map[string]string{}
 
-	size := data.CountDefault("fields[%d].attrs", idx)
+	size := data.CountDefault("fields[%d].%s", idx, object)
 	for i := 0; i < size; i++ {
-		name := data.GetRequired("fields[%d].attrs[%d].name", idx, i)
-		value := data.GetDefault("fields[%d].attrs[%d].value", "", idx, i)
+		name := data.GetRequired("fields[%d].%s[%d].name", idx, object, i)
+		value := data.GetDefault("fields[%d].%s[%d].value", "", idx, object, i)
 		m[name] = value
 	}
 
@@ -198,28 +199,5 @@ func (f *selectField) Build(form *formInfo) string {
   return fmt.Sprintf(control, ctrl)
 }
 
-// ==================================================================
-
-type checkboxField struct {
-  ID, Name string
-  Help     string
-}
-
-func (f *checkboxField) Build(form *formInfo) string {
-  attrs := map[string]string{
-    "type":     "checkbox",
-    "id":       fmt.Sprintf("%s%s", form.Name, f.ID),
-    "name":     fmt.Sprintf("%s%s", form.Name, f.ID),
-    "ng-model": fmt.Sprintf("%s.%s", form.ObjName, f.ID),
-  }
-
-  ctrl := buildCtrlTag("<input", ">", attrs)
-  return runTemplate("checkbox-field", map[string]interface{}{
-    "Name": f.Name,
-    "Ctrl": ctrl,
-  })
-}
-
-// ==================================================================
 
 */

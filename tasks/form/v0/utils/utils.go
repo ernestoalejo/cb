@@ -13,10 +13,14 @@ func UpdateMap(m map[string]string, s map[string]string) {
 }
 
 func BuildCtrlTag(start, end string, attrs map[string]string) string {
-	tabs := 6
-
 	ctrl := start
-	n := len(ctrl)
+	ctrl += BuildAttrs(len(ctrl), attrs)
+	return ctrl + end
+}
+
+func BuildAttrs(n int, attrs map[string]string) string {
+	ctrl := ""
+	tabs := 6
 	for k, v := range attrs {
 		newattr := fmt.Sprintf(` %s="%s"`, k, v)
 		n += len(newattr)
@@ -29,7 +33,7 @@ func BuildCtrlTag(start, end string, attrs map[string]string) string {
 		}
 		ctrl += newattr
 	}
-	return ctrl + end
+	return ctrl
 }
 
 func SplitStrList(str string) []string {
