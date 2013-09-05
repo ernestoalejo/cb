@@ -40,9 +40,10 @@ func (f *BaseField) buildContainer(form formData) (map[string]string, string) {
 
 			var e string
 			if val.User {
-				e = fmt.Sprintf("!%s%s.$dirty && !%s%s.$invalid && %s",
+				e = fmt.Sprintf("!%s%s.$dirty && !%s%s.$invalid && (%s)",
 					form.GetName(), fid, form.GetName(), fid, val.Error)
-				showErrs += " || (" + val.Error + ")"
+				showErrs += fmt.Sprintf(" || (!%s%s.$dirty && (%s))", form.GetName(),
+					fid, val.Error)
 			} else {
 				e = fmt.Sprintf("%s%s.$error.%s", form.GetName(), fid, val.Error)
 			}
