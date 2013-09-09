@@ -25,6 +25,7 @@ var (
 func init() {
 	registry.NewUserTask("angular:service", 0, service)
 	registry.NewUserTask("angular:controller", 0, controller)
+	registry.NewUserTask("angular:controllernv", 0, controller_noview)
 }
 
 func service(c *config.Config, q *registry.Queue) error {
@@ -86,6 +87,45 @@ func controller(c *config.Config, q *registry.Queue) error {
 	}
 	if err := writeControllerViewFile(data); err != nil {
 		return fmt.Errorf("write view failed: %s", err)
+	}
+	if route != "" {
+		if err := writeControllerRouteFile(data); err != nil {
+			return fmt.Errorf("write route failed: %s", err)
+		}
+	}
+
+	return nil
+}
+
+func controller_noview(c *config.Config, q *registry.Queue) error {
+	name := q.NextTask()
+	if name == "" {
+		return fmt.Errorf("first arg should be the name of the controller")
+	}
+	q.RemoveNextTask()
+	if !strings.Contains(name, "Ctrl") {
+		name = name + "Ctrl"
+	}
+	module := q.NextTask()
+	if module == "" {
+		return fmt.Errorf("second arg should be the module of the controller")
+	}
+	q.RemoveNextTask()
+	route := q.NextTask()
+	q.RemoveNextTask()
+
+	data := &controllerData{
+		Name:     name,
+		Module:   module,
+		Route:    route,
+		Filename: filepath.Join(strings.Split(module, ".")...),
+		AppPath:  c.GetDefault("paths.app", filepath.Join("app", "scripts", "app.js")),
+	}
+	if err := writeControllerFile(data); err != nil {
+		return fmt.Errorf("write controller failed: %s", err)
+	}
+	if err := writeControllerTestFile(data); err != nil {
+		return fmt.Errorf("write controller test failed: %s", err)
 	}
 	if route != "" {
 		if err := writeControllerRouteFile(data); err != nil {
