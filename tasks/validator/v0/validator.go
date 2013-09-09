@@ -193,7 +193,7 @@ class %s {
     Log::error($msg);
     Log::debug($caller['file'] . '::' . $caller['line']);
     Log::debug(var_export($data, TRUE));
-    App::abort(403);
+    App::abort(403, 'validator error');
   }
 
   public static function validateData($data) {
