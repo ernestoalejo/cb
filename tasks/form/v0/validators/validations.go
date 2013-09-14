@@ -2,15 +2,17 @@ package validators
 
 func createValidator(name, value, msg string) *Validator {
 	m := map[string]func(name, value, msg string) *Validator{
-		"required":   required,
-		"minlength":  minLength,
-		"maxlength":  maxLength,
-		"email":      email,
-		"url":        url,
 		"dateBefore": dateBefore,
+		"email":      email,
+		"match":      match,
+		"maxlength":  maxLength,
+		"min":        min,
+		"minlength":  minLength,
+		"number":     number,
+		"required":   required,
+		"url":        url,
 		"user":       user,
 		"validDate":  validDate,
-		"match":      match,
 	}
 	if m[name] == nil {
 		return nil
@@ -88,5 +90,21 @@ func match(name, value, msg string) *Validator {
 		Attrs:   map[string]string{"match": "f" + value},
 		Message: msg,
 		Error:   "match",
+	}
+}
+
+func min(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{"min": value},
+		Message: msg,
+		Error:   "min",
+	}
+}
+
+func number(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{},
+		Message: msg,
+		Error:   "number",
 	}
 }
