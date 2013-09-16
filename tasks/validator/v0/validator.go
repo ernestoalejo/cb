@@ -463,18 +463,19 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`}`)
 
 		case "Date":
+			e.addUse("Carbon\\Carbon")
 			e.emitf(`$str = explode('-', $value);`)
 			e.emitf(`if (count($str) !== 3 || !checkdate($str[1], $str[2], $str[0])) {`)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key)
 			e.emitf(`}`)
-			e.emitf(`$value = DateTime::createFromFormat('Y-m-d', $value);`)
+			e.emitf(`$value = Carbon::createFromFormat('Y-m-d', $value);`)
 
 		case "MinDate":
 			if v.Value == "" {
 				return fmt.Errorf("MinDate filter needs a date as value")
 			}
-			e.addUse("DateTime")
-			e.emitf(`if ($value < new DateTime('%s')) {`, v.Value)
+			e.addUse("Carbon\\Carbon")
+			e.emitf(`if ($value->lt(new Carbon('%s'))) {`, v.Value)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the mindate validation');`, f.Key)
 			e.emitf(`}`)
 
