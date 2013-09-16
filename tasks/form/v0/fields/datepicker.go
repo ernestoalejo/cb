@@ -20,13 +20,14 @@ func (f *datepickerField) Build(form formData) string {
 	f.Class = append(f.Class, "form-control")
 
 	attrs := map[string]string{
-		"type":             "text",
-		"id":               fmt.Sprintf("%s%s", form.GetName(), f.ID),
-		"name":             fmt.Sprintf("%s%s", form.GetName(), f.ID),
-		"placeholder":      f.PlaceHolder,
-		"class":            strings.Join(f.Class, " "),
-		"ng-model":         fmt.Sprintf("%s.%s", form.GetObjName(), f.ID),
-		"datepicker-popup": f.DateFormat,
+		"type":              "text",
+		"id":                fmt.Sprintf("%s%s", form.GetName(), f.ID),
+		"name":              fmt.Sprintf("%s%s", form.GetName(), f.ID),
+		"placeholder":       f.PlaceHolder,
+		"class":             strings.Join(f.Class, " "),
+		"ng-model":          fmt.Sprintf("%s.%s", form.GetObjName(), f.ID),
+		"datepicker-popup":  f.DateFormat,
+		"datepicker-manual": "",
 	}
 	if len(f.IsOpen) > 0 {
 		attrs["is-open"] = f.IsOpen

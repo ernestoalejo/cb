@@ -114,7 +114,7 @@ func number(name, value, msg string) *Validator {
 
 func minDate(name, value, msg string) *Validator {
 	return &Validator{
-		Attrs:   map[string]string{"min": value},
+		Attrs:   map[string]string{"min": value, "min-date-value": value},
 		Message: msg,
 		Error:   "min",
 	}
@@ -122,7 +122,7 @@ func minDate(name, value, msg string) *Validator {
 
 func maxDate(name, value, msg string) *Validator {
 	return &Validator{
-		Attrs:   map[string]string{"max": value},
+		Attrs:   map[string]string{"max": value, "max-date-value": value},
 		Message: msg,
 		Error:   "max",
 	}
