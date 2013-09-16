@@ -40,12 +40,6 @@ func Parse(data *config.Config, idx int) (Field, error) {
 			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
 			Type:        fieldType,
 		}
-		/*
-		   case "hidden":
-		     field = &hiddenField{
-		       BaseField: base,
-		       Value: data.GetRequired("fields[%d].value", idx),
-		     }*/
 
 	case "textarea":
 		field = &textAreaField{
@@ -58,13 +52,15 @@ func Parse(data *config.Config, idx int) (Field, error) {
 		field = &submitField{
 			BaseField: base,
 		}
-	/*
-	   case "date":
-	     field = &dateField{
-	       BaseField: field,
-	       DateOptions: data.GetDefault("fields[%d].dateOptions", "{}", idx),
-	       PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
-	     }*/
+
+	case "datepicker":
+		field = &datepickerField{
+			BaseField:   base,
+			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
+			DateFormat:  data.GetDefault("fields[%d].dateFormat", "dd/MM/yyyy", idx),
+			IsOpen:      data.GetDefault("fields[%d].isOpen", "", idx),
+			Options:     data.GetDefault("fields[%d].options", "", idx),
+		}
 
 	case "static":
 		field = &staticField{
@@ -118,47 +114,6 @@ func parseAttrs(data *config.Config, object string, idx int) map[string]string {
 }
 
 /*
-
-// ==================================================================
-
-type dateField struct {
-  ID, Name    string
-  Help        string
-  Values      map[string]string
-  DateOptions string
-  Class       []string
-  Size        []string
-  PlaceHolder string
-}
-
-func (f *dateField) Build(form *formInfo) string {
-  f.Class = append(f.Class, "form-control")
-
-  attrs := map[string]string{
-    "type":        "text",
-    "id":          fmt.Sprintf("%s%s", form.Name, f.ID),
-    "name":        fmt.Sprintf("%s%s", form.Name, f.ID),
-    "class":       strings.Join(f.Class, " "),
-    "ng-model":    fmt.Sprintf("%s.%s", form.ObjName, f.ID),
-    "bs-date":     f.DateOptions,
-    "placeholder": f.PlaceHolder,
-  }
-
-  controlAttrs, control := buildControl(form, f.ID, f.Name, "", f.Help,
-    strings.Join(f.Size, " "))
-  update(attrs, controlAttrs)
-
-  ctrl := buildCtrlTag("<input readonly", ">", attrs)
-  ctrl = fmt.Sprintf(`
-      <div class="input-append date">
-        %s
-        <span class="add-on"><i class="icon-calendar"></i></span>
-      </div>
-  `, ctrl)
-  return fmt.Sprintf(control, ctrl)
-}
-
-// ==================================================================
 
 type selectField struct {
   ID, Name                      string

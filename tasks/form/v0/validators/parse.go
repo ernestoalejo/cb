@@ -13,9 +13,10 @@ func Parse(data *config.Config, idx int) []*Validator {
 		value := data.GetDefault("fields[%d].validators[%d].value", "", idx, i)
 		msg := data.GetDefault("fields[%d].validators[%d].msg", "", idx, i)
 		validator := createValidator(name, value, msg)
-		if validator != nil {
-			validators = append(validators, validator)
+		if validator == nil {
+			panic("bad validator name: " + name)
 		}
+		validators = append(validators, validator)
 	}
 
 	return validators

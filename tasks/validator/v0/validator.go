@@ -523,6 +523,15 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the mincount validation');`, f.Key)
 			e.emitf(`}`)
 
+		case "MinValue":
+			val, err := strconv.ParseInt(v.Value, 10, 64)
+			if err != nil {
+				return fmt.Errorf("cannot parse minvalue number: %s", err)
+			}
+			e.emitf(`if ($value < %d) {`, val)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minvalue validation');`, f.Key)
+			e.emitf(`}`)
+
 		default:
 			return fmt.Errorf("`%s` is not a valid validator name", v.Name)
 		}

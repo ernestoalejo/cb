@@ -2,11 +2,14 @@ package validators
 
 func createValidator(name, value, msg string) *Validator {
 	m := map[string]func(name, value, msg string) *Validator{
+		"date":       date,
 		"dateBefore": dateBefore,
 		"email":      email,
 		"match":      match,
+		"maxDate":    maxDate,
 		"maxlength":  maxLength,
 		"min":        min,
+		"minDate":    minDate,
 		"minlength":  minLength,
 		"number":     number,
 		"required":   required,
@@ -106,5 +109,29 @@ func number(name, value, msg string) *Validator {
 		Attrs:   map[string]string{},
 		Message: msg,
 		Error:   "number",
+	}
+}
+
+func minDate(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{"min": value},
+		Message: msg,
+		Error:   "min",
+	}
+}
+
+func maxDate(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{"max": value},
+		Message: msg,
+		Error:   "max",
+	}
+}
+
+func date(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{},
+		Message: msg,
+		Error:   "date",
 	}
 }
