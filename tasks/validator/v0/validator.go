@@ -468,7 +468,7 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`if (count($str) !== 3 || !checkdate($str[1], $str[2], $str[0])) {`)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key)
 			e.emitf(`}`)
-			e.emitf(`$value = Carbon::createFromFormat('Y-m-d', $value);`)
+			e.emitf(`$value = Carbon::createFromFormat('!Y-m-d', $value);`)
 
 		case "MinDate":
 			if v.Value == "" {
