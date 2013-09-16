@@ -463,26 +463,19 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`}`)
 
 		case "Date":
-			e.emitf(`$str = explode('/', $value);`)
-			e.emitf(`if (count($str) !== 3 || !checkdate($str[1], $str[0], $str[2])) {`)
+			e.emitf(`$str = explode('-', $value);`)
+			e.emitf(`if (count($str) !== 3 || !checkdate($str[1], $str[2], $str[0])) {`)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key)
 			e.emitf(`}`)
+			e.emitf(`$value = DateTime::createFromFormat('Y-m-d', $value);`)
 
-		case "OptionalDate":
-			e.emitf(`$str = explode('/', $value);`)
-			e.emitf(`if (count($str) === 3 && !checkdate($str[1], $str[0], $str[2])) {`)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "Before":
+		case "MinDate":
 			if v.Value == "" {
-				return fmt.Errorf("Before filter needs a date as value")
+				return fmt.Errorf("MinDate filter needs a date as value")
 			}
 			e.addUse("DateTime")
-			e.emitf(`$str = explode('/', $value);`)
-			e.emitf(`if (count($str) === 3 &&
-          DateTime::createFromFormat('d/m/Y', $value) >= new DateTime('%s')) {`, v.Value)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the before validation');`, f.Key)
+			e.emitf(`if ($value < new DateTime('%s')) {`, v.Value)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the mindate validation');`, f.Key)
 			e.emitf(`}`)
 
 		case "Custom":
