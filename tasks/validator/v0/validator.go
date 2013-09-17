@@ -338,6 +338,9 @@ func generateField(e *emitter, f *field, varname, result string) error {
 
 	case "Array":
 		e.emitf(`$value = $%s[%s];`, varname, f.Key)
+		e.emitf(`if (is_null($value)) {`)
+		e.emitf(`  $value = array();`)
+		e.emitf(`}`)
 		e.emitf(`if (!is_array($value)) {`)
 		e.emitf(`  self::error($data, 'key ' . %s . ' is not an array');`, f.Key)
 		e.emitf(`}`)
