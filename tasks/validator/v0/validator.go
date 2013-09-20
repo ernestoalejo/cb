@@ -465,6 +465,14 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the in validation');`, f.Key)
 			e.emitf(`}`)
 
+		case "InArray":
+			if v.Value == "" {
+				return fmt.Errorf("InArray filter needs a list of items as value")
+			}
+			e.emitf(`if (!in_array($value, %s, TRUE)) {`, v.Value)
+			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the inarray validation');`, f.Key)
+			e.emitf(`}`)
+
 		case "Date":
 			e.addUse("Carbon\\Carbon")
 			e.emitf(`$str = explode('-', $value);`)
