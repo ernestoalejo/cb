@@ -384,6 +384,9 @@ func generateField(e *emitter, f *field, varname, result string) error {
 }
 
 func generateValidators(e *emitter, f *field) error {
+	for _, u := range v.Uses {
+		e.addUse(u)
+	}
 	for _, v := range f.Validators {
 		switch v.Name {
 		case "Required":
@@ -491,9 +494,6 @@ func generateValidators(e *emitter, f *field) error {
 			e.emitf(`}`)
 
 		case "Custom":
-			for _, u := range v.Uses {
-				e.addUse(u)
-			}
 			e.emitf(`if (%s) {`, v.Value)
 			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the custom validation');`, f.Key)
 			e.emitf(`}`)
