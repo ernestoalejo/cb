@@ -384,10 +384,11 @@ func generateField(e *emitter, f *field, varname, result string) error {
 }
 
 func generateValidators(e *emitter, f *field) error {
-	for _, u := range v.Uses {
-		e.addUse(u)
-	}
 	for _, v := range f.Validators {
+		for _, u := range v.Uses {
+			e.addUse(u)
+		}
+
 		switch v.Name {
 		case "Required":
 			e.emitf(`if (Str::length($value) == 0) {`)
