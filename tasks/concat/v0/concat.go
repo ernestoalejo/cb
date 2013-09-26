@@ -2,8 +2,9 @@ package v0
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -117,19 +118,22 @@ func concat(c *config.Config, q *registry.Queue) error {
 }
 
 func concatFiles(dest string, srcs []string) error {
-	files := make([]string, len(srcs))
-	for i, src := range srcs {
-		raw, err := ioutil.ReadFile(filepath.Join("temp", src))
-		if err != nil {
-			return fmt.Errorf("read source file failed (%s): %s", src, err)
-		}
-		files[i] = string(raw)
+	fdest, err := os.Create(filepath.Join("temp", dest))
+	if err != nil {
+		return fmt.Errorf("create dest file failed: %s", err)
 	}
+	defer fdest.Close()
 
-	content := strings.Join(files, "")
-	dest = filepath.Join("temp", dest)
-	if err := utils.WriteFile(dest, content); err != nil {
-		return fmt.Errorf("write dest file failed: %s", err)
+	for _, src := range srcs {
+		fsrc, err := os.Open(filepath.Join("temp", src))
+		if err != nil {
+			return fmt.Errorf("open source file failed: %s", err)
+		}
+		defer fsrc.Close()
+
+		if _, err := io.Copy(fdest, fsrc); err != nil {
+			return fmt.Errorf("error copying file: %s", err)
+		}
 	}
 
 	if *config.Verbose {

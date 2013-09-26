@@ -34,6 +34,9 @@ func walkFn(path string, info os.FileInfo, err error) error {
 	if err != nil {
 		return fmt.Errorf("walk failed: %s", err)
 	}
+	if info.IsDir() && filepath.Base(path) == "vendor" {
+		return filepath.SkipDir
+	}
 	if info.IsDir() {
 		return nil
 	}
