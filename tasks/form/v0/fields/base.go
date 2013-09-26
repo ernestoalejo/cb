@@ -24,7 +24,7 @@ func (f *BaseField) buildContainer(form formData) (map[string]string, string) {
 		f.LabelSize = []string{"col-xs-3", "col-lg-2"}
 	}
 	if f.Label == "" && len(f.Size) == 0 {
-		f.Size = []string{"col-xs-9", "col-xs-offset-3", "col-lg-10",
+		f.Size = []string{"col-xs-9", "col-sm-offset-3", "col-lg-10",
 			"col-lg-offset-2"}
 	}
 	if len(f.Size) == 0 {
