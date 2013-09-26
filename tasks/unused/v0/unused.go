@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	folders = []string{"app/scripts", "test"}
+	folders  = []string{"app/scripts", "test"}
+	excludes = []string{"app/scripts/vendor"}
 )
 
 func init() {
@@ -23,7 +24,15 @@ func unused(c *config.Config, q *registry.Queue) error {
 		if err != nil {
 			return fmt.Errorf("recursive walk error: %s", err)
 		}
-		if !info.IsDir() && filepath.Ext(path) == ".js" {
+		if info.IsDir() {
+			for _, exclude := range excludes {
+				if exclude == path {
+					return filepath.SkipDir
+				}
+			}
+			return nil
+		}
+		if filepath.Ext(path) == ".js" {
 			args := []string{path, "--ignore-params", "_,_2,_3,_4,_5"}
 			output, err := utils.Exec("unused", args)
 			if err != nil {
