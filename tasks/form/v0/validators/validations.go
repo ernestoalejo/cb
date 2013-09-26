@@ -12,6 +12,7 @@ func createValidator(name, value, msg string) *Validator {
 		"minDate":    minDate,
 		"minlength":  minLength,
 		"number":     number,
+		"pattern":    pattern,
 		"required":   required,
 		"url":        url,
 		"user":       user,
@@ -133,5 +134,13 @@ func date(name, value, msg string) *Validator {
 		Attrs:   map[string]string{},
 		Message: msg,
 		Error:   "date",
+	}
+}
+
+func pattern(name, value, msg string) *Validator {
+	return &Validator{
+		Attrs:   map[string]string{"ng-pattern": value},
+		Message: msg,
+		Error:   "pattern",
 	}
 }
