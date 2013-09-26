@@ -18,7 +18,7 @@ func init() {
 }
 
 func prepareDist(c *config.Config, q *registry.Queue) error {
-	dirs := c.GetListRequired("prepare_dist")
+	dirs := c.GetListRequired("dist.prepare")
 	for _, from := range dirs {
 		to := "temp"
 		if strings.Contains(from, "->") {
@@ -44,7 +44,7 @@ func prepareDist(c *config.Config, q *registry.Queue) error {
 }
 
 func copyDist(c *config.Config, q *registry.Queue) error {
-	dirs := c.GetListRequired("dist")
+	dirs := c.GetListRequired("dist.final")
 
 	changes := utils.LoadChanges()
 	for i, dir := range dirs {
@@ -55,21 +55,19 @@ func copyDist(c *config.Config, q *registry.Queue) error {
 	}
 
 	for _, dir := range dirs {
-		origin := filepath.Join("temp", dir)
-		dest := filepath.Join("dist", dir)
-
-		info, err := os.Stat(origin)
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-			return fmt.Errorf("stat failed: %s", err)
+		from := dir
+		to := dir
+		if strings.Contains(dir, "->") {
+			parts := strings.Split(dir, "->")
+			from = strings.TrimSpace(parts[0])
+			to = strings.TrimSpace(parts[1])
 		}
-		if !info.IsDir() {
-			dir := filepath.Dir(dest)
-			if err := os.MkdirAll(dir, 0755); err != nil {
-				return fmt.Errorf("prepare dir failed (%s): %s", dir, err)
-			}
+		origin := filepath.Join("temp", from)
+		dest := filepath.Join("dist", to)
+
+		createPath := filepath.Dir(dest)
+		if err := os.MkdirAll(createPath, 0755); err != nil {
+			return fmt.Errorf("prepare dir failed (%s): %s", dir, err)
 		}
 
 		if *config.Verbose {
