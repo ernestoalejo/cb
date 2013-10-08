@@ -3,6 +3,7 @@ package v0
 import (
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strconv"
 	"time"
@@ -55,4 +56,45 @@ func (p *proxy) RoundTrip(r *http.Request) (*http.Response, error) {
 	}
 
 	return resp, nil
+}
+
+func NewProxy(sc *serveConfig) (*httputil.ReverseProxy, error) {
+	// If it's a single URL parse it and create a new single host reverse proxy
+	if sc.proxy == nil {
+		proxyURL, err := url.Parse(sc.url)
+		if err != nil {
+			return nil, fmt.Errorf("parse proxied url failed: %s", err)
+		}
+		p := httputil.NewSingleHostReverseProxy(proxyURL)
+		p.Transport = &proxy{
+			hosts: map[string]string{"localhost": proxyURL.Host},
+		}
+		return p, nil
+	}
+
+	// If we have more than one URL, save the directors and use one that
+	// checks the host before applying the associated transformation
+	directors := []func(*http.Request){}
+	hosts := map[string]string{}
+	for _, pc := range sc.proxy {
+		u, err := url.Parse(pc.url)
+		if err != nil {
+			return nil, fmt.Errorf("cannot parse url: %s", err)
+		}
+		p := httputil.NewSingleHostReverseProxy(u)
+		directors = append(directors, p.Director)
+
+		hosts[pc.host] = u.Host
+	}
+	return &httputil.ReverseProxy{
+		Transport: &proxy{hosts: hosts},
+		Director: func(r *http.Request) {
+			for i, pc := range sc.proxy {
+				if pc.host == r.Host {
+					directors[i](r)
+					return
+				}
+			}
+		},
+	}, nil
 }
