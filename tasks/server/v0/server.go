@@ -17,6 +17,7 @@ func init() {
 
 func server(c *config.Config, q *registry.Queue) error {
 	tasks := []string{
+		"update:check@0",
 		"clean@0",
 		"recess@0",
 		"sass@0",

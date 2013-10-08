@@ -25,7 +25,48 @@ func init() {
 }
 
 func update(c *config.Config, q *registry.Queue) error {
-	fmt.Println("Hello World!")
+	// Fetch last commits, both localy & remotely
+	latestSha, err := fetchLatestCommit()
+	if err != nil {
+		return err
+	}
+	currentSha, err := fetchCurrentCommit()
+	if err != nil {
+		return err
+	}
+
+	// Couldn't retrieve current/latest commit, ignore update
+	if latestSha == "" || currentSha == "" {
+		if *config.Verbose {
+			log.Printf("local or remote version was not retrieved correctly\n")
+		}
+		return nil
+	}
+
+	if err := writeCheckUpdate(); err != nil {
+		return err
+	}
+
+	// No update, return directly
+	if latestSha == currentSha {
+		if *config.Verbose {
+			log.Printf("same version detected\n")
+		}
+		return nil
+	}
+
+	// Perform the update
+	args := []string{"get", "-u", "github.com/ernestokarim/cb"}
+	output, err := utils.Exec("go", args)
+	if err != nil {
+		return err
+	}
+	if len(output) > 0 {
+		fmt.Println(output)
+	}
+
+	log.Printf("%sUpdated correctly to commit: %s%s", colors.Green, latestSha[:10], colors.Reset)
+
 	return nil
 }
 
@@ -55,6 +96,9 @@ func updateCheck(c *config.Config, q *registry.Queue) error {
 
 	// Couldn't retrieve current/latest commit, ignore update
 	if latestSha == "" || currentSha == "" {
+		if *config.Verbose {
+			log.Printf("local or remote version was not retrieved correctly\n")
+		}
 		return nil
 	}
 
@@ -64,6 +108,9 @@ func updateCheck(c *config.Config, q *registry.Queue) error {
 
 	// No update, return directly
 	if latestSha == currentSha {
+		if *config.Verbose {
+			log.Printf("same version detected\n")
+		}
 		return nil
 	}
 
