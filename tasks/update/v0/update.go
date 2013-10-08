@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
@@ -18,9 +20,8 @@ import (
 const updateURL = `https://api.github.com/repos/ernestokarim/cb/commits?per_page=1`
 
 func init() {
-	registry.NewUserTask("self-update", 0, update)
 	registry.NewUserTask("update", 0, update)
-	registry.NewUserTask("update:check", 0, updateCheck)
+	registry.NewTask("update:check", 0, updateCheck)
 }
 
 func update(c *config.Config, q *registry.Queue) error {
@@ -33,6 +34,15 @@ type commitInfo struct {
 }
 
 func updateCheck(c *config.Config, q *registry.Queue) error {
+	// Check update-check file before updating again
+	shouldCheck, err := checkShouldCheckUpdate()
+	if err != nil {
+		return err
+	}
+	if !shouldCheck {
+		return nil
+	}
+
 	// Fetch last commits, both localy & remotely
 	latestSha, err := fetchLatestCommit()
 	if err != nil {
@@ -46,6 +56,10 @@ func updateCheck(c *config.Config, q *registry.Queue) error {
 	// Couldn't retrieve current/latest commit, ignore update
 	if latestSha == "" || currentSha == "" {
 		return nil
+	}
+
+	if err := writeCheckUpdate(); err != nil {
+		return err
 	}
 
 	// No update, return directly
@@ -102,4 +116,36 @@ func fetchCurrentCommit() (string, error) {
 	}
 
 	return strings.TrimSpace(output), nil
+}
+
+func checkShouldCheckUpdate() (bool, error) {
+	p := config.GetUserConfigsPath()
+	info, err := os.Stat(filepath.Join(p, "update-check"))
+	if err != nil && !os.IsNotExist(err) {
+		return false, fmt.Errorf("cannot stat update check file: %s", err)
+	}
+
+	if err == nil && time.Now().Sub(info.ModTime()) < 24*time.Hour {
+		if *config.Verbose {
+			log.Printf("ignoring update because it has been checked in the last 24 hours\n")
+		}
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func writeCheckUpdate() error {
+	p := config.GetUserConfigsPath()
+	f, err := os.Create(filepath.Join(p, "update-check"))
+	if err != nil {
+		return fmt.Errorf("cannot create update check file: %s", err)
+	}
+	defer f.Close()
+
+	if *config.Verbose {
+		log.Printf("writing update-check file\n")
+	}
+
+	return nil
 }

@@ -57,8 +57,7 @@ func server(c *config.Config, q *registry.Queue) error {
 	http.Handle("/", p)
 
 	for _, proxyURL := range sc.proxy {
-		log.Printf("%sserving app at http://%s/...%s\n",
-			colors.Yellow, proxyURL.host, colors.Reset)
+		log.Printf("%sserving app at http://%s/...%s\n", colors.Yellow, proxyURL.host, colors.Reset)
 	}
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", *config.Port), nil); err != nil {
 		return fmt.Errorf("server listener failed: %s", err)

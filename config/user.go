@@ -15,8 +15,8 @@ func PrepareUserConfigs() error {
 		return fmt.Errorf("cannot get current user: %s", err)
 	}
 
-	configPath := filepath.Join(u.HomeDir, ".cb")
-	info, err := os.Stat(configPath)
+	userConfigsPath = filepath.Join(u.HomeDir, ".cb")
+	info, err := os.Stat(userConfigsPath)
 
 	// Present, check if it's a folder
 	if err == nil {
@@ -32,7 +32,7 @@ func PrepareUserConfigs() error {
 	}
 
 	// Create it if not present
-	if err := os.MkdirAll(configPath, 0755); err != nil {
+	if err := os.MkdirAll(userConfigsPath, 0755); err != nil {
 		return fmt.Errorf("cannot create user configs: %s", err)
 	}
 

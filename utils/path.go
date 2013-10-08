@@ -6,9 +6,7 @@ import (
 	"strings"
 )
 
-// PackagePath tries to find a package source inside the GOPATH. If no
-// Go installation is present in the system it will default to "assets"
-// (to allow bundling and distribution of the app).
+// PackagePath tries to find a package source inside the GOPATH.
 func PackagePath(importPath string) string {
 	req := filepath.Clean(importPath)
 	if req == "." {
@@ -24,5 +22,5 @@ func PackagePath(importPath string) string {
 		}
 	}
 
-	return "assets"
+	panic("no GOPATH detected in environment")
 }
