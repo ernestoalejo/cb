@@ -24,8 +24,23 @@ func NewConfig(f *yaml.File) *Config {
 }
 
 // Load the basic config files for all task. It prepares some common transforms
-// in the data too.
+// in the data too. It first tries to load the config.yaml in the current directory
+// and then tries to load it from a "client" subfolder.
 func Load() (*Config, error) {
+	c, err := tryLoad()
+	if c == nil && err == nil {
+		stat, statErr := os.Stat("client")
+		if statErr == nil && stat.IsDir() {
+			if pathErr := os.Chdir("client"); pathErr != nil {
+				return nil, fmt.Errorf("chdir to client folder failed: %s", err)
+			}
+			c, err = tryLoad()
+		}
+	}
+	return c, err
+}
+
+func tryLoad() (*Config, error) {
 	if _, err := os.Stat("config.yaml"); err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
