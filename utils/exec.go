@@ -37,16 +37,31 @@ func ExecCopyOutput(app string, args []string) error {
 	}
 
 	cmd := exec.Command(app, args...)
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return fmt.Errorf("cannot create stdout pipe: %s", err)
 	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("cannot create stderr pipe: %s", err)
+	}
+
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("cannot run the command: %s", err)
 	}
-	if _, err := io.Copy(os.Stdout, stdout); err != nil {
-		return fmt.Errorf("cannot copy the output: %s", err)
-	}
+
+	go func() {
+		if _, err := io.Copy(os.Stdout, stdout); err != nil {
+			panic(err)
+		}
+	}()
+	go func() {
+		if _, err := io.Copy(os.Stderr, stderr); err != nil {
+			panic(err)
+		}
+	}()
+
 	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("wait failed: %s", err)
 	}
