@@ -31,7 +31,7 @@ func (q *Queue) AddTasks(tasks []string) {
 // same time and printing the result at the end.
 func (q *Queue) RunWithTimer(c *config.Config) error {
 	start := time.Now()
-	if err := q.Run(c); err != nil {
+	if err := q.run(c); err != nil {
 		return fmt.Errorf("run queue failed: %s", err)
 	}
 	log.Printf("%sFinished in %.3f seconds%s", colors.Green,
@@ -39,8 +39,33 @@ func (q *Queue) RunWithTimer(c *config.Config) error {
 	return nil
 }
 
+// RunTasks executes directly the tasks passed as argument.
+func (q *Queue) RunTasks(c *config.Config, tasks []string) error {
+	q.AddTasks(tasks)
+	if err := q.run(c); err != nil {
+		return fmt.Errorf("run task failed: %s", err)
+	}
+	return nil
+}
+
+// NextTask returns the name of the next task (aka a task argument).
+func (q *Queue) NextTask() string {
+	if len(q.tasks) > 0 {
+		return q.tasks[0]
+	}
+	return ""
+}
+
+// RemoveNextTask deletes the name of the next task from the queue. It should
+// be used with NextTask to find and remove task arguments from the command line.
+func (q *Queue) RemoveNextTask() {
+	if q.NextTask() != "" {
+		q.tasks = q.tasks[1:]
+	}
+}
+
 // Run executes all the tasks of the queue without timing them or printing anything.
-func (q *Queue) Run(c *config.Config) error {
+func (q *Queue) run(c *config.Config) error {
 	for len(q.tasks) > 0 {
 		var t string
 		t, q.tasks = q.tasks[0], q.tasks[1:]
@@ -85,33 +110,4 @@ func (q *Queue) Run(c *config.Config) error {
 		}
 	}
 	return nil
-}
-
-// ExecTasks add and executes directly the list of tasks passed as an argument
-// splitted by spaces.
-func (q *Queue) ExecTasks(tasks string, c *config.Config) error {
-	lst := strings.Split(tasks, " ")
-	for _, task := range lst {
-		q.AddTask(task)
-	}
-	if err := q.Run(c); err != nil {
-		return fmt.Errorf("run task failed: %s", err)
-	}
-	return nil
-}
-
-// NextTask returns the name of the next task (aka a task argument).
-func (q *Queue) NextTask() string {
-	if len(q.tasks) > 0 {
-		return q.tasks[0]
-	}
-	return ""
-}
-
-// RemoveNextTask deletes the name of the next task from the queue. It should
-// be used with NextTask to find and remove task arguments from the command line.
-func (q *Queue) RemoveNextTask() {
-	if q.NextTask() != "" {
-		q.tasks = q.tasks[1:]
-	}
 }
