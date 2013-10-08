@@ -78,8 +78,10 @@ func serverAngular(c *config.Config, q *registry.Queue) error {
 	}
 	registerUrls(urls)
 
-	log.Printf("%sserving app at http://localhost:%d/...%s\n",
-		colors.Yellow, *config.Port, colors.Reset)
+	for _, p := range sc.proxy {
+		log.Printf("%sserving app at http://%s/...%s\n",
+			colors.Yellow, p.host, colors.Reset)
+	}
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", *config.Port), nil); err != nil {
 		return fmt.Errorf("server listener failed: %s", err)
 	}
