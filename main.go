@@ -42,6 +42,10 @@ func run() error {
 		return fmt.Errorf("config file not found")
 	}
 
+	if err := config.PrepareUserConfigs(); err != nil {
+		return err
+	}
+
 	q := &registry.Queue{}
 	for _, task := range args {
 		q.AddTask(task)
