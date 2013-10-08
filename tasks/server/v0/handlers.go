@@ -14,26 +14,24 @@ import (
 	"github.com/ernestokarim/cb/watcher"
 )
 
-var (
-	queue *registry.Queue
-
-	stylesMutex sync.Mutex
-)
+var stylesMutex sync.Mutex
 
 type reqInfo struct {
 	w http.ResponseWriter
 	r *http.Request
 	c *config.Config
+	q *registry.Queue
 }
 
 type handler func(req *reqInfo) error
 
-func wrapHandler(c *config.Config, f handler) http.Handler {
+func wrapHandler(c *config.Config, q *registry.Queue, f handler) http.Handler {
 	wrap := func(w http.ResponseWriter, r *http.Request) {
 		req := &reqInfo{
 			w: w,
 			r: r,
 			c: c,
+			q: q,
 		}
 		if err := f(req); err != nil {
 			http.Error(w, err.Error(), 500)
@@ -51,6 +49,8 @@ func serveFile(w http.ResponseWriter, req *http.Request, name string) {
 
 	http.ServeContent(w, req, name, time.Time{}, f)
 }
+
+// ============================================================================
 
 func appHandler(req *reqInfo) error {
 	serveFile(req.w, req.r, filepath.Join("app", req.r.URL.Path))
@@ -94,7 +94,7 @@ func stylesHandler(req *reqInfo) error {
 			}
 
 			tasks := strings.Split(dest, " ")
-			if err := queue.RunTasks(req.c, tasks); err != nil {
+			if err := req.q.RunTasks(req.c, tasks); err != nil {
 				return fmt.Errorf("exec tasks failed: %s", err)
 			}
 			break

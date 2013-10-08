@@ -19,8 +19,6 @@ func init() {
 }
 
 func server(c *config.Config, q *registry.Queue) error {
-	queue = q
-
 	tasks := []string{
 		"clean@0",
 		"recess@0",
@@ -49,16 +47,16 @@ func server(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("cannot prepare proxy: %s", err)
 	}
 
-	http.Handle("/scenarios/", wrapHandler(c, scenariosHandler))
-	http.Handle("/test", wrapHandler(c, testHandler))
-	http.Handle("/utils.js", wrapHandler(c, scenariosHandler))
-	http.Handle("/angular-scenario.js", wrapHandler(c, angularScenarioHandler))
-	http.Handle("/scripts/", wrapHandler(c, appHandler))
-	http.Handle("/styles/", wrapHandler(c, stylesHandler))
-	http.Handle("/fonts/", wrapHandler(c, appHandler))
-	http.Handle("/images/", wrapHandler(c, appHandler))
-	http.Handle("/components/", wrapHandler(c, appHandler))
-	http.Handle("/views/", wrapHandler(c, appHandler))
+	http.Handle("/scenarios/", wrapHandler(c, q, scenariosHandler))
+	http.Handle("/test", wrapHandler(c, q, testHandler))
+	http.Handle("/utils.js", wrapHandler(c, q, scenariosHandler))
+	http.Handle("/angular-scenario.js", wrapHandler(c, q, angularScenarioHandler))
+	http.Handle("/scripts/", wrapHandler(c, q, appHandler))
+	http.Handle("/styles/", wrapHandler(c, q, stylesHandler))
+	http.Handle("/fonts/", wrapHandler(c, q, appHandler))
+	http.Handle("/images/", wrapHandler(c, q, appHandler))
+	http.Handle("/components/", wrapHandler(c, q, appHandler))
+	http.Handle("/views/", wrapHandler(c, q, appHandler))
 	http.Handle("/", p)
 
 	for _, p := range sc.proxy {
