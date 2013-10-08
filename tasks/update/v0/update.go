@@ -67,7 +67,13 @@ func update(c *config.Config, q *registry.Queue) error {
 
 	log.Printf("%sUpdated correctly to commit: %s%s", colors.Green, latestSha[:10], colors.Reset)
 
-	return nil
+	// Rerun itself with the correct args
+	if err := utils.ExecCopyOutput(os.Args[0], os.Args[1:]); err != nil {
+		return fmt.Errorf("error re-executing itself with the same arguments: %s", err)
+	}
+	os.Exit(1)
+
+	panic("should not be reached")
 }
 
 type commitInfo struct {
