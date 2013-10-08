@@ -59,16 +59,18 @@ func usage() {
 	registry.PrintTasks()
 }
 
-func isNoConfigTask(t string) bool {
-	switch t {
-	case "validator":
-		return true
-
-	case "init":
-		return true
-
-	case "init:client":
-		return true
+func isNoConfigTask(task string) bool {
+	tasks := []string{
+		"init",
+		"init:client",
+		"update",
+		"update:check",
+		"validator",
+	}
+	for _, t := range tasks {
+		if t == task {
+			return true
+		}
 	}
 	return false
 }

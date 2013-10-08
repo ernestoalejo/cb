@@ -11,7 +11,7 @@ import (
 
 // Ask the user a yes/no question by console.
 func Ask(q string) bool {
-	q = q + " [y/N]: "
+	q = q + " [y/n]: "
 
 	buf := bufio.NewReader(os.Stdin)
 	for {

@@ -12,8 +12,7 @@ import (
 )
 
 // Exec runs a new command and return the output and an error if present.
-// It's probably the core of cb as we use external tools for almost anything
-// we do.
+// It's probably the core of cb as we use external tools for almost anything we do.
 func Exec(app string, args []string) (string, error) {
 	if *config.Verbose {
 		log.Printf("%sEXEC%s %s %+v\n", colors.Yellow, colors.Reset,
