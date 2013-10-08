@@ -116,7 +116,7 @@ func updateCheck(c *config.Config, q *registry.Queue) error {
 
 	// Ask for update
 	if utils.Ask("There's a new CB version. Do you want to auto-update it?") {
-		q.AddTask("update@0")
+		return q.RunTasks(c, []string{"update@0"})
 	}
 
 	return nil
