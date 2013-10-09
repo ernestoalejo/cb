@@ -65,8 +65,7 @@ func usage() {
 
 func isNoConfigTask(task string) bool {
 	tasks := []string{
-		"init",
-		"init:client",
+		"init:laravel",
 		"update",
 		"update:check",
 		"validator",

@@ -65,9 +65,9 @@ func getTask(name string, version int) (Task, error) {
 		if strings.Contains(name, ":") {
 			parts := strings.Split(name, ":")
 			m = tasks[parts[0]+":*"]
-			if m == nil {
-				return nil, fmt.Errorf("task not found: %s", name)
-			}
+		}
+		if m == nil {
+			return nil, fmt.Errorf("task not found: %s", name)
 		}
 	}
 

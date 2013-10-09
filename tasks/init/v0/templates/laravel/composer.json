@@ -1,0 +1,52 @@
+{
+  "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/joecwallace/web-artisan"
+        }
+    ],
+  "name": "laravel/laravel",
+  "description": "The Laravel Framework.",
+  "keywords": ["framework", "laravel"],
+  "require": {
+    "laravel/framework": "4.0.*",
+    "joecwallace/artisan": "dev-master",
+     "mockery/mockery": "dev-master@dev",
+     "phpmd/phpmd" : "1.4.*",
+     "sebastian/phpcpd": "*",
+     "phpunit/phpunit": "3.7.*",
+     "nesbot/Carbon": "1.4.*"
+  },
+  "autoload": {
+    "classmap": [
+      "app/commands",
+      "app/controllers",
+      "app/models",
+      "app/database/migrations",
+      "app/database/seeds",
+      "app/tests/TestCase.php"
+    ],
+    "psr-0": {
+      "Ng": "app/lib",
+      "Validators": "app/lib"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "php artisan optimize"
+    ],
+    "pre-update-cmd": [
+      "php artisan clear-compiled"
+    ],
+    "post-update-cmd": [
+      "php artisan optimize"
+    ],
+    "post-create-project-cmd": [
+      "php artisan key:generate"
+    ]
+  },
+  "config": {
+    "preferred-install": "dist"
+  },
+  "minimum-stability": "dev"
+}

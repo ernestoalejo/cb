@@ -93,7 +93,7 @@ func (q *Queue) run(c *config.Config) error {
 
 		f, err := getTask(task, version)
 		if err != nil {
-			return fmt.Errorf("get task failed: %s", err)
+			return err
 		}
 
 		if *config.Verbose {
