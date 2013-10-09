@@ -11,7 +11,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/ernestokarim/cb/colors"
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
 	"github.com/ernestokarim/cb/utils"
@@ -47,10 +46,10 @@ func initTask(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("copy files failed: %s", err)
 	}
 
-	// Don't forget to run package managers on the result
-	fmt.Printf("Don't forget to run %s`bower install`%s inside the client folder"+
-		"and %s`composer update`%s in the root folder\n",
-		colors.Red, colors.Reset, colors.Red, colors.Reset)
+	// Post-init steps
+	if err := postInit(); err != nil {
+		return fmt.Errorf("post init failed: %s", err)
+	}
 
 	return nil
 }
@@ -226,4 +225,28 @@ func compareFiles(srcPath, destPath string) (bool, error) {
 	srcHash := fmt.Sprintf("%x", crc32.ChecksumIEEE(destContents))
 
 	return srcHash == contentsHash, nil
+}
+
+func postInit() error {
+	// Test if the post-init file exists
+	if _, err := os.Stat("post-init.sh"); err != nil {
+		if os.IsNotExist(err) {
+			if *config.Verbose {
+				log.Println("post-init.sh file doesn't exist")
+			}
+			return nil
+		}
+		return fmt.Errorf("err failed")
+	}
+
+	if *config.Verbose {
+		log.Println("running post-init.sh file")
+	}
+
+	// Run it
+	if err := utils.ExecCopyOutput("bash", []string{"./post-init.sh"}); err != nil {
+		return fmt.Errorf("post init exec failed: %s", err)
+	}
+
+	return nil
 }
