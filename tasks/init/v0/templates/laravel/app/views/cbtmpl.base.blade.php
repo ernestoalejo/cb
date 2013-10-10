@@ -72,7 +72,7 @@
       <script src="/components/bootstrap/js/alert.js"></script>
     <!-- endcompile -->
 
-    <!-- compile /scripts/scripts-admin.js -->
+    <!-- compile /scripts/scripts.js -->
       <script src="/scripts/app.js"></script>
       <script src="/scripts/controllers/accounts.js"></script>
       <script src="/scripts/controllers/home.js"></script>

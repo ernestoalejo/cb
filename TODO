@@ -1,0 +1,5 @@
+
+ - Move base to paths.base.
+ - Fix deploy.
+ - Fix dist.
+ - Fix ngtemplates.

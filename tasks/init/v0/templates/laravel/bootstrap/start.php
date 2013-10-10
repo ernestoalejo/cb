@@ -28,7 +28,7 @@ $app->redirectIfTrailingSlash();
 
 $env = $app->detectEnvironment(array(
 
-	'local' => array('your-machine-name'),
+  'local' => array('localhost'),
 
 ));
 
@@ -58,7 +58,18 @@ $app->bindInstallPaths(require __DIR__.'/paths.php');
 
 $framework = $app['path.base'].'/vendor/laravel/framework/src';
 
-require $framework.'/Illuminate/Foundation/start.php';
+$framework = $app['path.base'].'/vendor/laravel/framework/src';
+
+try {
+  require $framework.'/Illuminate/Foundation/start.php';
+} catch(\RuntimeException $ex) {
+  if (strpos($ex->getMessage(), 'PDOException was thrown when trying to read the session data: ') === 0) {
+    Artisan::call('migrate');
+    Artisan::call('db:seed');
+    echo '<h1>¡MIGRATED!</h1>';
+    die();
+  }
+}
 
 /*
 |--------------------------------------------------------------------------

@@ -1,0 +1,70 @@
+
+clientonly: true
+base: ../app/views/base.blade.php
+deploy: php
+
+recess:
+  - source: bootstrap/main.less
+    dest:   bootstrap.css
+
+sass:
+  - source: app.scss
+    dest:   app.css
+
+watch:
+  - task: recess
+    paths:
+      - app/components/bootstrap/less/*.less
+      - app/styles/**/*.less
+
+  - task: sass
+    paths:
+      - app/styles/**/*.scss
+
+cacherev:
+  dirs:
+    - images
+    - styles
+    - scripts
+    - fonts
+    - components
+  exclude:
+    - scripts/vendor
+  rev:
+    - styles
+    - views
+    - base.blade.php
+    - laravel-templates
+
+htmlmin:
+  - source: app/views
+    dest: temp/views
+
+dist:
+  prepare:
+    - app
+    - ../app/views/base.blade.php
+    - ../app/views -> laravel-templates
+
+  final:
+    - components/jquery-1.8.3/jquery.min.js
+    - fonts
+    - images
+    - scripts/{{% .AppName %}}.js
+    - scripts/ie.js
+    - scripts/test.js
+    - styles/{{% .AppName %}}.css
+
+ngtemplates:
+  appendto: scripts/{{% .AppName %}}.js
+  files:
+    - views/**
+
+serve:
+  base: proxy
+  proxy:
+   - host: localhost
+     url: http://localhost/
+
+paths:
+  app: app/scripts/admin/app.js
