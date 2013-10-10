@@ -109,12 +109,14 @@ func copyFiles(c *config.Config, appname, src, dest, root string) error {
 // Copy a file, using templates if needed, from srcPath to destPath.
 func copyFile(c *config.Config, appname, srcPath, destPath, root string) error {
 	// Use a template for the file if needed
-	if filepath.Ext(srcPath) == ".cbtmpl" {
+	if strings.HasPrefix(filepath.Base(srcPath), "cbtmpl.") {
 		srcName, err := copyFileTemplate(appname, srcPath)
 		if err != nil {
 			return fmt.Errorf("copy file template failed: %s", err)
 		}
-		srcPath = filepath.Join(filepath.Dir(srcPath), srcName)
+
+		srcPath = srcName
+		destPath = filepath.Join(filepath.Dir(destPath), filepath.Base(destPath)[7:])
 	}
 
 	// Open source file
@@ -178,7 +180,7 @@ func copyFile(c *config.Config, appname, srcPath, destPath, root string) error {
 }
 
 func copyFileTemplate(appname, srcPath string) (string, error) {
-	t, err := template.New(filepath.Base(srcPath)).ParseFiles(srcPath)
+	t, err := template.New(filepath.Base(srcPath)).Delims(`{{%`, `%}}`).ParseFiles(srcPath)
 	if err != nil {
 		return "", fmt.Errorf("parse template failed: %s", err)
 	}

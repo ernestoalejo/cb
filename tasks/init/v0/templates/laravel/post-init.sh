@@ -4,9 +4,10 @@
 set -e
 
 # Run composer install or update depending if it's a recurring instalation or not
-php ~/bin/composer.phar install
 if [ -f composer.lock ]; then
   php ~/bin/composer.phar update
+else
+  php ~/bin/composer.phar install
 fi
 
 # Update bower packages
