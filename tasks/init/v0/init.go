@@ -84,8 +84,11 @@ func copyFiles(c *config.Config, appname, src, dest, root string) error {
 				if *config.Verbose {
 					log.Printf("create folder `%s`\n", dest)
 				}
-				if err := os.MkdirAll(fulldest, 0755); err != nil {
+				if err := os.Mkdir(fulldest, entry.Mode()); err != nil {
 					return fmt.Errorf("create folder failed: %s", err)
+				}
+				if err := os.Chmod(fulldest, entry.Mode()); err != nil {
+					return fmt.Errorf("change folder mode failed: %s", err)
 				}
 			} else if !info.IsDir() {
 				// Dest already present and not a folder

@@ -5,11 +5,15 @@ var m = angular.module('app', [
   'controllers.global',
   'controllers.home',
   'directives.match',
+  'directives.placeholder',
   'errorHandler',
   'httpInterceptor',
   'ngSanitize',
   'services.global',
-  'ui.bootstrap.modal'
+  'services.modals',
+  'services.scroll',
+  'ui.bootstrap.modal',
+  'ui.bootstrap.tpls'
 ]);
 
 
@@ -31,32 +35,3 @@ m.config(function($routeProvider, $locationProvider) {
         controller: 'NotFoundCtrl'
       });
 });
-
-
-var requirements = {
-  notlogged: function(User) { return !User.isLogged(); },
-  logged: function(User) { return User.isLogged(); },
-  admin: function(User) { return User.isAdmin(); }
-};
-
-
-function require(arr) {
-  if (!angular.isArray(arr))
-    arr = [arr];
-
-  return ['$q', '$timeout', 'User', function($q, $timeout, User) {
-    var defer = $q.defer();
-    for (var i = 0; i < arr.length; i++) {
-      var r = requirements[arr[i]];
-      if (!r)
-        throw new Error('unknown requirement: ' + arr[i]);
-
-      if (!r(User))
-        defer.reject(arr[i]);
-      else
-        defer.resolve(true);
-    }
-    return defer.promise;
-  }];
-}
-

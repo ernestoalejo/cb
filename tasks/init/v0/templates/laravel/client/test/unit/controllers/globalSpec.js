@@ -3,19 +3,17 @@
 
 describe('Controller: AppCtrl', function() {
   beforeEach(module('controllers.global'));
+  beforeEach(module('services.modals'));
 
-  var scope, $rootScope, $location;
-  beforeEach(inject(function($injector) {
-    $rootScope = $injector.get('$rootScope');
-    $location = $injector.get('$location');
-
-    var $controller = $injector.get('$controller');
-
+  var scope;
+  beforeEach(inject(function($controller, $rootScope) {
     scope = $rootScope.$new();
     $controller('AppCtrl', {$scope: scope});
   }));
 
-  it('should notify analytics of page changes if present', function() {
+  it('should notify Analytics', inject(function($rootScope, $location) {
+    scope.bodyData = {};
+
     $rootScope.$broadcast('$routeChangeSuccess');
     window._gaq = [];
     $location.url('/testing');
@@ -24,28 +22,30 @@ describe('Controller: AppCtrl', function() {
     expect(window._gaq[0].length).toBe(2);
     expect(window._gaq[0][0]).toBe('_trackPageview');
     expect(window._gaq[0][1]).toBe('/testing');
-  });
+  }));
 
-  it('should react on errors', (function() {
-    $location.path('/notlogged');
-    $rootScope.$broadcast('$routeChangeError', '/notlogged', '/prev',
-        'notlogged');
-    expect($location.path()).toBe('/');
+  it('should scope some services', inject(function(ErrorRegister, GlobalMsg) {
+    expect(scope.ErrorRegister).toBe(ErrorRegister);
+    expect(scope.GlobalMsg).toBe(GlobalMsg);
+  }));
 
-    $location.path('/logged');
-    $rootScope.$broadcast('$routeChangeError', '/logged', '/prev',
-        'logged');
-    expect($location.path()).toBe('/accounts/login');
+  it('should show a modal if there is an error', inject(function(Modal,
+      ErrorRegister, $rootScope) {
+    spyOn(Modal, 'errorDialog');
+    spyOn(ErrorRegister, 'clean');
 
-    $location.path('/admin');
-    $rootScope.$broadcast('$routeChangeError', '/admin', '/prev', 'admin');
-    expect($location.path()).toBe('/');
+    $rootScope.$apply();
 
-    $location.path('/unknown');
-    expect(function() {
-      $rootScope.$broadcast('$routeChangeError', '/unknown', '/prev',
-          'unknown');
-    }).toThrow(new Error('unkwnown route error: unknown'));
+    ErrorRegister.set('foo');
+    $rootScope.$apply();
+
+    expect(Modal.errorDialog.calls.length).toBe(1);
+    expect(ErrorRegister.clean).toHaveBeenCalled();
+
+    ErrorRegister.set(null);
+    $rootScope.$apply();
+
+    expect(Modal.errorDialog.calls.length).toBe(1);
   }));
 });
 
@@ -53,45 +53,12 @@ describe('Controller: AppCtrl', function() {
 describe('Controller: NotFoundCtrl', function() {
   beforeEach(module('controllers.global'));
 
-  var scope, $httpBackend;
-  beforeEach(inject(function($injector) {
-    $httpBackend = $injector.get('$httpBackend');
-
-    var $controller = $injector.get('$controller');
-    var $rootScope = $injector.get('$rootScope');
-
-    scope = $rootScope.$new();
-    $controller('NotFoundCtrl', {$scope: scope});
+  beforeEach(inject(function($controller, $rootScope) {
+    $controller('NotFoundCtrl', {$scope: $rootScope.$new()});
   }));
 
-  it('should reset the form & show a message on success', function() {
+  it('should report the error', inject(function($httpBackend) {
     $httpBackend.expectPOST('/_/not-found').respond({});
     $httpBackend.flush();
-  });
-});
-
-
-describe('Controller: ErrorCtrl', function() {
-  beforeEach(module('controllers.global'));
-
-  var scope, GlobalMsg, ErrorRegister;
-  beforeEach(inject(function($injector) {
-    GlobalMsg = $injector.get('GlobalMsg');
-    ErrorRegister = $injector.get('ErrorRegister');
-    var $controller = $injector.get('$controller');
-    var $rootScope = $injector.get('$rootScope');
-
-    scope = $rootScope.$new();
-    $controller('ErrorCtrl', {$scope: scope});
   }));
-
-  it('should scope the register', function() {
-    expect(scope.ErrorRegister).toBe(ErrorRegister);
-  });
-
-  it('should clean the register on close', function() {
-    ErrorRegister.set('foo');
-    scope.close();
-    expect(ErrorRegister.isNull()).toBeTruthy();
-  });
 });

@@ -63,8 +63,8 @@ ngtemplates:
 serve:
   base: proxy
   proxy:
-   - host: localhost
-     url: http://localhost/
+   - host: {{% .AppName %}}.localhost
+     url: http://{{% .AppName %}}.localhost/
 
 paths:
   app: app/scripts/admin/app.js

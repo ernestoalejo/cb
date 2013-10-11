@@ -1,13 +1,13 @@
 'use strict';
 
 
-var m = angular.module('errorHandler', ['ng']);
+var m = angular.module('errorHandler', []);
 
 
 var insideErr = false;
 var limitErr = 0;
 m.factory('$exceptionHandler', function($injector, $log, ErrorRegister) {
-  return function(ex, cause) {
+  return function(ex) {
     // Log errors to the console too
     $log.error.apply($log, arguments);
 

@@ -1,9 +1,15 @@
 
 
-// Make scrollbar appear always and put a background in the page.
 html, body {
+  // Make a scrollbar that appeara always
   height: 100%;
 }
+
+
+body {
+  margin-top: 70px;
+}
+
 
 // Selection colors
 ::-moz-selection {
@@ -11,13 +17,14 @@ html, body {
     text-shadow: none;
 }
 
+
 ::selection {
     background: #fe57a1;
     text-shadow: none;
 }
 
 
-// Wrapping container. Put a bgcolor and make room for it.
+// Wrapping container.
 #wrap {
   min-height: 100%;
   height: auto !important;

@@ -1,16 +1,50 @@
 
-
-// Loading message showed at the top of the page.
-#global-msg {
-  position: absolute;
-  top: 0;
+#loading {
+  position: fixed;
+  top: -5px;
   left: 0;
+  right: 0;
+  z-index: 10001;
   width: 100%;
   text-align: center;
-  z-index: 100000;
-  padding-top: 35px;
 
-  .label {
-    padding: 7px 25px;
+  div {
+    border-radius: 4px;
+    background-color: white;
+    border: 1px solid black;
+    padding: 10px 70px;
+    display: inline-block;
+    box-shadow: 2px 2px 2px black;
   }
+}
+
+
+.loading-enter, .loading-leave {
+  $time: 900ms;
+
+  -webkit-animation-duration: $time;
+  -moz-animation-duration: $time;
+  -o-animation-duration: $time;
+  animation-duration: $time;
+  
+  -webkit-animation-fill-mode: both;
+  -moz-animation-fill-mode: both;
+  -o-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+
+.loading-enter {
+  -webkit-animation-name: slideInDown;
+  -moz-animation-name: slideInDown;
+  -o-animation-name: slideInDown;
+  animation-name: slideInDown;
+}
+
+
+.loading-leave {
+  -webkit-animation-name: slideOutUp;
+  -moz-animation-name: slideOutUp;
+  -o-animation-name: slideOutUp;
+  animation-name: slideOutUp;
 }

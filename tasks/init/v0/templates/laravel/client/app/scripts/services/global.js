@@ -5,33 +5,46 @@ var m = angular.module('services.global', []);
 
 
 m.factory('GlobalMsg', function($timeout) {
-  var $globalMsg_ = $('#global-msg');
-  var $notifications_ = $('#notifications');
-  var last_;
+  var $notifications = $('#notifications');
+  var loading = false, totalLoading = 0, cancelTimeout;
 
   return {
     // Manage the loading message visibility
     showLoading: function() {
-      $globalMsg_.show();
+      totalLoading++;
+      this.timeout_();
     },
     hideLoading: function() {
-      $globalMsg_.hide();
+      totalLoading--;
+      totalLoading = Math.max(totalLoading, 0);
+      this.timeout_();
+    },
+    forceHideLoading: function() {
+      loading = false;
+      totalLoading = 0;
     },
     isLoading: function() {
-      return $globalMsg_.is(':visible');
+      return loading;
+    },
+    timeout_: function() {
+      if (cancelTimeout) {
+        $timeout.cancel(cancelTimeout);
+      }
+      cancelTimeout = $timeout(function() {
+        loading = (totalLoading > 0);
+        cancelTimeout = null;
+      }, 1000);
     },
 
-    // Create a new temporary message in the top-right corner of the page
-    create: function(msg, type) {
-      last_ = {msg: msg, type: type};
-
+    // Create a new message in the top-right corner of the page
+    create: function(msg, type, permanent) {
       type = type || 'info';
-      if ($notifications_.notify) {  // for tests
-        var not = $notifications_.notify({
+      if ($notifications.notify) {  // for tests
+        var not = $notifications.notify({
           message: {text: msg},
           type: type,
           fadeOut: {
-            enabled: true,
+            enabled: !permanent,
             delay: 10000
           }
         });
@@ -40,30 +53,25 @@ m.factory('GlobalMsg', function($timeout) {
         });
         not.show();
       }
-    },
-
-    // Useful for testing messages
-    getLast: function() {
-      return last_;
     }
   };
 });
 
 
 m.factory('ErrorRegister', function() {
-  var error_ = null;
+  var error = null;
 
   return {
     clean: function() {
-      error_ = null;
+      error = null;
     },
 
-    set: function(error) {
-      error_ = error;
+    set: function(err) {
+      error = err;
     },
 
     isNull: function() {
-      return error_ === null;
+      return error === null;
     }
   };
 });

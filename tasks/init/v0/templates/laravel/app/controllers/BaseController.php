@@ -17,12 +17,12 @@ class BaseController extends Controller {
   protected function buildBase() {
     // User info
     $admin = false;
-    $name = '';
+    $username = '';
     $id = '';
     $user = Auth::user();
     if ($user) {
       $admin = $user->admin;
-      $name = $user->username;
+      $username = $user->username;
       $id = $user->id;
     }
 
@@ -37,8 +37,8 @@ class BaseController extends Controller {
         ),
         array(
           'module' => 'services.admin.user',
-          'name' => 'name',
-          'value' => $name,
+          'name' => 'username',
+          'value' => $username,
         ),
         array(
           'module' => 'services.admin.user',

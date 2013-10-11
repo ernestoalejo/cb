@@ -1,7 +1,7 @@
 'use strict';
 
 
-var m = angular.module('httpInterceptor', ['services.global']);
+var m = angular.module('httpInterceptor', []);
 
 m.config(function($httpProvider) {
   $httpProvider.interceptors.push('httpInterceptor');
@@ -9,17 +9,13 @@ m.config(function($httpProvider) {
 
 
 m.factory('httpInterceptor', function($q, GlobalMsg, ErrorRegister) {
-  var total_ = 0;
-
   function error_() {
-    total_--;
-    GlobalMsg.hideLoading();
+    GlobalMsg.forceHideLoading();
     ErrorRegister.set('http-error');
   }
 
   return {
     'request': function(config) {
-      total_++;
       GlobalMsg.showLoading();
       return config || $q.when(config);
     },
@@ -30,11 +26,17 @@ m.factory('httpInterceptor', function($q, GlobalMsg, ErrorRegister) {
     },
 
     'response': function(response) {
-      total_--;
-      if (total_ <= 0 && GlobalMsg.isLoading()) {
-        GlobalMsg.hideLoading();
+      GlobalMsg.hideLoading();
+
+      if (response.config.url.substring(0, 3) != '/_/') {
+        return response || $q.when(response);
       }
-      return response || $q.when(response);
+
+      if (response.headers('X-Response-Processor') != 'json') {
+        error_();
+        return $q.reject('no response processor header');
+      }
+      return response.data || $q.when(response.data);
     },
 
     'responseError': function(rejection) {

@@ -1,0 +1,18 @@
+
+<div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button class="close" ng-click="cancel()">&times;</button>
+      <h4>{{ title }}</h4>
+    </div>
+
+    <div class="modal-body" ng-bind-html-unsafe="text"></div>
+
+    <div class="modal-footer">
+      <button class="btn btn-primary" ng-click="ok()">
+        <i class="icon-trash"></i>
+        {{ label }}
+      </button>
+    </div>
+  </div>
+</div>

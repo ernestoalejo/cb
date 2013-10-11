@@ -37,6 +37,22 @@
 </head>
 <body ng-app="app" ng-controller="AppCtrl">
 
+  <div class="navbar navbar-default navbar-fixed-top"><div class="container">
+    <div class="navbar-header">
+      <a href="#/" class="navbar-brand">{{% .AppName %}}</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="#/">Home</a></li>
+      <li><a href="#/other-path">Other Page</a></li>
+    </ul>
+  </div></div>
+
+  <div class="container">
+
+    <div ng-view></div>
+
+  </div>
+
   <div id="loading" ng-show="GlobalMsg.isLoading()" style="display: none;"
       ng-animate="{show: 'loading-enter', hide: 'loading-leave'}">
     <div><img src="/images/spinner.gif" width="32" height="32"></div>
@@ -74,28 +90,18 @@
 
     <!-- compile /scripts/scripts.js -->
       <script src="/scripts/app.js"></script>
-      <script src="/scripts/controllers/accounts.js"></script>
-      <script src="/scripts/controllers/home.js"></script>
       <script src="/scripts/controllers/global.js"></script>
-      <script src="/scripts/directives/dates.js"></script>
-      <script src="/scripts/directives/focus.js"></script>
-      <script src="/scripts/directives/html-editor.js"></script>
-      <script src="/scripts/directives/iscroll.js"></script>
+      <script src="/scripts/controllers/home.js"></script>
       <script src="/scripts/directives/match.js"></script>
-      <script src="/scripts/directives/multiselect.js"></script>
       <script src="/scripts/directives/placeholder.js"></script>
-      <script src="/scripts/directives/scrollfix.js"></script>
-      <script src="/scripts/directives/stop-event.js"></script>
-      <script src="/scripts/directives/toggles.js"></script>
-      <script src="/scripts/directives/uiselect.js"></script>
-      <script src="/scripts/directives/uploader.js"></script>
       <script src="/scripts/error-handler.js"></script>
       <script src="/scripts/http-interceptor.js"></script>
-      <script src="/scripts/services/user.js"></script>
       <script src="/scripts/services/global.js"></script>
       <script src="/scripts/services/location.js"></script>
       <script src="/scripts/services/modals.js"></script>
       <script src="/scripts/services/scroll.js"></script>
+      <script src="/scripts/services/user.js"></script>
+      <script src="/scripts/services/user.js"></script>
     <!-- endcompile -->
   <!-- endconcat -->
 

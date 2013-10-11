@@ -9,7 +9,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'dist/components/jquery/*.js',
-      'dist/scripts/*.{{ .AppName }}.js',
+      'dist/scripts/*.{{% .AppName %}}.js',
       'dist/scripts/*.js',
       'app/components/bower-angular/angular-mocks.js',
       'test/unit/**/*.js'
