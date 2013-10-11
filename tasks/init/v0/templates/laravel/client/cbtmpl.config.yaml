@@ -70,8 +70,12 @@ deploy:
   mode: laravel
   exclude:
     - app/storage/**
-    - vendor/**
-  include:
+    - vendor/pdepend/**
     - vendor/phpmd/**
+    - vendor/phpunit/**
+    - vendor/sebastian/**
+    - vendor/swiftmailer/swiftmailer/notes/**
+    - vendor/swiftmailer/swiftmailer/test-suite/**
+    - vendor/swiftmailer/swiftmailer/tests/**
 
 push: ftp.example.com 
