@@ -3,6 +3,7 @@
 
 describe('Controller: AppCtrl', function() {
   beforeEach(module('controllers.global'));
+  beforeEach(module('services.global'));
   beforeEach(module('services.modals'));
 
   var scope;

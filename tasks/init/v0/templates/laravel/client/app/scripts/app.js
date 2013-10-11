@@ -17,7 +17,7 @@ var m = angular.module('app', [
 ]);
 
 
-m.config(function($routeProvider, $locationProvider) {
+m.config(function($routeProvider) {
   $routeProvider
       .when('/', {
         templateUrl: '/views/home/home.html',

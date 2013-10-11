@@ -37,7 +37,6 @@ func unused(c *config.Config, q *registry.Queue) error {
 			output, err := utils.Exec("unused", args)
 			if err != nil {
 				fmt.Println(output)
-				return fmt.Errorf("unused error: %s", err)
 			}
 		}
 		return nil
