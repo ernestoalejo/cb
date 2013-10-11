@@ -13,8 +13,8 @@ cp -r dist temp/deploy/public_html
 # Then copy public_html folder
 cp -r ../public_html temp/deploy
 
-# Move the app folder excluding the storage folder
-rsync -aq --exclude=app/storage/ ../app temp/deploy
+# Move the Laravel app folder
+rsync -aq ../app temp/deploy
 
 # Move the rest of Laravel folders
 cp -r ../bootstrap temp/deploy

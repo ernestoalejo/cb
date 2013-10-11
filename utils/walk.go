@@ -19,7 +19,7 @@ type WalkFunc func(path string, info os.FileInfo) error
 //   /path/*         -> short for -> /path/*.*
 //   /path/*.jpg
 //   /path/config.*
-//   /path/**        -> short for -> /path/** /*.*
+//   /path/**        -> short for -> /path/**/*.*
 //
 type Walker struct {
 	Path, Name, Ext string

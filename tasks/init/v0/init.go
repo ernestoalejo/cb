@@ -104,6 +104,9 @@ func copyFiles(c *config.Config, appname, src, dest, root string) error {
 			}
 		}
 		if err := os.Chmod(fulldest, entry.Mode()); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
 			return fmt.Errorf("change mode failed: %s", err)
 		}
 	}

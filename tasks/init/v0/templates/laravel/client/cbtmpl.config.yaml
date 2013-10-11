@@ -1,7 +1,4 @@
 
-clientonly: true
-deploy: laravel
-
 recess:
   - source: bootstrap/main.less
     dest:   bootstrap.css
@@ -68,3 +65,13 @@ serve:
 paths:
   base: ../app/views/base.blade.php
   app: app/scripts/admin/app.js
+
+deploy:
+  mode: laravel
+  exclude:
+    - app/storage/**
+    - vendor/**
+  include:
+    - vendor/phpmd/**
+
+push: ftp.example.com 

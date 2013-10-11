@@ -30,7 +30,7 @@ func build(c *config.Config, q *registry.Queue) error {
 		"dist:copy@0",
 	})
 
-	deploy := c.GetDefault("deploy", "")
+	deploy := c.GetDefault("deploy.mode", "")
 	if len(deploy) > 0 {
 		q.AddTask(fmt.Sprintf("deploy:%s", deploy))
 	}

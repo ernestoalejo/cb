@@ -1,4 +1,3 @@
 
- - Fix deploy.
- - Fix dist.
+ - Use update:check before init:*
  - Fix ngtemplates.
