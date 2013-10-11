@@ -51,17 +51,22 @@ func ExecCopyOutput(app string, args []string) error {
 		return fmt.Errorf("cannot run the command: %s", err)
 	}
 
+	exit := make(chan bool, 2)
 	go func() {
 		if _, err := io.Copy(os.Stdout, stdout); err != nil {
 			panic(err)
 		}
+		exit <- true
 	}()
 	go func() {
 		if _, err := io.Copy(os.Stderr, stderr); err != nil {
 			panic(err)
 		}
+		exit <- true
 	}()
 
+	<-exit
+	<-exit
 	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("wait failed: %s", err)
 	}
