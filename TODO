@@ -1,6 +1,4 @@
 
- - Move base to paths.base.
- - Use a global module (+ ngmin & angular).
  - Fix deploy.
  - Fix dist.
  - Fix ngtemplates.

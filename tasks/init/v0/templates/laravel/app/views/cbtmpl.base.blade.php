@@ -108,7 +108,7 @@
   @if (false)
     <!-- compile /scripts/test.js -->
       <script src="components/bower-angular/angular-mocks.js"></script>      
-      <script src="scripts/admin/app.test.js"></script>
+      <script src="scripts/app.test.js"></script>
     <!-- endcompile -->
   @endif
 

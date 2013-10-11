@@ -23,7 +23,7 @@ func init() {
 }
 
 func compilejs(c *config.Config, q *registry.Queue) error {
-	base := filepath.Join("temp", filepath.Base(c.GetRequired("base")))
+	base := filepath.Join("temp", filepath.Base(c.GetRequired("paths.base")))
 	lines, err := utils.ReadLines(base)
 	if err != nil {
 		return fmt.Errorf("read base html failed: %s", err)

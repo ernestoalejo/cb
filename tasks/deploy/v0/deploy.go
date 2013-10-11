@@ -64,7 +64,7 @@ func init() {
 }
 
 func deploy(c *config.Config, q *registry.Queue) error {
-	basename := filepath.Base(c.GetRequired("base"))
+	basename := filepath.Base(c.GetRequired("paths.base"))
 	name := strings.Split(q.CurTask, ":")[1]
 	commands := strings.Split(deployCommands[name], "\n")
 	for _, command := range commands {

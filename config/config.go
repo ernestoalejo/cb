@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ernestokarim/cb/colors"
 	"github.com/kylelemons/go-gypsy/yaml"
 )
 
@@ -59,7 +60,8 @@ func tryLoad() (*Config, error) {
 func (c *Config) GetRequired(format string, a ...interface{}) string {
 	s, err := c.f.Get(fmt.Sprintf(format, a...))
 	if err != nil {
-		panic(err)
+		fmt.Printf("%srequired config element: %s%s\n", colors.Red, err, colors.Reset)
+		os.Exit(1)
 	}
 	if s[0] == '"' && s[len(s)-1] == '"' {
 		s = s[1 : len(s)-1]
@@ -74,7 +76,8 @@ func (c *Config) GetDefault(format, def string, a ...interface{}) string {
 		if IsNotFound(err) {
 			return def
 		}
-		panic(err)
+		fmt.Println(colors.Red, "required config element:", err, colors.Reset)
+		os.Exit(1)
 	}
 	if s[0] == '"' && s[len(s)-1] == '"' {
 		s = s[1 : len(s)-1]

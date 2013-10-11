@@ -1,6 +1,5 @@
 
 clientonly: true
-base: ../app/views/base.blade.php
 deploy: php
 
 recess:
@@ -67,4 +66,5 @@ serve:
      url: http://{{% .AppName %}}.localhost/
 
 paths:
+  base: ../app/views/base.blade.php
   app: app/scripts/admin/app.js
