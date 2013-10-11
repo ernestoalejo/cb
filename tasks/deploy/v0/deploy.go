@@ -1,10 +1,7 @@
 package v0
 
 import (
-	"crypto/sha1"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,185 +10,23 @@ import (
 	"github.com/ernestokarim/cb/utils"
 )
 
-type macro func() (string, error)
-
-var (
-	deployCommands = map[string]string{
-		"gae": `
-			rm -rf temp/deploy
-			mkdir temp/deploy
-			cp -r dist temp/deploy/static
-      cp -r ../static temp/deploy
-      cp ../app.yaml temp/deploy
-      @copyYamlFiles
-      cp ../Makefile temp/deploy
-      cp -r ../conf temp/deploy
-      cp -r ../server temp/deploy
-      mv temp/gae-templates temp/deploy/templates
-      rm temp/deploy/templates/$basename
-      mv temp/$basename temp/deploy/templates/$basename
-    	rm -rf ../deploy
-      mv temp/deploy ..
-		`,
-		"php": `
-      rm -rf temp/deploy
-      mkdir temp/deploy
-      cp -r dist temp/deploy/public_html
-      cp -r ../public_html temp/deploy
-      rsync -aq --exclude=app/storage/ ../app temp/deploy
-      cp -r ../bootstrap temp/deploy
-      cp -r ../vendor temp/deploy
-      rm -r temp/deploy/app/views
-      mv temp/laravel-templates temp/deploy/app/views
-      rm temp/deploy/app/views/$basename
-      mv temp/$basename temp/deploy/app/views/$basename
-      @copyModTimes
-    	rm -rf ../deploy
-      mv temp/deploy ..
-    `,
-	}
-
-	macros = map[string]macro{
-		"copyModTimes":  copyModTimes,
-		"copyYamlFiles": copyYamlFiles,
-	}
-)
+const selfPkg = "github.com/ernestokarim/cb/tasks/deploy/v0/scripts"
 
 func init() {
-	for name, _ := range deployCommands {
-		registry.NewUserTask(fmt.Sprintf("deploy:%s", name), 0, deploy)
-	}
+	registry.NewUserTask("deploy:laravel", 0, deploy)
 }
 
 func deploy(c *config.Config, q *registry.Queue) error {
-	basename := filepath.Base(c.GetRequired("paths.base"))
-	name := strings.Split(q.CurTask, ":")[1]
-	commands := strings.Split(deployCommands[name], "\n")
-	for _, command := range commands {
-		// Restore the command
-		command = strings.TrimSpace(command)
-		if len(command) == 0 {
-			continue
-		}
+	parts := strings.Split(q.CurTask, ":")
+	base := utils.PackagePath(filepath.Join(selfPkg, parts[1]+".sh"))
 
-		// Execute macros
-		if command[0] == '@' && macros[command[1:]] != nil {
-			var err error
-			cmd, err := macros[command[1:]]()
-			if err != nil {
-				return fmt.Errorf("macro %s failed: %s", command[1:], err)
-			}
-			if len(cmd) == 0 {
-				continue
-			}
-			command = cmd
-		}
-
-		// Replace some variables in the commands
-		command = strings.Replace(command, "$basename", basename, -1)
-
-		// Execute it
-		cmd := strings.Split(command, " ")
-		output, err := utils.Exec(cmd[0], cmd[1:])
-		if err != nil {
-			fmt.Println(output)
-			return fmt.Errorf("command error (%s): %s", command, err)
-		}
+	args := []string{
+		filepath.Base(c.GetRequired("paths.base")),
 	}
+
+	if err := utils.ExecCopyOutput(base, args); err != nil {
+		return fmt.Errorf("deploy failed: %s", err)
+	}
+
 	return nil
-}
-
-func copyModTimes() (string, error) {
-	if _, err := os.Stat("../deploy"); err != nil && os.IsNotExist(err) {
-		return "", nil
-	} else if err != nil {
-		return "", fmt.Errorf("cannot stat deploy folder: %s", err)
-	}
-
-	walkFn := func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return fmt.Errorf("recursive walk failed: %s", err)
-		}
-		if info.IsDir() {
-			return nil
-		}
-
-		newPath := filepath.Join("temp", path[2:])
-		if _, err := os.Stat(newPath); err != nil {
-			if os.IsNotExist(err) {
-				return nil
-			}
-			return fmt.Errorf("stat error: %s", err)
-		}
-
-		h1, err := hashFile(path)
-		if err != nil {
-			return fmt.Errorf("first hash failed: %s", err)
-		}
-		h2, err := hashFile(newPath)
-		if err != nil {
-			return fmt.Errorf("second hash failed: %s", err)
-		}
-
-		if h1 == h2 {
-			if err := os.Chtimes(newPath, info.ModTime(), info.ModTime()); err != nil {
-				return fmt.Errorf("change times failed: %s", err)
-			}
-		}
-
-		return nil
-	}
-	if err := filepath.Walk("../deploy", walkFn); err != nil {
-		return "", fmt.Errorf("walk failed: %s", err)
-	}
-
-	return "", nil
-}
-
-func hashFile(path string) (string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return "", fmt.Errorf("open failed: %s", err)
-	}
-	defer f.Close()
-
-	content, err := ioutil.ReadAll(f)
-	if err != nil {
-		return "", fmt.Errorf("read failed: %s", err)
-	}
-
-	h := sha1.New()
-	if _, err := h.Write(content); err != nil {
-		return "", fmt.Errorf("write failed: %s", err)
-	}
-
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
-}
-
-func copyYamlFiles() (string, error) {
-	files := []string{
-		"index.yaml",
-		"queue.yaml",
-		"dos.yaml",
-		"cron.yaml",
-		"backends.yaml",
-	}
-	for _, file := range files {
-		file = "../" + file
-
-		if _, err := os.Stat(file); err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-			return "", fmt.Errorf("stat file failed: %s", err)
-		}
-
-		output, err := utils.Exec("cp", []string{file, "temp/deploy"})
-		if err != nil {
-			fmt.Println(output)
-			return "", fmt.Errorf("copy file error: %s", err)
-		}
-	}
-
-	return "", nil
 }

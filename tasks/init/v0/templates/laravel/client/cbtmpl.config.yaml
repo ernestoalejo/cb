@@ -1,6 +1,6 @@
 
 clientonly: true
-deploy: php
+deploy: laravel
 
 recess:
   - source: bootstrap/main.less
