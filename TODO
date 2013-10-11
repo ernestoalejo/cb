@@ -1,3 +1,4 @@
 
  - Use update:check before init:*
  - Fix ngtemplates.
+ - Can we remove predis folder?
