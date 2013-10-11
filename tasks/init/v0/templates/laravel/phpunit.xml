@@ -9,10 +9,14 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false"
+         cacheTokens="false"
 >
     <testsuites>
         <testsuite name="Application Test Suite">
             <directory>./app/tests/</directory>
         </testsuite>
     </testsuites>
+    <listeners>
+        <listener class="\Mockery\Adapter\Phpunit\TestListener"></listener>
+    </listeners>
 </phpunit>
