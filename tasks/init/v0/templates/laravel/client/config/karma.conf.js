@@ -8,18 +8,20 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'app/components/jquery/jquery.js',
-      'app/components/bootstrap/js/bootstrap-transition.js',
-      'app/components/bootstrap/js/bootstrap-modal.js',
+      'app/components/jquery-1.8.3/jquery.js',
+      'app/components/bootstrap/js/transition.js',
+      'app/components/bootstrap/js/modal.js',
       'app/components/bower-angular/angular.js',
       'app/components/bower-angular/angular-*.js',
+      'app/components/angular-bootstrap/ui-bootstrap-tpls.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
+      'app/scripts/mocks/*.js',
       'test/unit/**/*.js'
     ],
 
     // list of files to exclude
-    exclude: ['app/components/bower-angular/angular-scenario.js'],
+    exclude: ['app/components/bower-angular/angular-scenario.js', 'app/scripts/vendor/**/*.js'],
 
     // use dots reporter, as travis terminal does not support escaping sequences
     // possible values: 'dots', 'progress', 'junit', 'teamcity'
