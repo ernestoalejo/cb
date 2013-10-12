@@ -13,32 +13,83 @@ import (
 	"github.com/ernestokarim/cb/utils"
 )
 
-var templates = map[string]string{}
-
 func init() {
 	registry.NewTask("ngtemplates", 0, ngtemplates)
 }
 
 func ngtemplates(c *config.Config, q *registry.Queue) error {
-	paths, dest, err := getPaths(c)
-	if err != nil {
-		return fmt.Errorf("get paths failed: %s", err)
-	}
-	for _, path := range paths {
-		path = filepath.Join("temp", path)
-		w := utils.NewWalker(path)
-		if err := w.Walk(templateWalk("temp")); err != nil {
-			return fmt.Errorf("walk path `%s` failed: %s", path, err)
+	templates := map[string]string{}
+
+	count := c.CountRequired("ngtemplates")
+	for i := 0; i < count; i++ {
+		append := c.GetRequired("ngtemplates[%d].append", i)
+		files := c.GetListRequired("ngtemplates[%d].files", i)
+
+		var err error
+		templates, err = readTemplates(templates, files)
+		if err != nil {
+			return fmt.Errorf("cannot read templates: %s", err)
+		}
+
+		if err = writeTemplates(append, templates); err != nil {
+			return fmt.Errorf("cannot save template file: %s", err)
 		}
 	}
 
-	dest = filepath.Join("temp", dest)
+	return nil
+}
+
+func readTemplates(templates map[string]string, paths []string) (map[string]string, error) {
+	rootPath := "temp"
+
+	walkFn := func(path string, info os.FileInfo) error {
+		if info.IsDir() {
+			return nil
+		}
+
+		// Rel path and ignore already cached templates
+		rel, err := filepath.Rel(rootPath, path)
+		if err != nil {
+			return fmt.Errorf("cannot rel path: %s", err)
+		}
+		if templates[rel] != "" {
+			return nil
+		}
+
+		// Read template contents
+		contents, err := ioutil.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("read file failed: %s", err)
+		}
+
+		if *config.Verbose {
+			log.Printf("registering template `%s`\n", rel)
+		}
+		templates[rel] = string(contents)
+
+		return nil
+	}
+	for _, path := range paths {
+		path = filepath.Join(rootPath, path)
+		if err := utils.NewWalker(path).Walk(walkFn); err != nil {
+			return nil, fmt.Errorf("walk path `%s` failed: %s", path, err)
+		}
+	}
+
+	return templates, nil
+}
+
+func writeTemplates(filename string, templates map[string]string) error {
+	dest := filepath.Join("temp", filename)
+
+	// Open file
 	f, err := os.OpenFile(dest, os.O_RDWR|os.O_APPEND, 0)
 	if err != nil {
 		return fmt.Errorf("open templates dest failed: %s", err)
 	}
 	defer f.Close()
 
+	// Write the templates
 	fmt.Fprintf(f, "\nangular.module('app').run(['$templateCache', "+
 		"function($templateCache) {")
 	for name, contents := range templates {
@@ -54,37 +105,4 @@ func ngtemplates(c *config.Config, q *registry.Queue) error {
 	}
 
 	return nil
-}
-
-func getPaths(c *config.Config) ([]string, string, error) {
-	appendto := c.GetRequired("ngtemplates.appendto")
-	paths := []string{}
-	size := c.CountRequired("ngtemplates.files")
-	for i := 0; i < size; i++ {
-		paths = append(paths, c.GetRequired("ngtemplates.files[%d]", i))
-	}
-	return paths, appendto, nil
-}
-
-func templateWalk(root string) utils.WalkFunc {
-	return func(path string, info os.FileInfo) error {
-		if info.IsDir() {
-			return nil
-		}
-		contents, err := ioutil.ReadFile(path)
-		if err != nil {
-			return fmt.Errorf("read file failed: %s", err)
-		}
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			return fmt.Errorf("cannot rel path: %s", err)
-		}
-		templates[rel] = string(contents)
-
-		if *config.Verbose {
-			log.Printf("registering template `%s`\n", rel)
-		}
-
-		return nil
-	}
 }

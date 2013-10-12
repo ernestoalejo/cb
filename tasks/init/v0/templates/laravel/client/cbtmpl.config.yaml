@@ -75,6 +75,7 @@ deploy:
     - vendor/pdepend/**
     - vendor/phpmd/**
     - vendor/phpunit/**
+    - vendor/predis/**
     - vendor/sebastian/**
     - vendor/swiftmailer/swiftmailer/notes/**
     - vendor/swiftmailer/swiftmailer/test-suite/**
