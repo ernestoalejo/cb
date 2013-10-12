@@ -79,5 +79,6 @@ deploy:
     - vendor/swiftmailer/swiftmailer/notes/**
     - vendor/swiftmailer/swiftmailer/test-suite/**
     - vendor/swiftmailer/swiftmailer/tests/**
+    - vendor/symfony/translation/Symfony/Component/Translation/Tests/**
 
 push: ftp.example.com 

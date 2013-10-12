@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"code.google.com/p/gopass"
 	"github.com/ernestokarim/cb/colors"
@@ -51,16 +52,11 @@ func push(c *config.Config, q *registry.Queue) error {
 
 	// Hash remote files
 	log.Printf("Hashing remote files... ")
-	remoteHashes, err := retrieveRemoveHashes(scriptsPath, user, password, host)
+	remoteHashes, err := retrieveRemoteHashes(scriptsPath, user, password, host)
 	if err != nil {
 		return fmt.Errorf("retrieve remote hashes failed: %s", err)
 	}
 	log.Printf("Hashing remote files... %s[SUCCESS]%s\n", colors.Green, colors.Reset)
-
-	// Remove similar files
-	if remoteHashes != nil {
-		fmt.Println("here")
-	}
 
 	if err := saveLocalHashes(localHashes); err != nil {
 		return fmt.Errorf("save local hashes failed: %s", err)
@@ -68,7 +64,7 @@ func push(c *config.Config, q *registry.Queue) error {
 
 	// Prepare FTP commands
 	log.Printf("Preparing FTP commands... ")
-	if err := prepareFTPCommands(); err != nil {
+	if err := prepareFTPCommands(localHashes, remoteHashes); err != nil {
 		return fmt.Errorf("prepare FTP commands failed: %s", err)
 	}
 	log.Printf("Preparing FTP commands... %s[SUCCESS]%s\n", colors.Green, colors.Reset)
@@ -79,8 +75,6 @@ func push(c *config.Config, q *registry.Queue) error {
 		return fmt.Errorf("uploading files failed: %s", err)
 	}
 	log.Printf("Uploading files... %s[SUCCESS]%s\n", colors.Green, colors.Reset)
-
-	_ = localHashes
 
 	return nil
 }
@@ -129,7 +123,7 @@ func hashLocalFiles() (map[string]string, error) {
 	return hashes, nil
 }
 
-func retrieveRemoveHashes(scriptsPath, user, password, host string) (map[string]string, error) {
+func retrieveRemoteHashes(scriptsPath, user, password, host string) (map[string]string, error) {
 	args := []string{user, password, host}
 	output, err := utils.Exec(filepath.Join(scriptsPath, "download-hashes.sh"), args)
 	if err != nil {
@@ -162,9 +156,11 @@ func uploadFiles(scriptsPath, user, password, host string) error {
 	return nil
 }
 
-func prepareFTPCommands() error {
+func prepareFTPCommands(localHashes, remoteHashes map[string]string) error {
 	rootPath := "../deploy"
+	changed := 0
 
+	// Prepare commands file
 	f, err := os.Create("temp/upload-commands")
 	if err != nil {
 		return fmt.Errorf("cannot create commands file: %s", err)
@@ -179,6 +175,7 @@ func prepareFTPCommands() error {
 			return nil
 		}
 
+		// Prepare paths
 		folder, err := filepath.Rel(rootPath, filepath.Dir(path))
 		if err != nil {
 			return fmt.Errorf("cannot rel path: %s", err)
@@ -187,16 +184,22 @@ func prepareFTPCommands() error {
 		basepath := filepath.Join("..", "deploy", path)
 		dest := filepath.Join(folder, basename)
 
-		if info.IsDir() {
-			fmt.Fprintf(f, "mkdir \"%s\" || cd .;\n", dest)
-			fmt.Fprintf(f, "echo \".......... uploading %s\";\n", dest)
-			fmt.Fprintf(f, "mput -O \"%s\" \"%s/*\" || cd .;\n", dest, basepath)
-		} else {
-			if info.Name()[0] == '.' {
-				fmt.Fprintf(f, "echo \".......... uploading %s...\"\n", filepath.Join(folder, basename))
-				fmt.Fprintf(f, "put \"%s\" -o \"%s/\";\n", basepath, folder)
-			}
+		// Ignore similar files
+		if remoteHashes[dest] != "" && remoteHashes[dest] == localHashes[dest] {
+			return nil
 		}
+		changed++
+
+		if info.IsDir() {
+			// Make dirs
+			fmt.Fprintf(f, "mkdir \"%s\" || cd .;\n", dest)
+		} else {
+			// Upload files
+			fmt.Fprintf(f, "echo \".......... upload %s\"\n", filepath.Join(folder, basename))
+			fmt.Fprintf(f, "put \"%s\" -o \"%s/\";\n", basepath, folder)
+		}
+
+		// Change perms of the files
 		fmt.Fprintf(f, "chmod %o \"%s\";\n", info.Mode().Perm(), dest)
 
 		return nil
@@ -205,7 +208,28 @@ func prepareFTPCommands() error {
 		return fmt.Errorf("hash walk failed: %s", err)
 	}
 
-	fmt.Fprintf(f, "put temp/hashes -o push-hashes;\n")
+	mk := make([]string, len(remoteHashes))
+	i := 0
+	for k := range remoteHashes {
+		mk[i] = k
+		i++
+	}
+	sort.Sort(sort.Reverse(sort.StringSlice(mk)))
+
+	for _, path := range mk {
+		if localHashes[path] == "" {
+			fmt.Fprintf(f, "echo \".......... remove \"%s\"\"\n", path)
+			fmt.Fprintf(f, "rm -r \"%s\" || cd .\n", path)
+			changed++
+		}
+	}
+
+	if changed > 0 {
+		fmt.Fprintf(f, "echo \".......... push hashes\"\n")
+		fmt.Fprintf(f, "put temp/hashes -o push-hashes;\n")
+	} else {
+		fmt.Fprintf(f, "echo \">>>>>>>>>> no changes\"\n")
+	}
 
 	return nil
 }
