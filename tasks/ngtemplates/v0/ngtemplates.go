@@ -18,15 +18,12 @@ func init() {
 }
 
 func ngtemplates(c *config.Config, q *registry.Queue) error {
-	templates := map[string]string{}
-
 	count := c.CountRequired("ngtemplates")
 	for i := 0; i < count; i++ {
 		append := c.GetRequired("ngtemplates[%d].append", i)
 		files := c.GetListRequired("ngtemplates[%d].files", i)
 
-		var err error
-		templates, err = readTemplates(templates, files)
+		templates, err := readTemplates(files)
 		if err != nil {
 			return fmt.Errorf("cannot read templates: %s", err)
 		}
@@ -39,8 +36,9 @@ func ngtemplates(c *config.Config, q *registry.Queue) error {
 	return nil
 }
 
-func readTemplates(templates map[string]string, paths []string) (map[string]string, error) {
+func readTemplates(paths []string) (map[string]string, error) {
 	rootPath := "temp"
+	templates := map[string]string{}
 
 	walkFn := func(path string, info os.FileInfo) error {
 		if info.IsDir() {

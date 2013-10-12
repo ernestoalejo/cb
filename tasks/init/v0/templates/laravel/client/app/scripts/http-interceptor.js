@@ -1,7 +1,7 @@
 'use strict';
 
 
-var m = angular.module('httpInterceptor', []);
+var m = angular.module('httpInterceptor', ['services.global']);
 
 m.config(function($httpProvider) {
   $httpProvider.interceptors.push('httpInterceptor');
