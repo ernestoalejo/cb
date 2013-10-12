@@ -41,10 +41,14 @@ func (q *Queue) RunWithTimer(c *config.Config) error {
 
 // RunTasks executes directly the tasks passed as argument.
 func (q *Queue) RunTasks(c *config.Config, tasks []string) error {
+	oldTask := q.CurTask
+
 	q.tasks = append(tasks, q.tasks...)
 	if err := q.run(c); err != nil {
 		return fmt.Errorf("run task failed: %s", err)
 	}
+
+	q.CurTask = oldTask
 	return nil
 }
 

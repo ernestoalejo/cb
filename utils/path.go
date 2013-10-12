@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ernestokarim/cb/colors"
+	"github.com/ernestokarim/cb/config"
 )
 
 // PackagePath tries to find a package source inside the GOPATH.
@@ -25,8 +26,11 @@ func PackagePath(importPath string) string {
 		}
 	}
 
-	log.Printf("%sno GOPATH detected in environment%s\n", colors.Red, colors.Reset)
-	os.Exit(1)
+	if !*config.Verbose {
+		log.Printf("%sno GOPATH detected in environment: %s%s\n", colors.Red,
+			importPath, colors.Reset)
+		os.Exit(1)
+	}
 
 	panic("should not reach here")
 }

@@ -23,6 +23,11 @@ func init() {
 }
 
 func initTask(c *config.Config, q *registry.Queue) error {
+	// Check for updates
+	if err := q.RunTasks(c, []string{"update:check"}); err != nil {
+		return err
+	}
+
 	// Retrieve the current working directory
 	cur, err := os.Getwd()
 	if err != nil {
