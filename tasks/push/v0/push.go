@@ -62,6 +62,10 @@ func push(c *config.Config, q *registry.Queue) error {
 		fmt.Println("here")
 	}
 
+	if err := saveLocalHashes(localHashes); err != nil {
+		return fmt.Errorf("save local hashes failed: %s", err)
+	}
+
 	// Prepare FTP commands
 	log.Printf("Preparing FTP commands... ")
 	if err := prepareFTPCommands(); err != nil {
@@ -89,22 +93,24 @@ func hashLocalFiles() (map[string]string, error) {
 		if err != nil {
 			return err
 		}
-		if info.IsDir() {
-			return nil
-		}
 
-		f, err := os.Open(path)
-		if err != nil {
-			return fmt.Errorf("open file failed: %s", err)
-		}
-		defer f.Close()
-		content, err := ioutil.ReadAll(f)
-		if err != nil {
-			return fmt.Errorf("read file failed: %s", err)
-		}
 		h := sha1.New()
-		if _, err := h.Write(content); err != nil {
-			return fmt.Errorf("hash failed: %s", err)
+		if !info.IsDir() {
+			f, err := os.Open(path)
+			if err != nil {
+				return fmt.Errorf("open file failed: %s", err)
+			}
+			defer f.Close()
+			content, err := ioutil.ReadAll(f)
+			if err != nil {
+				return fmt.Errorf("read file failed: %s", err)
+			}
+			if _, err := h.Write(content); err != nil {
+				return fmt.Errorf("hash failed: %s", err)
+			}
+		}
+		if _, err := h.Write([]byte(fmt.Sprintf("%s", info.Mode()))); err != nil {
+			return fmt.Errorf("hash perms failed: %s", err)
 		}
 
 		rel, err := filepath.Rel(rootPath, path)
@@ -165,7 +171,6 @@ func prepareFTPCommands() error {
 	}
 	defer f.Close()
 
-	curFolder := "."
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -180,20 +185,19 @@ func prepareFTPCommands() error {
 		}
 		basename := filepath.Base(path)
 		basepath := filepath.Join("..", "deploy", path)
-
-		for curFolder != folder {
-			curFolder = filepath.Dir(curFolder)
-			fmt.Fprintf(f, "cd ..;")
-		}
+		dest := filepath.Join(folder, basename)
 
 		if info.IsDir() {
-			curFolder = filepath.Join(curFolder, basename)
-			fmt.Fprintf(f, "(mkdir \"%s\" && cd \"%s\") || cd \"%s\";\n",
-				basename, basename, basename)
+			fmt.Fprintf(f, "mkdir \"%s\" || cd .;\n", dest)
+			fmt.Fprintf(f, "echo \".......... uploading %s\";\n", dest)
+			fmt.Fprintf(f, "mput -O \"%s\" \"%s/*\" || cd .;\n", dest, basepath)
 		} else {
-			fmt.Fprintf(f, "echo \".......... uploading %s...\"\n", filepath.Join(folder, basename))
-			fmt.Fprintf(f, "put \"%s\" -o \"%s\";\n", basepath, basename)
+			if info.Name()[0] == '.' {
+				fmt.Fprintf(f, "echo \".......... uploading %s...\"\n", filepath.Join(folder, basename))
+				fmt.Fprintf(f, "put \"%s\" -o \"%s/\";\n", basepath, folder)
+			}
 		}
+		fmt.Fprintf(f, "chmod %o \"%s\";\n", info.Mode().Perm(), dest)
 
 		return nil
 	}
@@ -201,5 +205,20 @@ func prepareFTPCommands() error {
 		return fmt.Errorf("hash walk failed: %s", err)
 	}
 
+	fmt.Fprintf(f, "put temp/hashes -o push-hashes;\n")
+
+	return nil
+}
+
+func saveLocalHashes(hashes map[string]string) error {
+	f, err := os.Create("temp/hashes")
+	if err != nil {
+		return fmt.Errorf("create file failed: %s", err)
+	}
+	defer f.Close()
+
+	if err := gob.NewEncoder(f).Encode(hashes); err != nil {
+		return fmt.Errorf("go failed encoder failed: %s", err)
+	}
 	return nil
 }
