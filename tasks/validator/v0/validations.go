@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-type validation func(e *emitter, f *field, v *validator) error
+type validationFunc func(e *emitter, f *field, v *validator) error
 
-var validations = map[string]validation{
+var validations = map[string]validationFunc{
 	"Custom":            customValidation,
 	"Date":              dateValidation,
 	"Email":             emailValidation,
@@ -37,7 +37,6 @@ func generateValidations(e *emitter, f *field) error {
 		if validations[v.Name] == nil {
 			return fmt.Errorf("`%s` is not a validation", v.Name)
 		}
-
 		if err := validations[v.Name](e, f, v); err != nil {
 			return fmt.Errorf("validation generator failed: %s", err)
 		}
