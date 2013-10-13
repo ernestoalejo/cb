@@ -10,6 +10,9 @@ else
   php ~/bin/composer.phar install
 fi
 
+# Prepare validators
+cb validator
+
 # Update bower packages
 cd client
 bower install

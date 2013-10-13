@@ -1,0 +1,7 @@
+
+fields:
+  - key: path
+    kind: String
+    validators:
+      - name: MinLength
+        value: 1

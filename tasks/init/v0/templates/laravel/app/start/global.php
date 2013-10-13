@@ -95,4 +95,5 @@ App::down(function()
 |
 */
 
+require app_path() . '/lib/helpers.php';
 require app_path().'/filters.php';

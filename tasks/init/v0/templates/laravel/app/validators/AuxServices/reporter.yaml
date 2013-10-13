@@ -1,0 +1,10 @@
+
+fields:
+  - key: name
+    kind: String
+
+  - key: message
+    kind: String
+
+  - key: stack
+    kind: String
