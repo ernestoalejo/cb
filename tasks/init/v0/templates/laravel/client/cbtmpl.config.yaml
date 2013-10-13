@@ -70,6 +70,8 @@ deploy:
   mode: laravel
   exclude:
     - app/storage/**
+    - app/tests/**
+    - app/validators/**
     - vendor/bin/**
     - vendor/mockery/**
     - vendor/pdepend/**
