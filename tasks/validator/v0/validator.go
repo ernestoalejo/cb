@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
@@ -30,30 +29,44 @@ type validator struct {
 }
 
 func validatorTask(c *config.Config, q *registry.Queue) error {
-	filename := q.NextTask()
-	if filename == "" {
-		return fmt.Errorf("validator filename not passed as an argument")
-	}
-	q.RemoveNextTask()
+	rootPath := "../app/validators"
+	walkFn := func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
 
-	f, err := yaml.ReadFile(filename)
-	if err != nil {
-		return fmt.Errorf("read validator failed: %s", err)
-	}
-	data := config.NewConfig(f)
+		// Relative path
+		rel, err := filepath.Rel(rootPath, path)
+		if err != nil {
+			return fmt.Errorf("cannot rel validator path: %s", err)
+		}
 
-	namespace := data.GetDefault("namespace", "")
-	if len(namespace) != 0 {
-		namespace = `\` + namespace
+		// Read file
+		f, err := yaml.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("read validator failed: %s", err)
+		}
+		data := config.NewConfig(f)
+
+		// Extract fields
+		root := data.GetDefault("root", "Object")
+		if root != "Object" && root != "Array" {
+			return fmt.Errorf("invalid root type, only 'object' and 'array' are accepted")
+		}
+		fields := parseFields(data, "fields")
+
+		// Generate validator
+		if err := generator(rel, root, fields); err != nil {
+			return fmt.Errorf("generator error: %s", err)
+		}
+
+		return nil
 	}
-	name := data.GetRequired("name")
-	root := data.GetDefault("root", "Object")
-	if root != "Object" && root != "Array" {
-		return fmt.Errorf("invalid root type, only 'object' and 'array' are accepted")
-	}
-	fields := parseFields(data, "fields")
-	if err := generator(filename, name, namespace, root, fields); err != nil {
-		return fmt.Errorf("generator error: %s", err)
+	if err := filepath.Walk(rootPath, walkFn); err != nil {
+		return fmt.Errorf("walk validators failed: %s", err)
 	}
 
 	return nil
@@ -143,8 +156,18 @@ func (e *emitter) arrayID() int {
 
 // ==================================================================
 
-func generator(filename, name, namespace, root string, fields []*field) error {
-	f, err := os.Create(filepath.Join(filepath.Dir(filename), name+".php"))
+func generator(original, root string, fields []*field) error {
+	namespace := "\\" + strings.Replace(filepath.Dir(original), "/", "\\", -1)
+	filename := filepath.Base(original)
+	filename = filename[:len(filename)-len(filepath.Ext(original))]
+	name := strings.Replace(strings.Title(filename), "-", "", -1)
+	destPath := filepath.Join("..", "app", "lib", "Validators", filepath.Dir(original), name+".php")
+
+	if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+		return fmt.Errorf("cannot create dest path: %s", err)
+	}
+
+	f, err := os.Create(destPath)
 	if err != nil {
 		return fmt.Errorf("cannot create dest file: %s", err)
 	}
@@ -216,7 +239,7 @@ class %s {
 
 }
 
-`, namespace, filename, uses, name, buf.String())
+`, namespace, original, uses, name, buf.String())
 	return nil
 }
 
@@ -234,7 +257,7 @@ func generateObject(e *emitter, varname, result string, fields []*field) error {
 			return fmt.Errorf("generate field failed: %s", err)
 		}
 		if f.Kind != "Conditional" && f.Kind != "Array" {
-			if err := generateValidators(e, f); err != nil {
+			if err := generateValidations(e, f); err != nil {
 				return fmt.Errorf("generate validators failed: %s", err)
 			}
 
@@ -263,7 +286,7 @@ func generateArray(e *emitter, varname, result string, fields []*field) error {
 			return fmt.Errorf("generate field failed: %s", err)
 		}
 		if f.Kind != "Conditional" && f.Kind != "Array" {
-			if err := generateValidators(e, f); err != nil {
+			if err := generateValidations(e, f); err != nil {
 				return fmt.Errorf("generate validators failed: %s", err)
 			}
 
@@ -347,7 +370,7 @@ func generateField(e *emitter, f *field, varname, result string) error {
 		e.emitf(`$%s[%s] = array();`, result, f.Key)
 		e.emitf("")
 
-		if err := generateValidators(e, f); err != nil {
+		if err := generateValidations(e, f); err != nil {
 			return fmt.Errorf("generate validators failed: %s", err)
 		}
 
@@ -380,167 +403,5 @@ func generateField(e *emitter, f *field, varname, result string) error {
 		e.emitf(`$store['%s'] = $value;`, f.Store)
 	}
 
-	return nil
-}
-
-func generateValidators(e *emitter, f *field) error {
-	for _, v := range f.Validators {
-		for _, u := range v.Uses {
-			e.addUse(u)
-		}
-
-		switch v.Name {
-		case "Required":
-			e.emitf(`if (Str::length($value) == 0) {`)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the required validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "MinLength":
-			val, err := strconv.ParseInt(v.Value, 10, 64)
-			if err != nil {
-				return fmt.Errorf("cannot parse minlength number: %s", err)
-			}
-			e.emitf(`if (Str::length($value) < %d) {`, val)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "MaxLength":
-			val, err := strconv.ParseInt(v.Value, 10, 64)
-			if err != nil {
-				return fmt.Errorf("cannot parse maxlength number: %s", err)
-			}
-			e.emitf(`if (Str::length($value) > %d) {`, val)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the maxlength validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "Length":
-			val, err := strconv.ParseInt(v.Value, 10, 64)
-			if err != nil {
-				return fmt.Errorf("cannot parse length number: %s", err)
-			}
-			e.emitf(`if (Str::length($value) != %d) {`, val)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the length validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "MinLengthOptional":
-			val, err := strconv.ParseInt(v.Value, 10, 64)
-			if err != nil {
-				return fmt.Errorf("cannot parse minlength number: %s", err)
-			}
-			e.emitf(`if ($value !== '' && Str::length($value) < %d) {`, val)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minlength validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "Email":
-			e.emitf(`if (!preg_match('%s', $value)) {`, `/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/`)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the email validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "Url":
-			e.emitf(`if (!preg_match('%s', $value)) {`,
-				`/^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/`)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the url validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "DbPresent":
-			if v.Value == "" {
-				return fmt.Errorf("DbPresent filter needs an entity name as value")
-			}
-			e.addUse(v.Value)
-			e.emitf(`if (!%s::find($value)) {`, v.Value)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the dbpresent validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "DbPresentNullable":
-			if v.Value == "" {
-				return fmt.Errorf("DbPresentNullable filter needs an entity name as value")
-			}
-			e.addUse(v.Value)
-			e.emitf(`if ($value !== '' && $value !== '0' && !%s::find($value)) {`, v.Value)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the dbpresent validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "In":
-			if v.Value == "" {
-				return fmt.Errorf("In filter needs a list of items as value")
-			}
-			val := strings.Join(strings.Split(v.Value, ","), `', '`)
-			e.emitf(`if (!in_array($value, array('%s'), TRUE)) {`, val)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the in validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "InArray":
-			if v.Value == "" {
-				return fmt.Errorf("InArray filter needs a list of items as value")
-			}
-			e.emitf(`if (!in_array($value, %s, TRUE)) {`, v.Value)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the inarray validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "Date":
-			e.addUse("Carbon\\Carbon")
-			e.emitf(`$str = explode('-', $value);`)
-			e.emitf(`if (count($str) !== 3 || !checkdate($str[1], $str[2], $str[0])) {`)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the date validation');`, f.Key)
-			e.emitf(`}`)
-			e.emitf(`$value = Carbon::createFromFormat('!Y-m-d', $value);`)
-
-		case "MinDate":
-			if v.Value == "" {
-				return fmt.Errorf("MinDate filter needs a date as value")
-			}
-			e.addUse("Carbon\\Carbon")
-			e.emitf(`if ($value->lt(new Carbon('%s'))) {`, v.Value)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the mindate validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "Custom":
-			e.emitf(`if (%s) {`, v.Value)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the custom validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "Positive":
-			e.emitf(`if ($value < 0) {`)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the positive validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "RegExp":
-			if v.Value == "" {
-				return fmt.Errorf("Regexp filter needs a regexp as value")
-			}
-			e.emitf(`if (!preg_match('%s', $value)) {`, v.Value)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the regexp validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "Match":
-			if v.Value == "" {
-				return fmt.Errorf("Match filter needs a field name as value")
-			}
-			e.emitf(`if ($value != $store['%s']) {`, v.Value)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the match validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "MinCount":
-			val, err := strconv.ParseInt(v.Value, 10, 64)
-			if err != nil {
-				return fmt.Errorf("cannot parse mincount number: %s", err)
-			}
-			e.emitf(`if (count($value) < %d) {`, val)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the mincount validation');`, f.Key)
-			e.emitf(`}`)
-
-		case "MinValue":
-			val, err := strconv.ParseInt(v.Value, 10, 64)
-			if err != nil {
-				return fmt.Errorf("cannot parse minvalue number: %s", err)
-			}
-			e.emitf(`if ($value < %d) {`, val)
-			e.emitf(`  self::error($data, 'key ' . %s . ' breaks the minvalue validation');`, f.Key)
-			e.emitf(`}`)
-
-		default:
-			return fmt.Errorf("`%s` is not a valid validator name", v.Name)
-		}
-	}
 	return nil
 }
