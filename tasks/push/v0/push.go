@@ -219,7 +219,7 @@ func prepareFTPCommands(localHashes, remoteHashes map[string]string) error {
 	for _, path := range mk {
 		if localHashes[path] == "" {
 			fmt.Fprintf(f, "echo \".......... remove \"%s\"\"\n", path)
-			fmt.Fprintf(f, "rm -r \"%s\" || cd .\n", path)
+			fmt.Fprintf(f, "rm \"%s\" || cd .\n", path)
 			changed++
 		}
 	}
