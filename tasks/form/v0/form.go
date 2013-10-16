@@ -2,6 +2,7 @@ package v0
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/ernestokarim/cb/config"
@@ -9,7 +10,7 @@ import (
 	"github.com/ernestokarim/cb/tasks/form/v0/fields"
 	"github.com/ernestokarim/cb/tasks/form/v0/templates"
 	"github.com/ernestokarim/cb/tasks/form/v0/validators"
-	cbutils "github.com/ernestokarim/cb/utils"
+	"github.com/ernestokarim/cb/utils"
 	"github.com/kylelemons/go-gypsy/yaml"
 )
 
@@ -48,7 +49,7 @@ func doForm(c *config.Config, q *registry.Queue, mode string) error {
 	args := []string{
 		"-c", fmt.Sprintf(`echo -n '%s' | xsel -bi`, result),
 	}
-	output, err := cbutils.Exec("bash", args)
+	output, err := utils.Exec("bash", args)
 	if err != nil {
 		fmt.Println(output)
 		return fmt.Errorf("bash error: %s", err)
@@ -58,7 +59,7 @@ func doForm(c *config.Config, q *registry.Queue, mode string) error {
 }
 
 func parseForm(filename string) (*formInfo, error) {
-	f, err := yaml.ReadFile(filename)
+	f, err := yaml.ReadFile(filepath.Join("..", filename))
 	if err != nil {
 		return nil, fmt.Errorf("read form file failed: %s", err)
 	}

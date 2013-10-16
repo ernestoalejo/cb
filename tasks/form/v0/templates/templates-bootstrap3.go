@@ -11,13 +11,15 @@ func init() {
   <div class="form-group"{{ if .Messages }} ng-class="{{ .Name }}.val && ({{ .Name }}{{ .FieldId }}.$invalid{{ .ShowErrors }}) && 'has-error'"{{ end }}{{ .ContainerAttrs }}>{{ if .Label }}
     <label for="{{ .Name }}{{ .Id }}" class="control-label {{ .LabelSize }}">{{ .Label }}</label>{{ end }}
     <div class="{{ .Size }}">
-      %s{{ .Messages }}
+      %s
     </div>
+    <div class="clearfix">&nbsp;</div>
+    {{ .Messages }}
   </div>
   `)
 	registerTemplate(mode, "error-messages", `
-      <p class="help-block" ng-show="{{ .Name }}.val && ({{ .Name }}{{ .Id }}.$invalid{{ .ShowErrors }})">
-{{ .Errors }}      </p>
+    <p class="help-block {{ .Size }}" ng-show="{{ .Name }}.val && ({{ .Name }}{{ .Id }}.$invalid{{ .ShowErrors }})">
+{{ .Errors }}    </p>
   `)
 	registerTemplate(mode, "checkbox-field", `
   <div class="form-group">
