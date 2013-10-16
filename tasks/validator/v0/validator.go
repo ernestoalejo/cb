@@ -7,6 +7,7 @@ import (
 
 	"github.com/ernestokarim/cb/config"
 	"github.com/ernestokarim/cb/registry"
+	"github.com/ernestokarim/cb/utils"
 	"github.com/kylelemons/go-gypsy/yaml"
 )
 
@@ -15,6 +16,12 @@ func init() {
 }
 
 func validatorTask(c *config.Config, q *registry.Queue) error {
+	output, err := utils.Exec("rm", []string{"-rf", "../app/lib/Validators"})
+	if err != nil {
+		fmt.Println(output)
+		return fmt.Errorf("cannot remove original validators: %s", err)
+	}
+
 	rootPath := "../app/validators"
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
