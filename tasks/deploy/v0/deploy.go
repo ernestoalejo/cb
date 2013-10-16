@@ -39,6 +39,7 @@ func deploy(c *config.Config, q *registry.Queue) error {
 func organizeResult(c *config.Config) error {
 	excludes := c.GetListDefault("deploy.exclude")
 	includes := c.GetListDefault("deploy.include")
+	moves := c.GetListDefault("deploy.moves")
 
 	// Extract list of paths to remove
 	removePaths := map[string]bool{}
@@ -50,7 +51,7 @@ func organizeResult(c *config.Config) error {
 		return nil
 	}
 	for _, exclude := range excludes {
-		exclude = filepath.Join("../deploy", exclude)
+		exclude = filepath.Join("..", "deploy", exclude)
 		if err := utils.NewWalker(exclude).Walk(walkFn); err != nil {
 			fmt.Errorf("deploy exclude walker failed: %s", err)
 		}
@@ -69,7 +70,7 @@ func organizeResult(c *config.Config) error {
 		return nil
 	}
 	for _, include := range includes {
-		include = filepath.Join("../deploy", include)
+		include = filepath.Join("..", "deploy", include)
 		if err := utils.NewWalker(include).Walk(walkFn); err != nil {
 			fmt.Errorf("deploy include walker failed: %s", err)
 		}
@@ -84,6 +85,23 @@ func organizeResult(c *config.Config) error {
 			if err := os.RemoveAll(path); err != nil {
 				return fmt.Errorf("cannot remove deploy entry: %s", err)
 			}
+		}
+	}
+
+	// Execute move operations
+	for _, move := range moves {
+		parts := strings.Split(move, "->")
+		origin := filepath.Join("..", "deploy", strings.TrimSpace(parts[0]))
+		dest := filepath.Join("..", "deploy", strings.TrimSpace(parts[1]))
+
+		if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
+			return fmt.Errorf("cannot create dest tree structure: %s", err)
+		}
+
+		output, err := utils.Exec("cp", []string{"-r", origin, dest})
+		if err != nil {
+			fmt.Println(output)
+			return fmt.Errorf("copy error: %s", err)
 		}
 	}
 

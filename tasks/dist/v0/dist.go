@@ -34,6 +34,10 @@ func prepareDist(c *config.Config, q *registry.Queue) error {
 			return fmt.Errorf("stat failed: %s", err)
 		}
 
+		if err := os.MkdirAll(filepath.Dir(to), 0755); err != nil {
+			return fmt.Errorf("prepare dir failed (%s): %s", to, err)
+		}
+
 		output, err := utils.Exec("cp", []string{"-r", from, to})
 		if err != nil {
 			fmt.Println(output)
@@ -65,8 +69,7 @@ func copyDist(c *config.Config, q *registry.Queue) error {
 		origin := filepath.Join("temp", from)
 		dest := filepath.Join("dist", to)
 
-		createPath := filepath.Dir(dest)
-		if err := os.MkdirAll(createPath, 0755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
 			return fmt.Errorf("prepare dir failed (%s): %s", dir, err)
 		}
 
