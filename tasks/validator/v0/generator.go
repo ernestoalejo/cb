@@ -54,12 +54,8 @@ use Str;
 
 class %s {
 
-  public static function validateJson() {
-    return self::validateData(Input::json()->all());
-  }
-
-  public static function validateInput() {
-    return self::validateData(Input::all());
+  public static function validate() {
+    return self::validateData(array_merge(Input::all(), Input::json()->all()));
   }
 
   public static function error($data, $msg) {
