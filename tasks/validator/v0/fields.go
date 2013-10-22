@@ -36,7 +36,7 @@ func stringField(e *emitter, f *field, varname, result string) error {
 	e.emitf(`if ($value === null) {`)
 	e.emitf(`  $value = '';`)
 	e.emitf(`}`)
-	e.emitf(`if (is_int($value)) {`)
+	e.emitf(`if (is_int($value) || is_float($value)) {`)
 	e.emitf(`  $value = strval($value);`)
 	e.emitf(`}`)
 	e.emitf(`if (!is_string($value)) {`)
