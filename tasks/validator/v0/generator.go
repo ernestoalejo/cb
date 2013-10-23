@@ -76,12 +76,6 @@ class %s {
     }
 
 %s
-    if (!$valid) {
-      Log::warning('$valid is not evaluated to true');
-      Log::debug(var_export($data, TRUE));
-      Log::debug(var_export($valid, TRUE));
-      App::abort(403);
-    }
     return $valid;
   }
 
