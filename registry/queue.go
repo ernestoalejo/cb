@@ -102,10 +102,10 @@ func (q *Queue) run(c *config.Config) error {
 
 		if *config.Verbose {
 			log.Printf("%s[%2d] Running %s@%d...%s\n",
-				colors.Blue, len(q.tasks), task, version, colors.Reset)
+				colors.Cyan, len(q.tasks), task, version, colors.Reset)
 		} else {
 			log.Printf("%s[%2d] Running %s%s\n",
-				colors.Blue, len(q.tasks), task, colors.Reset)
+				colors.Cyan, len(q.tasks), task, colors.Reset)
 		}
 
 		q.CurTask = task
