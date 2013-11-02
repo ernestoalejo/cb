@@ -5,12 +5,14 @@ import (
 	"strings"
 
 	"github.com/ernestokarim/cb/tasks/form/v0/utils"
+	"github.com/ernestokarim/cb/tasks/form/v0/templates"
 )
 
 type inputField struct {
 	*BaseField
 
 	Type        string
+	Prefix string
 	PlaceHolder string
 }
 
@@ -35,5 +37,11 @@ func (f *inputField) Build(form formData) string {
 	utils.UpdateMap(attrs, newAttrs)
 
 	ctrl := utils.BuildCtrlTag("<input", ">", attrs)
+	if len(f.Prefix) > 0 {
+		ctrl = templates.Run("input-field-prefix", map[string]interface{}{
+			"Prefix": f.Prefix,
+			"Ctrl": ctrl,
+		})
+	}
 	return fmt.Sprintf(container, ctrl)
 }

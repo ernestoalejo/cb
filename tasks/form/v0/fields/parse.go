@@ -37,7 +37,8 @@ func Parse(data *config.Config, idx int) (Field, error) {
 	case "text":
 		field = &inputField{
 			BaseField:   base,
-			PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
+      PlaceHolder: data.GetDefault("fields[%d].placeholder", "", idx),
+			Prefix: data.GetDefault("fields[%d].prefix", "", idx),
 			Type:        fieldType,
 		}
 
